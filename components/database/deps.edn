@@ -1,0 +1,7 @@
+{:paths ["src" "resources"]
+ :deps {com.taoensso/timbre {:mvn/version "6.2.2"}
+        com.github.seancorfield/next.jdbc {:mvn/version "1.3.883"}
+        dev.weavejester/ragtime {:mvn/version "0.9.3"}
+        org.postgresql/postgresql {:mvn/version "42.2.10"}}
+ :aliases {:test {:extra-paths ["test"]
+                  :extra-deps {}}}}
