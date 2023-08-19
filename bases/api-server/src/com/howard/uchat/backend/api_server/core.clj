@@ -17,7 +17,7 @@
    [ring.util.response :as response]
    [taoensso.timbre :as timbre]
    [clojure.data.json :as json]
-   [buddy.core.nonce :as nonce]))
+   ))
 
 ;; TODO: This implementation is needed so that
 ;; jwt/sign can encryt dattime to json format
@@ -49,7 +49,7 @@
     (throw-unauthorized)
     (do
       (json-response {:status "Logged" :message (str "hello logged user "
-                                                     (:identity request))}))))
+                                                     )}))))
 
 (defn login
   [request]
@@ -60,9 +60,11 @@
                        (= password))]
     (timbre/info request)
     (timbre/info username ", " password)
+    (timbre/info (str (time/plus (time/now) (time/seconds 3600))))
     (if valid?
       (let [claims {:user (keyword username)
-                    :exp (time/plus (time/now) (time/seconds 3600))}
+                    :test "123321"
+                    :exp (.getMillis (time/plus (time/now) (time/seconds 3600)))}
             token (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})]
         (timbre/info "token here:" token)
         (response/response {:token token}))
@@ -130,5 +132,5 @@
                                                :body
                                                (json/write-str {:username "admin"
                                                                 :password "secret"})})
-   (client/get "http://localhost:4000/home" {:headers {"authorization" "Token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.M6xFWFbLemAuhsxBm-bQn3JpiIJSs1Zl.XP4dyH_Dvr1_d48x.uzI3OaPbJ9DY1WQ8KRXbgA.vFM5FEulxpA_2b2FhHW9IQ"}})
+   (client/get "http://localhost:4000/home" {:headers {"authorization" "Token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.Vdoc_BWUEk8s5V_h_iQN08RkHOSC4YIk.bmZ_JiP465g5Si-P.d1ClznhuZ4Hk4JaWqiacJvlZfzgZyQlI6otMZ7I0J8AAvL34bnjx4b_QTRSvQ_SftBua0A.D3B4bNWxXHNhT8eXHBK_2g"}})
    ,)
