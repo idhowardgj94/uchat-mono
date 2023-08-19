@@ -19,16 +19,6 @@
    [clojure.data.json :as json]
    ))
 
-;; TODO: This implementation is needed so that
-;; jwt/sign can encryt dattime to json format
-;; https://stackoverflow.com/questions/46859881/clojure-encode-joda-datetime-with-ring-json
-;; TODO: alson need to decode
-;; TODO: expire time 
-(extend-protocol cheshire.generate/JSONable
-  org.joda.time.DateTime
-  (to-json [dt gen]
-    (cheshire.generate/write-string gen (str dt))))
-
 (defonce secret (nonce/random-bytes 32))
 (def authdata {:admin "secret"
                :test "secret"})
@@ -63,7 +53,6 @@
     (timbre/info (str (time/plus (time/now) (time/seconds 3600))))
     (if valid?
       (let [claims {:user (keyword username)
-                    :test "123321"
                     :exp (.getMillis (time/plus (time/now) (time/seconds 3600)))}
             token (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})]
         (timbre/info "token here:" token)
@@ -82,7 +71,14 @@
   (timbre/info "inside index-handler" request)
   (json-response {:status "success"}))
 
+(defn register-handler
+  "handler register request"
+  []
+  "TODO")
+
 (defroutes app-routes
+  (context "/api/v1" []
+           (POST "/register" [] register-handler))
   (POST "/login" [] login)
   (GET "/home" [] home)
   (GET "/" [] index-handler))
@@ -123,9 +119,9 @@
   (start-server!)
   (stop-server!)
   ,)
-;authorization
+
 #_(
-   (json/write {:a "hello"} )
+   (json/write-str {:a "hello"} )
    (require '[clj-http.client :as client])
    (client/get "http://localhost:4000/")
    (client/post "http://localhost:4000/login" {:content-type :json
