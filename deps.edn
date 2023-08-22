@@ -2,6 +2,7 @@
                                 "development/resources"]
                   :extra-deps {uchat/api-server {:local/root "./bases/api-server"}
                                uchat/database {:local/root "./components/database"}
+                               uchat/users {:local/root "./components/users"}
                                org.clojure/clojure {:mvn/version "1.11.1"}
                                integrant/integrant {:mvn/version "0.8.1"}
                                metosin/spec-tools {:mvn/version "0.10.5"}
@@ -12,6 +13,7 @@
                                ring/ring-jetty-adapter {:mvn/version "1.8.2"}
                                ring/ring-devel {:mvn/version "1.10.0"}
                                buddy/buddy-auth {:mvn/version "3.0.323"}
+                               buddy/buddy-hashers {:mvn/version "2.0.167"}
                                http-kit/http-kit {:mvn/version "2.7.0"}
                                com.taoensso/timbre {:mvn/version "6.2.2"}
                                compojure/compojure {:mvn/version "1.7.0"}

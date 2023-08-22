@@ -1,6 +1,8 @@
 (ns com.howard.uchat.backend.api-server.core
   (:require
    [com.howard.uchat.backend.database.interface :as database]
+   [com.howard.uchat.backend.api-server.spec :as specs]
+   [com.howard.uchat.backend.users.interface :as users]
    [compojure.core :refer :all]
    [next.jdbc.connection :as connection]
    [org.httpkit.server :as hk-server]
@@ -16,9 +18,10 @@
    [buddy.sign.jwt :as jwt]
    [ring.util.response :as response]
    [taoensso.timbre :as timbre]
-   [clojure.data.json :as json]
-   ))
+   [clojure.spec.alpha :as s]
+   [buddy.hashers :as hashers]))
 
+;; (ns-unalias *ns* 'specs)
 (defonce secret (nonce/random-bytes 32))
 (def authdata {:admin "secret"
                :test "secret"})
@@ -40,7 +43,6 @@
     (do
       (json-response {:status "Logged" :message (str "hello logged user "
                                                      )}))))
-
 (defn login
   [request]
   (let [username (get-in request [:body :username])
@@ -66,6 +68,7 @@
 
 
 (defonce server (atom nil))
+
 (defn index-handler
   [request]
   (timbre/info "inside index-handler" request)
@@ -73,12 +76,41 @@
 
 (defn register-handler
   "handler register request"
-  []
-  "TODO")
+  [request]
+  (let [body (:body request)
+        valid? (s/valid? specs/post-user-spec body)]
+    (if-not valid?
+      (response/bad-request {:status "Wrong body palyoad. please check the API docs"})
+      (do (timbre/info "start to save user data to db")
+          (let [{:keys [username name password email]} body]
+            (users/insert-to-db username password name email)
+            (json-response {:status "success"}))))))
+
+(s/explain-str specs/post-login-spec {:usernam "12" :password "222"})
+(defn login-handler
+  [request]
+  (let [body (:body request)
+        valid? (s/valid? specs/post-login-spec body)]
+    (timbre/info (s/explain-str specs/post-login-spec body))
+    (if-not valid?
+      (response/bad-request {:message  (str "Wrong body palyoad. please check the API docs. msg:" (s/explain-str specs/post-login-spec body))})
+      (do
+        (timbre/info (str "login user: " (:username body)))
+        (let [{:keys [username password]} body
+              result (users/get-user-by-username username)
+              {real-password :password} result
+              login? (hashers/verify password real-password)]
+          (if (nil? login?)
+            (response/bad-request {:message "Login failed, please check username and password."})
+            (let [claims {:user (keyword username)
+                          :exp (.getMillis (time/plus (time/now) (time/seconds 3600)))}
+                  token (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})]
+              (json-response {:token token}))))))))
 
 (defroutes app-routes
   (context "/api/v1" []
-           (POST "/register" [] register-handler))
+           (POST "/register" [] register-handler)
+           (POST "/login" [] login-handler))
   (POST "/login" [] login)
   (GET "/home" [] home)
   (GET "/" [] index-handler))
@@ -92,9 +124,8 @@
     (connection/jdbc-url {:host "localhost"
                           :dbtype "postgres"
                           :dbname "uchat"
-
                           :useSSL false})
-    :username "postgres" :password ""})
+    :username "postgres" :password "postgres"})
   (reset! server
           (hk-server/run-server
            (-> #'app-routes
@@ -128,5 +159,21 @@
                                                :body
                                                (json/write-str {:username "admin"
                                                                 :password "secret"})})
-   (client/get "http://localhost:4000/home" {:headers {"authorization" "Token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.Vdoc_BWUEk8s5V_h_iQN08RkHOSC4YIk.bmZ_JiP465g5Si-P.d1ClznhuZ4Hk4JaWqiacJvlZfzgZyQlI6otMZ7I0J8AAvL34bnjx4b_QTRSvQ_SftBua0A.D3B4bNWxXHNhT8eXHBK_2g"}})
+   (client/post
+    "http://localhost:4000/api/v1/register"
+    {:content-type :json
+     :body
+     (json/write-str {:username "test2"
+                      :password "test2"
+                      :name "test2"
+                      :email "test2@gmail.com"})})
+   (client/post
+    "http://localhost:4000/api/v1/login" {:content-type :json
+                                          :body
+                                          (json/write-str {:username "test2"
+                                                           :password "test2"})})
+   (client/get
+    "http://localhost:4000/home"
+    {:headers
+     {"authorization" "Token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.Vdoc_BWUEk8s5V_h_iQN08RkHOSC4YIk.bmZ_JiP465g5Si-P.d1ClznhuZ4Hk4JaWqiacJvlZfzgZyQlI6otMZ7I0J8AAvL34bnjx4b_QTRSvQ_SftBua0A.D3B4bNWxXHNhT8eXHBK_2g"}})
    ,)

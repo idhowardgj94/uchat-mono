@@ -1,21 +1,25 @@
 (ns user
   (:require
+   [com.howard.uchat.backend.api-server.core :as core]
    [clojure.tools.deps.alpha.repl :refer [add-libs]]
    [ragtime.next-jdbc :as ragtime]
    [ragtime.repl :as repl]
    [next.jdbc :as jdbc]
    [next.jdbc.sql :as sql]
    [next.jdbc.connection :as connection]
-   [clj-time.core :as time])
+   [clj-time.core :as time]
+   )
   (:import (com.zaxxer.hikari HikariDataSource)
            (org.postgresql.jdbc PgConnection)))
-
+;; TODO: should use interface instead 
+(core/start-server!)
 #_((add-libs '{metosin/spec-tools {:mvn/version "0.10.5"}})
    (add-libs '{ring/ring-devel {:mvn/version "1.10.0"}})
    (add-libs '{com.taoensso/timbre {:mvn/version "6.2.2"}})
    (add-libs '{buddy/buddy-auth {:mvn/version "3.0.323"}})
    (add-libs '{clj-time/clj-time {:mvn/version "0.15.2"}})
    (add-libs '{clj-http/clj-http {:mvn/version "3.12.3"}})
+   (add-libs '{buddy/buddy-hashers {:mvn/version "2.0.167"}})
    )
 #_(def db-pool
   (connection/->pool HikariDataSource

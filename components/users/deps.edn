@@ -1,0 +1,8 @@
+{:paths ["src" "resources"]
+ :deps {}
+ :aliases {:test {:extra-paths ["test"]
+                  :extra-deps {
+                               com.taoensso/timbre {:mvn/version "6.2.2"}
+                               buddy/buddy-hashers {:mvn/version "2.0.167"}
+                               com.github.seancorfield/next.jdbc {:mvn/version "1.3.883"}
+                               }}}}

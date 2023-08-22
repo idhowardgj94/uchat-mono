@@ -8,3 +8,8 @@
                    :password string?
                    :name string?
                    :email string? }}))
+
+(def post-login-spec
+  (ds/spec {:name ::post-login-spec
+            :spec {:username string?
+                   :password string?}}))
