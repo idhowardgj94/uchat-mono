@@ -64,8 +64,13 @@
 (defn wrap-cors
   [handler]
   (fn [request]
-    (assoc-in (handler request) [:headers "Access-Control-Allow-Origin"] "*")))
-
+    (let [response (handler request)
+          headers (conj (or (:headers response) {})
+                              {"Access-Control-Allow-Origin" "*"
+                               "Access-Control-Allow-Headers" "*"
+                               "Access-Control-Allow-Methods" "*"})]
+      
+      (assoc response :headers headers))))
 
 (defonce server (atom nil))
 
@@ -79,14 +84,21 @@
   [request]
   (let [body (:body request)
         valid? (s/valid? specs/post-user-spec body)]
+    (timbre/info body)
+    (timbre/info valid?)
     (if-not valid?
-      (response/bad-request {:status "Wrong body palyoad. please check the API docs"})
+      (do
+        (timbre/info (str "inside not valid?: " valid?))
+        (response/bad-request {:status "failed"
+                               :error (str "Wrong body palyoad. please check the API docs. msg: "
+                                            (s/explain-str specs/post-user-spec body)
+                                            ", "
+                                            (type body))}))
       (do (timbre/info "start to save user data to db")
           (let [{:keys [username name password email]} body]
             (users/insert-to-db username password name email)
             (json-response {:status "success"}))))))
 
-(s/explain-str specs/post-login-spec {:usernam "12" :password "222"})
 (defn login-handler
   [request]
   (let [body (:body request)
@@ -144,7 +156,6 @@
   "stop restful api server"
   []
   (@server))
-
 
 (comment
   (start-server!)
