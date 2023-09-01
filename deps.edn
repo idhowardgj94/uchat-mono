@@ -1,5 +1,7 @@
 {:aliases  {:dev {:extra-paths ["development/src"
-                                "development/resources"]
+                                "development/resources"
+                                "frontend/src"
+                                "frontend/resources"]
                   :extra-deps {uchat/api-server {:local/root "./bases/api-server"}
                                uchat/database {:local/root "./components/database"}
                                uchat/users {:local/root "./components/users"}
@@ -23,7 +25,23 @@
                                dev.weavejester/ragtime {:mvn/version "0.9.3"}
                                org.postgresql/postgresql {:mvn/version "42.2.10"}
                                org.clojure/tools.deps.alpha {:git/url "https://github.com/clojure/tools.deps.alpha"
-                                                             :sha "8f8fc2571e721301b6d52e191129248355cb8c5a"}}}
+                                                             :sha "8f8fc2571e721301b6d52e191129248355cb8c5a"}
+                               reagent/reagent           {:mvn/version "1.2.0"}
+                               ns-tracker/ns-tracker     {:mvn/version "0.4.0"}
+                               re-pressed/re-pressed     {:mvn/version "0.3.2"
+                                                          :exclusions  [re-frame/re-frame
+                                                                        reagent/reagent]}
+           ;;garden/garden             {:mvn/version "1.3.10"},
+                               metosin/reitit-schema     {:mvn/version "0.5.18"}
+                               metosin/reitit-frontend   {:mvn/version "0.5.18"}
+                               metosin/reitit            {:mvn/version "0.5.18"}
+                               re-frame/re-frame         {:mvn/version "1.3.0"}
+                               cljs-ajax/cljs-ajax {:mvn/version "0.8.4"}
+                               thheller/shadow-cljs      {:mvn/version "2.20.20"}
+                               com.teknql/shadow-cljs-tailwind-jit {:mvn/version "1.0.0"}
+                               binaryage/devtools         {:mvn/version "1.0.6"},
+                               day8.re-frame/re-frame-10x {:mvn/version "1.5.0"}
+                               }}
 
             :test {:extra-paths []}
             :poly {:main-opts ["-m" "polylith.clj.core.poly-cli.core"]
