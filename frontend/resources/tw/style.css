@@ -1,0 +1,14 @@
+@tailwind  base;
+@tailwind  components;
+@tailwind  utilities;
+
+.separate-line:after {
+    background: #ebecef;
+    content: "";
+    flex-grow: 1;
+    height: 1px;
+}
+
+.test {
+    background-color: red
+}

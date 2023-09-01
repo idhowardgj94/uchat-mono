@@ -1,0 +1,23 @@
+{:deps   {:aliases [:dev :test]}
+
+ :nrepl  {:port 7002}
+ :builds {:app {:target           :browser
+                :asset-path       "js"
+                :output-dir       "frontend/resources/public/js"
+                :dev              {:build-hooks [(teknql.tailwind/start-watch!)]}
+                :release          {:build-hooks [(teknql.tailwind/compile-release!)]}
+                :tailwind/output  "frontend/resources/public/app.css"
+                :tailwind/files   {:base-path "."
+                                   :tailwind.css ".frontend/resources/tw/style.css"}
+                :compiler-options {:infer-externs :auto}
+                :modules          {
+                                   :main {:entries [com.howard.uchat.core]
+                                          :init-fn com.howard.uchat.core/init}}
+                                          
+                                          
+                :devtools         {
+                                   :http-port 8021
+                                   :http-root "frontend/resources/public/"
+                                   :after-load com.howard.uchat.core/re-render
+                                   :preloads  [devtools.preload shadow.remote.runtime.cljs.browser]}}}}
+ 
