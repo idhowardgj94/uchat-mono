@@ -2,7 +2,7 @@
   (:require
     [re-frame.core :as re-frame]
     [tools.viewtools :as vt]
-    [cljs.pprint :as pp]))
+    ))
 
 
 (defn main []
@@ -19,26 +19,14 @@
    ["login" :routes/login]
    ["register" :routes/register]
    ["room" :routes/room-container]
-   ["layout" :routes/layout]
+   ["channels" :routes/channels]
    ])
 
-(defn route-info [route]
-  [:div.m-4
-   [:p "Routeinfo"]
-   [:pre.border-solid.border-2.rounded 
-    (with-out-str (pp/pprint route))]])
-;; main
-
-(defn show-panel [route]
-  (when-let [route-data (:data route)]
-    (let [view (:view route-data)]
-      [:<>
-       [view]
-       ;;[route-info route]
-       ])))
-
 (defn main-panel []
-  (let [active-route (re-frame/subscribe [:routes/current-route])]
+  (let [active-route (re-frame/subscribe [:routes/current-route])
+        view (:view (:data @active-route))]
     [:div
      [vt/navigation toolbar-items]
-     [show-panel @active-route]]))
+     (when (some? view)
+       [:<> [view]])
+     ]))
