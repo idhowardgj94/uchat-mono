@@ -1,5 +1,6 @@
 (ns com.howard.uchat.components.room-components
   (:require
+   [com.howard.uchat.components.utilities :refer [get-childern >children]]
    ["react-icons/ci" :refer [CiUser]]
    ["react-icons/ai" :refer [AiOutlineStar AiOutlinePhone
                              AiOutlineInfoCircle AiOutlineMessage
@@ -79,7 +80,7 @@
   [& children]
   [:div.flex.flex-col.flex-1.overflow-auto.h-full {:name "wraper"}
    [:div.pt-5
-    children]])
+    [>children children]]])
 
 (defn message-card
   "This is message component
@@ -91,7 +92,6 @@
       avatar: string or component"
   [props]
   (let [{:keys [t avatar name username time message] :or {t "head"}} props]
-    (js/console.log "inside message, t: " t)
     (case t
       "head" [:div.px-5.flex.hover:bg-gray-200
               [:> Avatar {:name avatar :className "rounded pt-1.5" :size 36}]
