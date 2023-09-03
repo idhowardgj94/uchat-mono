@@ -5,11 +5,10 @@
    [com.howard.uchat.api :as api]
    [com.howard.uchat.db-spec :as spec]
    [cljs.spec.alpha :as s]
-   [tools.reframetools :refer [sdb gdb]]))
-   ;[Day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]))
+   [spec-tools.data-spec :as ds]
+   [day8.re-frame.tracing :refer-macros [fn-traced]]))
 
-;; TODO: to mono repo.
-(defn get-error-field
+(defn get-error-fields
   "get error field from spec and data (which must be a map),
   return a vector contain failed key"
   [s data]
@@ -20,42 +19,85 @@
          (map keyword)
          (into []))))
 
-(re-frame/reg-sub ::name (gdb [:name]))
-(re-frame/reg-sub ::re-pressed-example  (gdb [:re-pressed-example]))
-
 (re-frame/reg-event-db ::initialize-db (constantly db/default-db))
 
-(re-frame/reg-event-db ::register-request-result
-                       (fn [db [_ status response]]
-                         (assoc db :register-request
-                                {:status status
-                                 :response response})))
+(re-frame/reg-event-db ::register-result
+                       (fn-traced [db [_ status response]]
+                                  (assoc db :register-request
+                                         {:status status
+                                          :response response})))
+
+(re-frame/reg-event-fx
+ ::store-token-and-login
+ (fn-traced
+  [{:keys [db]} [_ response]]
+  (let [{token :token} response]
+    (js/console.log "token: " token)
+    (.setItem js/localStorage "token" token)
+    {:db (assoc db
+                :token token
+                :auth? true)})))
 
 (re-frame/reg-fx ::register-request
                  (fn [reg-form]
                    (api/register
                     reg-form
-                    #(re-frame/dispatch [::register-request-result :success %])
-                    #(re-frame/dispatch [::register-request-result :fail %]))))
+                    #(do (re-frame/dispatch [::register-result :success %])
+                         (re-frame/dispatch-sync [::store-token-and-login %])
+                         (re-frame/dispatch [:routes/navigate :routes/channels]))
+                    #(re-frame/dispatch [::register-result :fail %]))))
 
 (re-frame/reg-event-db
  ::clear-register-validate
- (fn [db [& _]]
-   (assoc db :register-validate [])))
+ (fn-traced [db [& _]]
+            (assoc db :register-validate [])))
 
 (re-frame/reg-event-fx
  ::register
- (fn [{:keys [db]} [_ reg-form]]
-   (let [validate (get-error-field spec/post-user-spec reg-form)
-         {password :password
-          confirm :confirm-password} reg-form
-         error-fields (->> (conj validate
-                                 (when-not (= password confirm) :confirm-password))
-                           (filter #(not (nil? %))))]
-     (if (> (count error-fields) 0)
-       {:db (assoc db :register-validate error-fields)}
-       {:dispatch [::register-request-result :request]
-        ::register-request reg-form}))))
+ (fn-traced [{:keys [db]} [_ reg-form]]
+            (let [validate (get-error-fields spec/post-user-spec reg-form)
+                  {password :password
+                   confirm :confirm-password} reg-form
+                  error-fields (->> (conj validate
+                                          (when-not (= password confirm) :confirm-password))
+                                    (filter #(not (nil? %))))]
+              (if (> (count error-fields) 0)
+                {:db (assoc db :register-validate error-fields)}
+                {:dispatch [::register-result :request]
+                 ::register-request reg-form}))))
+
+;; ------------ login ------------------
+(re-frame/reg-fx
+ ::login-request
+ (fn-traced
+  [form]
+  (api/login form
+             #(do (re-frame/dispatch [::login-result :success %])
+                  (re-frame/dispatch-sync [::store-token-and-login %])
+                  (re-frame/dispatch [:routes/navigate :routes/channels]))
+             #(re-frame/dispatch [::login-result :fail %])
+             )))
+(re-frame/reg-event-db
+ ::clear-login-validate
+ (fn-traced [db [& _]]
+            (assoc db :login-validate [])))
+
+(re-frame/reg-event-db
+ ::login-result
+ (fn-traced
+  [db [_ status response]]
+  (assoc db :login-request {:status status
+                            :response response})))
+
+(re-frame/reg-event-fx
+ ::login
+ (fn-traced
+  [{:keys [db]} [_ form]]
+  (let [error-fields (get-error-fields spec/login-form-spec form)]
+    (if (> (count error-fields) 0)
+      {:db (assoc db :login-validate error-fields)}
+      {:dispatch [::login-result :request]
+       ::login-request form}))))
 
 (comment
   (def login-test (s/explain-data spec/post-login-spec {:username "hello" :password 1}))

@@ -2,7 +2,6 @@
   (:require
    [re-frame.core :as rf]
    [reitit.frontend :as rtf]
-   [reitit.frontend.easy :as rtfe]
    [reitit.coercion.schema :as rsc]
    [com.howard.uchat.views.home :as home]
    [com.howard.uchat.views.compo :as compo]
@@ -10,7 +9,8 @@
    [com.howard.uchat.views.register :refer [register]]
    [com.howard.uchat.views.channel :as channel]
    [com.howard.uchat.views.rooms :refer [room]]
-   [tools.reframetools :refer [sdb gdb]]))
+   [day8.re-frame.tracing :refer-macros [fn-traced]]
+   [reitit.frontend.easy :as rfe]))
 
 ;;https://clojure.org/guides/weird_characters#__code_code_var_quote
 (def routes
@@ -28,8 +28,8 @@
       ["/room"
        {:name :routes/room-container
         :view #'room}]
-      ["/layout"
-       {:name :routes/layout
+      ["/channels"
+       {:name :routes/channels
         :view #'channel/channel}]]
       {:data {:coercion rsc/coercion}}))
 
@@ -38,22 +38,27 @@
     (rf/dispatch [:routes/navigated new-match])))
 
 (defn app-routes []
-  (rtfe/start! routes
+  (rfe/start! routes
                on-navigate
                {:use-fragment true}))
 
 (rf/reg-sub
  :routes/current-route
- (gdb [:current-route]))
+ (fn-traced [db _]
+   (get-in db [:current-route])))
 
 ;;; Events
 (rf/reg-event-db
  :routes/navigated
- (sdb [:current-route]))
-
+ (fn-traced [db [_ v]]
+   (assoc-in db [:current-route] v)))
+ 
 (rf/reg-event-fx
  :routes/navigate
- (fn [_cofx [_ & route]]
+ (fn-traced [_cofx [_ route]]
    {:routes/navigate! route}))
 
-
+(rf/reg-fx
+ :routes/navigate!
+ (fn-traced [routes]
+   (rfe/push-state routes)))

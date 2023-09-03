@@ -13,3 +13,12 @@
          (js->clj)
          (map (fn [it] {(keyword (first it)) (second it)}))
          (reduce merge))))
+
+(defn contains-in-vector?
+  "give a vector and a value,
+  check if the value is one element of the vector."
+  [col v]
+  (->> (filter #(= v %) col)
+       (seq)
+       (some?)
+       ))

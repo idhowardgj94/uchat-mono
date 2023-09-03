@@ -1,8 +1,11 @@
 (ns com.howard.uchat.db)
 
-(def default-db
+(defonce default-db
   {:name "re-frame"
-   :auth nil
+   :auth? nil
+   :token nil
    :register-validate []
-   :register-request {}})
+   :register-request {}
+   :login-validate []
+   :login-request {}})
 

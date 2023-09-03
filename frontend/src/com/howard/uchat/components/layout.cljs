@@ -2,6 +2,7 @@
   (:require
    [com.howard.uchat.styles :as s]
    [reagent.core :as r]
+   [re-frame.core :as re-frame]
    [com.howard.uchat.components.utilities :refer
     [popup >children verticle-line get-childern get-opts]]
    ["react-icons/go" :refer [GoPlusCircle]]
@@ -147,26 +148,39 @@
                           ]}]
        ])))
 
+(re-frame/reg-sub ::auth?
+                  (fn [db _]
+                    (:auth? db)))
+
 (defn main-layout
   "this is main layout for uchat."
   [opts & children]
   (let [opt (get-opts opts)
+        auth? (re-frame/subscribe [::auth?])
         children' (get-childern opts children)]
-    [:div.h-screen.flex.flex-col
-     [header]
-     [:div.flex.flex-1.overflow-auto opt
-      [leftbar]
-      [>children children']]]))
+    (fn []
+      (if (not= true @auth?)
+        (re-frame/dispatch [:routes/navigate
+                            :routes/login])
+        [:div.h-screen.flex.flex-col
+         [header]
+         [:div.flex.flex-1.overflow-auto opt
+          [leftbar]
+          [>children children']]]))))
 
 (defn guest-layout
   "guest layout is used when user is not login yet."
   [opts & children]
   (let [opt (get-opts opts)
-        children' (get-childern opts children)]
-    [:div.w-screen.h-screen.overflow-auto (assoc-in opt [:style :background-image] s/login-background)
-     [:div.container.mx-auto.flex.max-w-6xl.overflow-auto.h-full.items-center
-      [:section.flex-1
-       [:h1.text-6xl {:style {:font-weight "bold"}} "Welcome to
+        children' (get-childern opts children)
+        auth? (re-frame/subscribe [::auth?])]
+    (fn []
+      (if (= true @auth?)
+        (re-frame/dispatch [:routes/navigate :routes/channels])
+        [:div.w-screen.h-screen.overflow-auto (assoc-in opt [:style :background-image] s/login-background)
+         [:div.container.mx-auto.flex.max-w-6xl.overflow-auto.h-full.items-center
+          [:section.flex-1
+           [:h1.text-6xl {:style {:font-weight "bold"}} "Welcome to
                                       UChat workspace"]]
-      [:section.flex-1.items-center.justify-center
-       [>children children']]]]))
+          [:section.flex-1.items-center.justify-center
+           [>children children']]]]))))

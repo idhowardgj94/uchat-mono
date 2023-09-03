@@ -1,8 +1,9 @@
 (ns com.howard.uchat.views.register
   (:require
+   [reitit.frontend.easy :as rfe]
    [re-frame.core :as re-farme]
    [com.howard.uchat.use-cases.core-cases :as event]
-   [com.howard.uchat.util :refer [get-form-map]]
+   [com.howard.uchat.util :refer [get-form-map contains-in-vector?]]
    [com.howard.uchat.components.basic :refer [form-group label input button]]
    [com.howard.uchat.components.layout :refer [guest-layout]]
    [cljs.core :as c]))
@@ -12,12 +13,6 @@
  (fn [db _]
    (:register-validate db)))
 
-(defn contains-in-vector?
-  [col v]
-  (->> (filter #(= v %) col)
-       (seq)
-       (some?)
-       ))
 
 (defn register-form []
   (let [errors @(re-farme/subscribe [::register-validate])]
@@ -71,7 +66,7 @@
       [:div.flex.items-center.pb-4
        [button {:word "register"}]
        [:div.inline-block.text-right.flex-1.font-light.text-sm "Already has account? "
-        [:a.text-blue-600.font-light.text-sm {:href "#"} "Back to login"]]]]]))
+        [:a.text-blue-600.font-light.text-sm {:href (rfe/href :routes/login)} "Back to login"]]]]]))
 
 (defn register []
   [guest-layout

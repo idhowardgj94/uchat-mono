@@ -23,6 +23,7 @@
 (defn- not-empty-string?
   [s]
   (and (string? s) (not= "" (str s))))
+
 (def post-user-spec
   (ds/spec {:name ::post-user-spec
             :spec {:username not-empty-string?
@@ -30,3 +31,10 @@
                    :name not-empty-string?
                    :confirm-password not-empty-string?
                    :email not-empty-string?}}))
+
+
+(def login-form-spec
+  "login form, use to check is login form valid format."
+  (ds/spec {:name ::login-form-spec
+            :spec {:username not-empty-string?
+                   :password not-empty-string?}}))
