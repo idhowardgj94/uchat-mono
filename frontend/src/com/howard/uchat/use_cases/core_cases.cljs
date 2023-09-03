@@ -67,6 +67,12 @@
                  ::register-request reg-form}))))
 
 ;; ------------ login ------------------
+(re-frame/reg-event-db
+ ::login-error-message
+ (fn-traced
+  [db [_ message]]
+  (assoc db :login-error-message message)))
+
 (re-frame/reg-fx
  ::login-request
  (fn-traced
@@ -75,12 +81,15 @@
              #(do (re-frame/dispatch [::login-result :success %])
                   (re-frame/dispatch-sync [::store-token-and-login %])
                   (re-frame/dispatch [:routes/navigate :routes/channels]))
-             #(re-frame/dispatch [::login-result :fail %])
-             )))
+             #(do (re-frame/dispatch [::login-result :fail %])
+                  (println %)
+                  (re-frame/dispatch [::login-error-message (:message (:response %))])))))
 (re-frame/reg-event-db
  ::clear-login-validate
  (fn-traced [db [& _]]
-            (assoc db :login-validate [])))
+            (assoc db
+                   :login-validate []
+                   :login-error-message nil)))
 
 (re-frame/reg-event-db
  ::login-result

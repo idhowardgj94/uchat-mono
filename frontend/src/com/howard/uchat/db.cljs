@@ -7,5 +7,6 @@
    :register-validate []
    :register-request {}
    :login-validate []
+   :login-error-message nil
    :login-request {}})
 
