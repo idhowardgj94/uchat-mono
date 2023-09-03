@@ -43,6 +43,16 @@
     (do
       (json-response {:status "Logged" :message (str "hello logged user "
                                                      )}))))
+
+(defn get-login-token
+  "Get login token for frontend.
+  TODO: should I user keyword for username?
+  "
+  [username]
+  (let [claims {:user (keyword username)
+                :exp (.getMillis (time/plus (time/now) (time/seconds 3600)))}]
+    (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})))
+
 (defn login
   [request]
   (let [username (get-in request [:body :username])
@@ -54,9 +64,7 @@
     (timbre/info username ", " password)
     (timbre/info (str (time/plus (time/now) (time/seconds 3600))))
     (if valid?
-      (let [claims {:user (keyword username)
-                    :exp (.getMillis (time/plus (time/now) (time/seconds 3600)))}
-            token (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})]
+      (let [token (get-login-token username)]
         (timbre/info "token here:" token)
         (response/response {:token token}))
       (response/bad-request {:message "wrong auth data"}))))
@@ -97,7 +105,8 @@
       (do (timbre/info "start to save user data to db")
           (let [{:keys [username name password email]} body]
             (users/insert-to-db username password name email)
-            (json-response {:status "success"}))))))
+            (json-response {:status "success"
+                            :token (get-login-token username)}))))))
 
 (defn login-handler
   [request]
