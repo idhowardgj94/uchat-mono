@@ -112,16 +112,16 @@
   [request]
   (let [body (:body request)
         valid? (s/valid? specs/post-login-spec body)]
-    (timbre/info (s/explain-str specs/post-login-spec body))
     (if-not valid?
       (response/bad-request {:message  (str "Wrong body palyoad. please check the API docs. msg:" (s/explain-str specs/post-login-spec body))})
       (do
         (timbre/info (str "login user: " (:username body)))
         (let [{:keys [username password]} body
               result (users/get-user-by-username username)
-              {real-password :password} result
-              login? (hashers/verify password real-password)]
-          (if (nil? login?)
+              {real-password :password} result]
+          (if (or (nil? real-password)
+                  (= (-> (hashers/verify password real-password)
+                         :valid) false))
             (response/bad-request {:message "Login failed, please check username and password."})
             (let [claims {:user (keyword username)
                           :exp (.getMillis (time/plus (time/now) (time/seconds 3600)))}
