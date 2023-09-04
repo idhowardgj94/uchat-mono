@@ -26,11 +26,14 @@
   [options]
   (connection/->pool HikariDataSource options))
 
-(defn- mk-migration-config
-  "make migration config from hikari datasource"
-  [db-pool db-path]
-  {:datastore (ragtime/sql-database (get-connection-in-pool db-pool))
-   :migrations (ragtime/load-resources db-path)})
+(defn mk-migration-config
+  "make migration config from hikari datasource
+  dbpath default: migrations"
+  ([db-pool db-path]
+   {:datastore (ragtime/sql-database (get-connection-in-pool db-pool))
+    :migrations (ragtime/load-resources db-path)})
+  ([db-pool]
+   (mk-migration-config db-pool "migrations")))
 
 (defonce ^:private db-state
   (atom {:migration-config nil

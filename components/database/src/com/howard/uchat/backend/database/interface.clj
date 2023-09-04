@@ -13,6 +13,9 @@
   "get connection pool, for db"
   #'core/get-pool)
 
+(def mk-migraiton-config
+  "gererate a migration config for use for ragtime repl."
+  #'core/mk-migration-config)
 
 (comment
   ,)
