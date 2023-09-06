@@ -74,4 +74,5 @@
                                         :dbtype "postgres"
                                         :dbname "uchat"
                                         :useSSL false})
-                  :username "postgres" :password ""}))
+                  :username "postgres" :password "postgres"})
+  )

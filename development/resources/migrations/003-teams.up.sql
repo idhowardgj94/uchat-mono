@@ -1,5 +1,4 @@
 CREATE TABLE IF NOT EXISTS teams (
-       id serial PRIMARY KEY,
-       uuid VARCHAR(255) UNIQUE NOT NULL,
+       uuid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
        name VARCHAR(255) NOT NULL
 );

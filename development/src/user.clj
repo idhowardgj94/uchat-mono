@@ -19,7 +19,9 @@
                                                :dbname "uchat"
                                                :useSSL false})
                          :username "postgres" :password "postgres"})
+
 (comment
+  (print "hello")
   (repl/rollback (database/mk-migraiton-config (database/get-pool)))
   (repl/migrate (database/mk-migraiton-config (database/get-pool)))
   ,)

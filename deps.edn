@@ -5,6 +5,7 @@
                   :extra-deps {uchat/api-server {:local/root "./bases/api-server"}
                                uchat/database {:local/root "./components/database"}
                                uchat/users {:local/root "./components/users"}
+                               uchat/subscriptions {:local/root "./components/subscrptions"}
                                org.clojure/clojure {:mvn/version "1.11.1"}
                                integrant/integrant {:mvn/version "0.8.1"}
                                metosin/spec-tools {:mvn/version "0.10.5"}
