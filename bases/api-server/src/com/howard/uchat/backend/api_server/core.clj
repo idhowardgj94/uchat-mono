@@ -3,10 +3,11 @@
    [com.howard.uchat.backend.database.interface :as database]
    [com.howard.uchat.backend.api-server.spec :as specs]
    [com.howard.uchat.backend.users.interface :as users]
-   [compojure.core :refer :all]
+   [com.howard.uchat.backend.subscriptions.interface :as subscriptions]
+   [compojure.core :refer [GET POST context defroutes]]
    [next.jdbc.connection :as connection]
    [org.httpkit.server :as hk-server]
-   [ring.middleware.defaults :refer :all]
+   [ring.middleware.defaults :as d]
    [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
    [ring.middleware.reload :refer [wrap-reload]]
    [ring.middleware.resource :refer [wrap-resource]]
@@ -23,10 +24,9 @@
 
 ;; (ns-unalias *ns* 'specs)
 (defonce secret (nonce/random-bytes 32))
-(def authdata {:admin "secret"
-               :test "secret"})
 
 (def auth-backend (jwe-backend {:secret secret
+                                :token-name "token"
                                 :options {:alg :a256kw :enc :a128gcm}}))
 
 
@@ -40,9 +40,8 @@
   (timbre/info "inside home")
   (if-not (authenticated? request)
     (throw-unauthorized)
-    (do
       (json-response {:status "Logged" :message (str "hello logged user "
-                                                     )}))))
+                                                     )})))
 
 (defn get-login-token
   "Get login token for frontend.
@@ -52,22 +51,6 @@
   (let [claims {:user (keyword username)
                 :exp (.getMillis (time/plus (time/now) (time/seconds 3600)))}]
     (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})))
-
-(defn login
-  [request]
-  (let [username (get-in request [:body :username])
-        password (get-in request [:body :password])
-        valid? (some-> authdata
-                       (get (keyword username))
-                       (= password))]
-    (timbre/info request)
-    (timbre/info username ", " password)
-    (timbre/info (str (time/plus (time/now) (time/seconds 3600))))
-    (if valid?
-      (let [token (get-login-token username)]
-        (timbre/info "token here:" token)
-        (response/response {:token token}))
-      (response/bad-request {:message "wrong auth data"}))))
 
 (defn wrap-cors
   [handler]
@@ -128,11 +111,26 @@
                   token (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})]
               (json-response {:token token}))))))))
 
+(defn get-subscriptions-handler
+  [request]
+  (if-not (authenticated? request)
+    (throw-unauthorized)
+    (let [params (:params request)
+          valid? (s/valid? specs/get-subscriptions-spec params)]
+      (if-not valid?
+        (response/bad-request {:message  (str "Wrong body palyoad. please check the API docs. msg:" (s/explain-str specs/get-subscriptions-spec params))})
+        (let [{:keys [type team-uuid]} params
+              {:keys [:username]} (:identity request)]
+          (subscriptions/get-user-team-subscriptions {:type type
+                                                      :username username
+                                                      :team-uuid team-uuid})
+          
+          )))))
 (defroutes app-routes
   (context "/api/v1" []
            (POST "/register" [] register-handler)
-           (POST "/login" [] login-handler))
-  (POST "/login" [] login)
+           (POST "/login" [] login-handler)
+           (GET "/subscriptions" [] get-subscriptions-handler))
   (GET "/home" [] home)
   (GET "/" [] index-handler))
 
@@ -157,7 +155,7 @@
                (wrap-authorization auth-backend)
                (wrap-authentication auth-backend)
                (wrap-resource "public")
-               (wrap-defaults api-defaults)
+               (d/wrap-defaults d/api-defaults)
                )
            {:join? false :port 4000})))
 
@@ -170,30 +168,3 @@
   (start-server!)
   (stop-server!)
   ,)
-
-#_(
-   (json/write-str {:a "hello"} )
-   (require '[clj-http.client :as client])
-   (client/get "http://localhost:4000/")
-   (client/post "http://localhost:4000/login" {:content-type :json
-                                               :body
-                                               (json/write-str {:username "admin"
-                                                                :password "secret"})})
-   (client/post
-    "http://localhost:4000/api/v1/register"
-    {:content-type :json
-     :body
-     (json/write-str {:username "test2"
-                      :password "test2"
-                      :name "test2"
-                      :email "test2@gmail.com"})})
-   (client/post
-    "http://localhost:4000/api/v1/login" {:content-type :json
-                                          :body
-                                          (json/write-str {:username "test2"
-                                                           :password "test2"})})
-   (client/get
-    "http://localhost:4000/home"
-    {:headers
-     {"authorization" "Token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.Vdoc_BWUEk8s5V_h_iQN08RkHOSC4YIk.bmZ_JiP465g5Si-P.d1ClznhuZ4Hk4JaWqiacJvlZfzgZyQlI6otMZ7I0J8AAvL34bnjx4b_QTRSvQ_SftBua0A.D3B4bNWxXHNhT8eXHBK_2g"}})
-   ,)

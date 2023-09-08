@@ -13,7 +13,7 @@
   (:import (com.zaxxer.hikari HikariDataSource)
            (org.postgresql.jdbc PgConnection)))
 
-(database/init-database {:jdbcUrl
+#_(database/init-database {:jdbcUrl
                          (connection/jdbc-url {:host "localhost"
                                                :dbtype "postgres"
                                                :dbname "uchat"

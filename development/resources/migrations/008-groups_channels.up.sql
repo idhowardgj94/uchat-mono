@@ -3,6 +3,6 @@ CREATE TABLE IF NOT EXISTS groups_channels (
        user_id bigint,
        group_id bigint,
        group_name varchar(255),
-       channel_id bigint,
+       channel_uuid uuid,
        channel_name varchar(255)
 );

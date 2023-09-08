@@ -1,7 +1,23 @@
 (ns com.howard.uchat.backend.database.interface
   (:require [com.howard.uchat.backend.database.core :as core]
-            [clj-time.core :as time])
+            [clj-time.core :as time]
+            [next.jdbc :as jdbc])
   (:import [java.sql Timestamp]))
+
+
+(defmacro dbfn
+  {:clj-kondo/lint-as 'clojure.core/defn}
+  [name & args]
+  (let [doc (if (string? (first args)) (first args) nil)
+        params (if (nil? doc) (first args) (second args))
+        second-params (if (<= (count params) 1) [] (into [] (drop 1 params)))
+        body (if (nil? doc) (drop 1 args) (drop 2 args))]
+    `(defn ~name
+         ~doc
+         (~params
+         ~@body)
+         (~second-params
+          (apply ~name (get-pool) ~second-params)))))
 
 (defn current-timestamp
   "get current timestamp"
@@ -22,6 +38,20 @@
   "get connection pool, for db"
   []
   (core/get-pool))
+
+(dbfn execute!
+  "a simple wraper for nextjdbc/execute!.
+  query: vector of sql query"
+  [tx q]
+  (jdbc/execute!
+   tx
+   q))
+
+(dbfn plan!
+  "a simple wraper for nextjdbc/plan
+  q: vector of query"
+  [tx q]
+  (jdbc/plan tx q))
 
 (def mk-migraiton-config
   "gererate a migration config for use for ragtime repl."
