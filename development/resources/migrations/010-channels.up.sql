@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS channels (
        updated_at TIMESTAMP DEFAULT now()
 );
 
-CREATE TRIGGER updated_at_groups BEFORE UPDATE ON groups FOR EACH ROW EXECUTE PROCEDURE updated_at_column();
+CREATE TRIGGER updated_at_channels BEFORE UPDATE ON channels FOR EACH ROW EXECUTE PROCEDURE updated_at_column();

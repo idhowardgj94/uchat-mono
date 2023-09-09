@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
        password VARCHAR(255) NOT NULL,
        email VARCHAR(255) UNIQUE,
        name VARCHAR(255),
-       created_on TIMESTAMP SET DEFAULT now(),
-       updated_at TIMESTAMP SET DEFAULT now()
+       created_at TIMESTAMP DEFAULT now(),
+       updated_at TIMESTAMP DEFAULT now()
 );
 
 CREATE UNIQUE INDEX username_idx ON users (username);
