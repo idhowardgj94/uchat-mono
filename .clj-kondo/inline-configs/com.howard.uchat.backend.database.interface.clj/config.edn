@@ -1,1 +1,0 @@
-{:lint-as {com.howard.uchat.backend.database.interface/dbfn clojure.core/defn}}

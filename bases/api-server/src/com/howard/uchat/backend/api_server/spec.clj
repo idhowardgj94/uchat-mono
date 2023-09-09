@@ -17,4 +17,5 @@
 
 (def get-subscriptions-spec
   (ds/spec {:name ::get-subscriptions
-            :spec {:type (s/spec #{:channel :direct})}}))
+            :spec {:type (s/spec #{"channel" "direct"})
+                   :team_uuid string?}}))

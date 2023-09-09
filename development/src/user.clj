@@ -13,7 +13,7 @@
   (:import (com.zaxxer.hikari HikariDataSource)
            (org.postgresql.jdbc PgConnection)))
 
-#_(database/init-database {:jdbcUrl
+(database/init-database {:jdbcUrl
                          (connection/jdbc-url {:host "localhost"
                                                :dbtype "postgres"
                                                :dbname "uchat"
@@ -26,5 +26,5 @@
   (repl/migrate (database/mk-migraiton-config (database/get-pool)))
   ,)
 ;; TODO: should use interface instead 
-(core/start-server!)
+#_(core/start-server!)
 

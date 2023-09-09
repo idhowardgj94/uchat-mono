@@ -4,7 +4,8 @@
    [clojure.spec.alpha :as s]
    [com.howard.uchat.backend.subscriptions.database :as db]  
    [next.jdbc :as jdbc]
-   [com.howard.uchat.backend.database.interface :as database :refer [dbfn]]))
+   [com.howard.uchat.backend.database.interface :as database :refer [dbfn]]
+   [com.howard.uchat.backend.teams.interface :as teams]))
 
 #_(ns-unalias *ns* 's)
 
@@ -29,7 +30,7 @@
   [opt]
   {:pre [(s/valid? user-team-subscriptions-params-spec opt)]}
   (let [{:keys [type username team-uuid]} opt]
-    (if (false? (db/is-user-in-teams username team-uuid))
+    (if (false? (teams/is-user-in-team username team-uuid))
       {:status no-permission}
       {:status success :result (case type
                                  :direct (db/get-user-team-direct-subscriptions username team-uuid)

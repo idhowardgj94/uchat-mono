@@ -1,35 +1,7 @@
 (ns com.howard.uchat.backend.subscriptions.database
   (:require [next.jdbc :as jdbc]
-            [com.howard.uchat.backend.users.interface :as user]
             [com.howard.uchat.backend.database.interface :as database :refer [dbfn]]
-            [ragtime.next-jdbc :as ragtime]
-            [com.howard.uchat.backend.database.interface :as db]))
-
-;; TODO:
-;; https://hasura.io/docs/latest/schema/postgres/default-values/created-updated-timestamps/
-(dbfn is-user-in-teams
-      "predicated that is user in team or not"
-      [tx username team_uuid]
-      (-> (database/execute! tx ["SELECT count(*) FROM teams_users WHERE team_uuid = ? AND username = ?" team_uuid username])
-          first
-          :count
-          (> 0)))
-
-(dbfn get-teams
-      "get teams"
-      [tx]
-      (into []
-             (map #(select-keys % [:uuid :name]))
-            (jdbc/plan tx ["SELECT * FROM teams"])))
-
-(dbfn get-teams-user-belong-to
-      "get the user's team by username"
-      [tx username]
-      (into []
-            (map #(select-keys % [:team_uuid :name :username :created_at :updated_at]))
-            (database/plan! tx
-                            ["SELECT * FROM teams JOIN teams_users on teams_users.team_uuid = teams.uuid WHERE
-username = ?" username])))
+            ))
 
 (dbfn get-user-team-direct-subscriptions
   "get user team direct subscriptions"
@@ -76,24 +48,7 @@ WHERE team_uuid = ?" username team-uuid])))
             (database/plan! tx
                             ["SELECT * FROM channels where team_uuid = ?" team-uuid])))
 
-(dbfn insert-team-by-name
-      "insert team by name"
-      [tx name]
-      (jdbc/execute! tx
-                     ["INSERT INTO teams (name) VALUES (?)" name]))
 
-(defn insert-users-into-team
-  "insert some user by username and team-uuid
-  TODO: cannot use dbfn because & in pramas"
-  [tx team-uuid & usernames]
-  (let [stmts (->> usernames
-                   (map #(vector % team-uuid))
-                   (into []))]
-    (jdbc/execute-batch!
-     tx
-     "INSERT INTO teams_users (username, team_uuid) VALUES
-(?, ?)"
-     stmts {})))
 
 (defn insert-users-into-channel
   "insert users into channel by username and channel uuid"
@@ -146,9 +101,6 @@ WHERE team_uuid = ?" username team-uuid])))
      sql))
 
 (comment
-  "TODO linter for config"
-  (get-teams)
-  (get-teams-user-belong-to "eva")
   (get-team-users #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
   (get-team-channels #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
   (get-team-users #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
