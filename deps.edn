@@ -6,6 +6,7 @@
                                uchat/database {:local/root "./components/database"}
                                uchat/users {:local/root "./components/users"}
                                uchat/subscriptions {:local/root "./components/subscriptions"}
+                               uchat/teams {:local/root "./components/teams"}
                                org.clojure/clojure {:mvn/version "1.11.1"}
                                integrant/integrant {:mvn/version "0.8.1"}
                                metosin/spec-tools {:mvn/version "0.10.5"}
