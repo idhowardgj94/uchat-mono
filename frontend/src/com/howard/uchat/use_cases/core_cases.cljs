@@ -6,7 +6,9 @@
    [com.howard.uchat.db-spec :as spec]
    [cljs.spec.alpha :as s]
    [spec-tools.data-spec :as ds]
-   [day8.re-frame.tracing :refer-macros [fn-traced]]))
+   [day8.re-frame.tracing :refer-macros [fn-traced]]
+   
+   ))
 
 (defn get-error-fields
   "get error field from spec and data (which must be a map),
@@ -44,7 +46,7 @@
                     reg-form
                     #(do (re-frame/dispatch [::register-result :success %])
                          (re-frame/dispatch-sync [::store-token-and-login %])
-                         (re-frame/dispatch [:routes/navigate :routes/channels]))
+                         (re-frame/dispatch [:routes/navigate :routes/channels-home]))
                     #(re-frame/dispatch [::register-result :fail %]))))
 
 (re-frame/reg-event-db
@@ -80,7 +82,7 @@
   (api/login form
              #(do (re-frame/dispatch [::login-result :success %])
                   (re-frame/dispatch-sync [::store-token-and-login %])
-                  (re-frame/dispatch [:routes/navigate :routes/channels]))
+                  (re-frame/dispatch [:routes/navigate [:routes/channels-home]]))
              #(do (re-frame/dispatch [::login-result :fail %])
                   (println %)
                   (re-frame/dispatch [::login-error-message (:message (:response %))])))))
@@ -119,3 +121,28 @@
     (s/explain-data spec/post-user-spec {:username "hello" :password "1234"}))
   (s/explain-str spec/post-user-spec {:username "hello" :password "1234"})
   (js/console.log "hello, world"))
+
+;; ------------------ get list
+
+(re-frame/reg-event-db
+ ::assoc-db
+ (fn-traced
+  [db [_ key value]]
+  (js/console.log (clj->js value))
+  (assoc db key value)))
+
+(re-frame/reg-event-fx
+ ::get-subscriptions
+ (fn-traced
+  [{:keys [db]} [_ type uuid]]
+  ;; TODO: team
+  (api/get-subscription
+   {:type type
+    :team_uuid uuid}
+   #(case type
+      "direct" (do (js/console.log "direct~~~" (get % "result"))
+                   (re-frame/dispatch [::assoc-db :direct-subscriptions (:result %)]))
+      "channel" (re-frame/dispatch [::assoc-db :channel-subscriptions (:result %)])))
+  nil))
+
+

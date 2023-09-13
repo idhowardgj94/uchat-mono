@@ -2,6 +2,8 @@
   (:require
     [re-frame.core :as re-frame]
     [tools.viewtools :as vt]
+    [com.howard.uchat.components.layout :refer [main-layout]]
+    [com.howard.uchat.db :as db]
     ))
 
 
@@ -13,20 +15,22 @@
 
 (def toolbar-items
   "this is a debug purpose components"
-  [
-   ["#" :routes/#frontpage]
+  [["#" :routes/#frontpage]
    ["component" :routes/#component]
    ["login" :routes/login]
    ["register" :routes/register]
    ["room" :routes/room-container]
-   ["channels" :routes/channels]
-   ])
+   ["channels" :routes/channels-home]])
+
 
 (defn main-panel []
   (let [active-route (re-frame/subscribe [:routes/current-route])
+        auth (re-frame/subscribe [::db/subscribe [:auth?]])
         view (:view (:data @active-route))]
-    [:div
+    [:<>
      [vt/navigation toolbar-items]
-     (when (some? view)
-       [:<> [view]])
-     ]))
+     (if (= (:auth? @auth) true)
+       [main-layout]
+       [:div
+        (when (some? view)
+          [:<> [view]])])]))

@@ -3,9 +3,8 @@
    [spec-tools.data-spec :as ds]
    [clojure.spec.alpha :as s]
    [com.howard.uchat.backend.subscriptions.database :as db]  
-   [next.jdbc :as jdbc]
-   [com.howard.uchat.backend.database.interface :as database :refer [dbfn]]
-   [com.howard.uchat.backend.teams.interface :as teams]))
+   [com.howard.uchat.backend.teams.interface :as teams]
+   ))
 
 #_(ns-unalias *ns* 's)
 
@@ -41,3 +40,5 @@
                                 :username "eva"
                                 :team_uuid  #uuid "684062e0-4b68-4458-873e-6bc22ddbd925"})
   ,)
+
+#_(teams/get-teams)

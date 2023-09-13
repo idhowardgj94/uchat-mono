@@ -22,7 +22,7 @@
   (if (= :sep i)
     [sep]
     [:a.text-blue-700
-     {:href (rtfe/href (second i))} (first i)]))
+     {:href (rtfe/href (second i) (if (>= (count i) 3) (nth i 2) nil))} (first i)]))
 
 (defn navigation [routes]
   (let [coll (->> routes (interpose :sep) (map-indexed vector))]

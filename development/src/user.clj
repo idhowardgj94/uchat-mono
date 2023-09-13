@@ -26,5 +26,5 @@
   (repl/migrate (database/mk-migraiton-config (database/get-pool)))
   ,)
 ;; TODO: should use interface instead 
-#_(core/start-server!)
+(core/start-server!)
 

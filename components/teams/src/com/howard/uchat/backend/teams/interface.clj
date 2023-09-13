@@ -35,6 +35,14 @@
   [name]
   (db/get-team-by-name name))
 
+(defn get-teams
+  []
+  (db/get-teams))
 (defn is-user-in-team
   [username team_uuid]
   (db/is-user-in-team username team_uuid))
+
+(comment
+  (get-team-by-name "public")
+  (add-user-to-team "idhowardgj94"  #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
+  ,)

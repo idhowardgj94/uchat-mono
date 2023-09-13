@@ -3,6 +3,9 @@
    [com.howard.uchat.styles :as s]
    [reagent.core :as r]
    [re-frame.core :as re-frame]
+   [reitit.frontend.easy :as rfe]
+   [com.howard.uchat.db :as db]
+   [com.howard.uchat.use-cases.core-cases :as event]
    [com.howard.uchat.components.utilities :refer
     [popup >children verticle-line get-childern get-opts]]
    ["react-icons/go" :refer [GoPlusCircle]]
@@ -10,7 +13,8 @@
                              AiOutlineGlobal AiFillCaretDown]]
    ["react-icons/si" :refer [SiGooglemessages  SiIconify]]
    ["react-icons/sl" :refer [SlLogout]]
-   ["react-avatar$default" :as Avatar]))
+   ["react-avatar$default" :as Avatar]
+   ))
 
 (defn popup-status-bar
   []
@@ -31,6 +35,7 @@
      [:div.p-2 "Logout"]]]])
 
 (defn header []
+  (println "inside header")
   (let [popup-open? (r/atom false)]
     [:header.basis-10.flex.items-center.px-3.shrink-0
      {:style {:background-color "#14213e"
@@ -81,9 +86,10 @@
         (for [{:keys [avatar title href id]} data]
           ^{:key id}
           [:section.px-1.w-full.flex.text-gray-200
-           [:button.flex-1.flex.pl-4.flex.items-center.hover:bg-gray-400.p-1
+           [:a.flex-1.flex.pl-4.flex.items-center.hover:bg-gray-400.p-1
+            {:href href}
             avatar
-            [:span.ml-2 title]]])])]))
+            [:spac.ml-2  title]]])])]))
 
 (defn leftbar
   "navigation component"
@@ -91,7 +97,8 @@
   (let [open-con (r/atom false)
         open-new (r/atom false)
         open-tree? (r/atom true)
-        open-direct? (r/atom true)]
+        open-direct? (r/atom true)
+        subscriptions (re-frame/subscribe [::db/subscribe [:direct-subscriptions :channel-subscriptions]])]
     (fn []
       [:sidebar {:style {:color "rgb(63, 67, 80)"
                          :background-color "rgb(30, 50, 92)"
@@ -117,56 +124,60 @@
                  :open open-new}
           [:div.flex.w-full
            [:button.flex-1.font-light.text-sm.hover:bg-gray-200.p-1 "Create new channel"]]]]]
-       
+
        [tree-menu {:open? open-tree?
                    :title "Channels"
                    :right-button-component [:> AiOutlinePlus]
-                   :data [{:id 1
-                           :avatar [:> AiOutlineGlobal]
-                           :title "Genernal"
-                           :href "#"}]}]
+                   :data (->> (:channel-subscriptions @subscriptions)
+                                    (map (fn [it]
+                                           {:id (:other_user it)
+                                            :avatar [:> Avatar {:name (:other_user it) :size 18 :className "rounded-full"}]
+                                            :title (:other_user it)
+                                            :href (rfe/href :routes/channels {:uuid "#"})})))}]
        [:div.my-2]
        [tree-menu {:open? open-direct?
                    :title "Direct Messages"
                    :right-button-component [:> AiOutlinePlus]
-                   :data [{:id 1
-                           :avatar [:> Avatar {:name "Howard" :size 18 :className "rounded-full"}]
-                           :title "Lhchangq"
-                           :href "#"}
-                          {:id 2
-                           :avatar [:> Avatar {:name "Eva" :size 18 :className "rounded-full"}]
-                           :title "Eva"
-                           :href "#"}
-                          {:id 3
-                           :avatar [:> Avatar {:name "rtkao" :size 18 :className "rounded-full"}]
-                           :title "rtkao"
-                           :href "#"}
-                          {:id 4
-                           :avatar [:> Avatar {:name "pkyeh" :size 18 :className "rounded-full"}]
-                           :title "pkyeh"
-                           :href "#"}
-                          ]}]
-       ])))
+                   :data  (->> (:direct-subscriptions @subscriptions)
+                                    (map (fn [it]
+                                           {:id (:other_user it)
+                                            :avatar [:> Avatar {:name (:other_user it) :size 18 :className "rounded-full"}]
+                                            :title (:other_user it)
+                                            :href (rfe/href :routes/channels {:uuid "#"})})))
+                   }]])))
 
 (re-frame/reg-sub ::auth?
                   (fn [db _]
                     (:auth? db)))
+                                        ;
+(defn guard
+  []
+  (let [auth (re-frame/subscribe [::db/subscribe [:auth?]])
+        auth? (:auth? @auth)]
+    (if (= auth? true)
+      true
+      (do
+        (println "inside else")
+        (re-frame/dispatch [:routes/navigate :routes/login])
+        false))))
 
 (defn main-layout
   "this is main layout for uchat."
-  [opts & children]
-  (let [opt (get-opts opts)
-        auth? (re-frame/subscribe [::auth?])
-        children' (get-childern opts children)]
-    (fn []
-      (if (not= true @auth?)
-        (re-frame/dispatch [:routes/navigate
-                            :routes/login])
-        [:div.h-screen.flex.flex-col
-         [header]
-         [:div.flex.flex-1.overflow-auto opt
-          [leftbar]
-          [>children children']]]))))
+  []
+  #_(guard)
+  (re-frame/dispatch [::event/get-subscriptions "direct"  "bd9a04af-899d-4d61-a169-8dba5dca99d8"])
+  (re-frame/dispatch [::event/get-subscriptions "channel"  "bd9a04af-899d-4d61-a169-8dba5dca99d8"])
+  
+  (fn []
+    (let [active-route (re-frame/subscribe [:routes/current-route])
+          view (:view (:data @active-route))]
+      [:div.h-screen.flex.flex-col
+       [header]
+       [:div.flex.flex-1.overflow-auto
+        [leftbar]
+        [view]]])))
+
+
 
 (defn guest-layout
   "guest layout is used when user is not login yet."
@@ -174,13 +185,13 @@
   (let [opt (get-opts opts)
         children' (get-childern opts children)
         auth? (re-frame/subscribe [::auth?])]
+    (when (= true @auth?)
+      (re-frame/dispatch [:routes/navigate :routes/channels-home]))
     (fn []
-      (if (= true @auth?)
-        (re-frame/dispatch [:routes/navigate :routes/channels])
-        [:div.w-screen.h-screen.overflow-auto (assoc-in opt [:style :background-image] s/login-background)
-         [:div.container.mx-auto.flex.max-w-6xl.overflow-auto.h-full.items-center
-          [:section.flex-1
-           [:h1.text-6xl {:style {:font-weight "bold"}} "Welcome to
+      [:div.w-screen.h-screen.overflow-auto (assoc-in opt [:style :background-image] s/login-background)
+       [:div.container.mx-auto.flex.max-w-6xl.overflow-auto.h-full.items-center
+        [:section.flex-1
+         [:h1.text-6xl  "Welcome to
                                       UChat workspace"]]
-          [:section.flex-1.items-center.justify-center
-           [>children children']]]]))))
+        [:section.flex-1.items-center.justify-center
+         [>children children']]]])))

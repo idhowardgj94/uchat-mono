@@ -1,7 +1,8 @@
 (ns com.howard.uchat.backend.subscriptions.database
   (:require [next.jdbc :as jdbc]
             [com.howard.uchat.backend.database.interface :as database :refer [dbfn]]
-            ))
+            
+            [com.howard.uchat.backend.database.interface :as db]))
 
 (dbfn get-user-team-direct-subscriptions
   "get user team direct subscriptions"
@@ -92,6 +93,10 @@ WHERE team_uuid = ?" username team-uuid])))
                      ["SELECT * FROM channels where team_uuid=?" team-uuid]))
 
 
+;; --- channel
+
+#_(defn create-channel
+  )
 ;; TODO: for test.
 #_(defn execute!
     "execute qury from current databsource."
@@ -101,11 +106,11 @@ WHERE team_uuid = ?" username team-uuid])))
      sql))
 
 (comment
+  (db/execute! ["select * from channels"])
   (get-team-users #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
   (get-team-channels #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
   (get-team-users #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
   (get-user-team-direct-subscriptions (database/get-pool) "eva" #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
-(get-user-team-channel-subscriptions (database/get-pool) "eva" #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
+  (get-user-team-channel-subscriptions (database/get-pool) "eva" #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
   (get-team-channels  #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
-  (jdbc/execute! (database/get-pool) ["ALTER TABLE subscriptions ADD COLUMN other_user VARCHAR(255);"])
-  )
+  (jdbc/execute! (database/get-pool) ["ALTER TABLE subscriptions ADD COLUMN other_user VARCHAR(255);"]))

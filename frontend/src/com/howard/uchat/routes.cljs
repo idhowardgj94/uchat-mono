@@ -1,8 +1,9 @@
 (ns com.howard.uchat.routes
   (:require
    [re-frame.core :as rf]
+   [reitit.core :as reitit]
    [reitit.frontend :as rtf]
-   [reitit.coercion.schema :as rsc]
+   [reitit.coercion.spec :as rsc]
    [com.howard.uchat.views.home :as home]
    [com.howard.uchat.views.compo :as compo]
    [com.howard.uchat.views.login :refer [login]]
@@ -12,26 +13,28 @@
    [day8.re-frame.tracing :refer-macros [fn-traced]]
    [reitit.frontend.easy :as rfe]))
 
-;;https://clojure.org/guides/weird_characters#__code_code_var_quote
 (def routes
-    (rtf/router
-     [["/login" {:name :routes/login
-                 :view #'login}]
-      ["/register" {:name :routes/register
-                    :view #'register}]
-       ["/"
-        {:name :routes/#frontpage
-         :view #'home/main}]
-       ["/component"
-        {:name :routes/#component
-         :view #'compo/main}]
-      ["/room"
-       {:name :routes/room-container
-        :view #'room}]
-      ["/channels"
-       {:name :routes/channels
-        :view #'channel/channel}]]
-      {:data {:coercion rsc/coercion}}))
+  (rtf/router
+   [["/login" {:name :routes/login
+               :view #'login}]
+    ["/register" {:name :routes/register
+                  :view #'register}]
+    ["/"
+     {:name :routes/#frontpage
+      :view #'home/main}]
+    ["/component"
+     {:name :routes/#component
+      :view #'compo/main}]
+    ["/room"
+     {:name :routes/room-container
+      :view #'room}]
+    ["/channels/home" {:name :routes/channels-home
+                       :view #'channel/home}]
+    ["/channels/channel/:uuid"
+     {:name :routes/channels
+      :view #'channel/channel
+      :parameters {:path {:uuid string?}}}]]
+   {:data {:coercion rsc/coercion}}))
 
 (defn on-navigate [new-match]
   (when new-match
@@ -51,14 +54,15 @@
 (rf/reg-event-db
  :routes/navigated
  (fn-traced [db [_ v]]
-   (assoc-in db [:current-route] v)))
- 
+            (assoc-in db [:current-route] v)))  
+
 (rf/reg-event-fx
  :routes/navigate
- (fn-traced [_cofx [_ route]]
-   {:routes/navigate! route}))
+ (fn [_ [_ route]]
+   (condp = (type route)
+     cljs.core/Keyword (rfe/push-state route)
+     (let [[name items] route]
+       (rfe/push-state name items)))))
 
-(rf/reg-fx
- :routes/navigate!
- (fn-traced [routes]
-   (rfe/push-state routes)))
+#_(rf/dispatch [:routes/navigate [:routes/channels {:uuid "oeuoeu"}]])
+#_(rf/dispatch [:routes/navigate :routes/channels-home])
