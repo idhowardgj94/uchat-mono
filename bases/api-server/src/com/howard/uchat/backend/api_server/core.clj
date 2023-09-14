@@ -16,6 +16,8 @@
    [com.howard.uchat.backend.subscriptions.interface :as subscriptions]
    [com.howard.uchat.backend.teams.interface :as teams]
    [com.howard.uchat.backend.users.interface :as users]
+   [compojure.route :as route]
+   [com.howard.uchat.backend.api-server.endpoints.teams :as teams-endpoint]
    [compojure.core :refer [context defroutes GET POST wrap-routes routes]]
    [jsonista.core :as json]
    [next.jdbc.connection :as connection]
@@ -55,7 +57,7 @@
     (if-not valid?
       (response/bad-request {:message  (str "Wrong body palyoad. please check the API docs. msg:" (s/explain-str specs/get-subscriptions-spec params))})
       (let [{:keys [type team_uuid]} params
-            {:keys [:username]} (:identity request)]
+            {:keys [username]} (:identity request)]
         (json-response (subscriptions/get-user-team-subscriptions db-conn {:type (keyword type)
                                                                    :username username
                                                                    :team-uuid  (parse-uuid team_uuid)}))))))
@@ -73,11 +75,19 @@
      (routes
       (GET "/subscriptions" [] get-subscriptions-handler)
       (POST "/subscriptions/generate" [] post-gen-subscriptions-handler))
-      wrap-authentication-guard)
+     wrap-authentication-guard)
     (POST "/register" [] register-handler)
     (POST "/login" [] login-handler))
   (GET "/home" [] home)
-  (GET "/" [] index-handler))
+  (GET "/" [] index-handler)
+  #'teams-endpoint/teams-routes
+  )
+
+(defn all-routes
+  []
+  (routes
+   #'app-routes
+   #'teams-endpoint/teams-routes))
 
 (defn setup-default-teams
   "setup a default team, for now everyone will register into this team.
@@ -109,7 +119,7 @@
                (wrap-json-body  {:keywords? true :bigdecimals? true})
                (wrap-json-response  {:pretty false})
                (wrap-reload)
-               #_(wrap-database)
+               (wrap-database)
                (wrap-cors)
                (wrap-authorization auth-backend)
                (wrap-authentication auth-backend)
@@ -122,13 +132,20 @@
   []
   (@server))
 
+(defn restart-server!
+  []
+  (stop-server!)
+  (start-server!))
+
 (comment
   (require '[clj-http.client :as client])
   (require '[jsonista.core :as json])
+  (client/get "http://localhost:4000/api/v1/teams" {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.D2556dmpqXvbuahwSjD-vj8mOIuG2Oce.7XwdOihft0KppBQb.F5pCWIrmSsN0ls0uu92gFFdm26EH4kvY86s8PH4aHzzTp6wwKDChC8IkXFTGqNE.JG3VsYqyyfAiysFTQqQzlA"}})
+  
   (client/post "http://localhost:4000/api/v1/subscriptions?type=direct&team_uuid=bd9a04af-899d-4d61-a169-8dba5dca99d8" {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.j9HaHBdcJUtXso2F2Sc8U8oEG6M3Cdj2.S-Mz35r-lKJseEhw.-ncta6AIv54fiCS79nRH6W7Xv8wUwLBQBHBl0kQLQP9pO3kNw9XBnyG5iFjpbRo.HD8S9V2idFS-V9bH1X_Twg"}})
   (client/get "http://localhost:4000/")
   (users/insert-to-db (database/get-pool) "idhowardgj94" "123456" "howard" "idhowardgj94@gmail.com")
-  (client/get "http://localhost:4000/api/v1/login"
+  (client/post "http://localhost:4000/api/v1/login"
                {:content-type :json
                 :body
                 (json/write-value-as-string
@@ -143,10 +160,10 @@
                {:content-type :json
                 :body
                 (json/write-value-as-string
-                 {:username "eva"
+                 {:username "idhowardgj94"
                   :password "123456"
-                  :name "eva"
-                  :email "eva@gmail.com"})})
+                  :name "idhowardgj94"
+                  :email "idhowardgj94@gmail.com"})})
   (start-server!)
   (stop-server!))
 

@@ -23,7 +23,7 @@
 (defn is-team-exist?
   "check a team exist or not, by team name"
   [db-conn name]
-  (db/get-team-by-name db-conn name))
+  (> (count (db/get-team-by-name db-conn name)) 0))
   
 (defn add-user-to-team
   "add a user to a team, given username and team_uuid"
