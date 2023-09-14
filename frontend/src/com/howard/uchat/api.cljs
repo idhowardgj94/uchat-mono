@@ -7,6 +7,13 @@
 
 
 (defonce endpoint "http://localhost:4000")
+(defonce token (atom (-> js/localStorage
+                         (.getItem "token"))))
+#_(reset! token (-> js/localStorage
+                  (.getItem "token")))
+(defn default-warning-handler
+  [err]
+  (js/console.warn (clj->js err)))
 
 (def json-request
   "This is a default json request setting for uchat."
@@ -44,14 +51,24 @@
   ([payload handler]
    (get-subscription payload handler #(js/console.warn %)))
   ([payload handler error-handler]
-   (let [sub (re-farme/subscribe [::db/subscribe [:token]])
-         token (:token @sub)]
+   (let [token @token]
      (GET (str endpoint "/api/v1/subscriptions")
        (merge json-request
               {:params payload
                :headers {"authorization" (str "token " token)}
                :handler handler
                :error-handler error-handler})))))
+
+(defn get-teams
+  ([handler error-handler]
+   (let [token @token]
+     (GET (str endpoint "/api/v1/teams")
+       (merge json-request
+              {:headers {"authorization" (str "token " token)}
+               :handler handler
+               :error-handler error-handler}))))
+  ([handler]
+   (get-teams handler #'default-warning-handler)))
 
 (comment
   (get-subscription {:type "direct"
