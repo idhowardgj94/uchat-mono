@@ -5,9 +5,9 @@
    [next.jdbc.connection :as connection]
    [ragtime.next-jdbc :as ragtime]
    [ragtime.repl :as repl]
-   [taoensso.timbre :as timbre])
+   [taoensso.timbre :as timbre]
+   [next.jdbc :as jdbc])
   (:import (com.zaxxer.hikari HikariDataSource)))
-
 
 ;; TODO util-tools 
 (defmacro check-spec

@@ -29,6 +29,7 @@
   every user into this team."
   [request]
   (let [body (:body request)
+        db-conn (:db-conn request)
         valid? (s/valid? specs/post-user-spec body)]
     (timbre/info body)
     (timbre/info valid?)
@@ -42,12 +43,12 @@
                                            (type body))}))
       (do (timbre/info "start to save user data to db")
           (let [{:keys [username name password email]} body]
-            (users/insert-to-db username password name email)
+            (users/insert-to-db db-conn username password name email)
             (timbre/info "insert user to default teams 'public'")
-            (let [uuid (->> (teams/get-team-by-name "public")
+            (let [uuid (->> (teams/get-team-by-name db-conn "public")
                             first
                             :teams/uuid)]
-              (teams/add-user-to-team username uuid))
+              (teams/add-user-to-team db-conn username uuid))
 
             (json-response {:status "success"
                             :token (get-login-token username)}))))))
@@ -55,13 +56,14 @@
 (defn login-handler
   [request]
   (let [body (:body request)
-        valid? (s/valid? specs/post-login-spec body)]
+        valid? (s/valid? specs/post-login-spec body)
+        db-conn (:db-conn request)]
     (if-not valid?
       (response/bad-request {:message  (str "Wrong body palyoad. please check the API docs. msg:" (s/explain-str specs/post-login-spec body))})
       (do
         (timbre/info (str "login user: " (:username body)))
         (let [{:keys [username password]} body
-              result (users/get-user-by-username username)
+              result (users/get-user-by-username db-conn username)
               {real-password :password} result]
           (if (or (nil? real-password)
                   (= (-> (hashers/verify password real-password)

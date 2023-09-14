@@ -7,7 +7,7 @@
 (dbfn is-user-in-team
       "predicated that is user in team or not"
       [tx username team_uuid]
-      (-> (db/execute! tx ["SELECT count(*) FROM teams_users WHERE team_uuid = ? AND username = ?" team_uuid username])
+      (-> (jdbc/execute! tx ["SELECT count(*) FROM teams_users WHERE team_uuid = ? AND username = ?" team_uuid username])
           first
           :count
           (> 0)))
@@ -15,7 +15,7 @@
 (dbfn insert-team-by-name
       "insert team by name"
       [tx name]
-      (db/execute! tx
+      (jdbc/execute! tx
                    ["INSERT INTO teams (name) VALUES (?)" name]))
 
 (dbfn get-teams
@@ -31,7 +31,7 @@
       [tx username]
       (into []
             (map #(select-keys % [:team_uuid :name :username :created_at :updated_at]))
-            (db/plan! tx
+            (jdbc/plan tx
                       ["SELECT * FROM teams JOIN teams_users on teams_users.team_uuid = teams.uuid WHERE
 username = ?" username])))
 
@@ -51,12 +51,12 @@ username = ?" username])))
 (dbfn create-team-by-name
   "give a name, create a team by that name."
   [tx name]
-  (db/execute! tx ["INSERT INTO teams (name) VALUES (?)" name]))
+  (jdbc/execute! tx ["INSERT INTO teams (name) VALUES (?)" name]))
 
 (dbfn get-team-by-name
   "get a team by name"
   [tx name]
-  (db/execute! tx ["SELECT * FROM teams WHERE name=?" name]))
+  (jdbc/execute! tx ["SELECT * FROM teams WHERE name=?" name]))
 
 (comment
   (get-teams)

@@ -1,8 +1,7 @@
 (ns com.howard.uchat.backend.users.interface
   (:require [next.jdbc :as jdbc]
             [next.jdbc.date-time]
-            [clj-time.core :as time]
-            [com.howard.uchat.backend.database.interface :as db]
+            [com.howard.uchat.backend.database.interface :as db :refer [get-pool]]
             [buddy.hashers :as hashers])
   (:import [java.sql Timestamp]))
 
@@ -10,17 +9,17 @@
 
 (defn get-user-by-username
   "get user by username"
-  [username]
+  [db-conn username]
   (first
    (into (list)
          (map #(select-keys % [:id :username :password]))
-         (jdbc/plan (db/get-pool) ["SELECT * FROM users where username=?"
+         (jdbc/plan db-conn ["SELECT * FROM users where username=?"
                                    username]))))
 
 (defn insert-to-db
-  [username password name email]
+  [db-conn username password name email]
   (jdbc/execute!
-   (db/get-pool)
+   db-conn
    ["INSERT INTO users (username, password, name, email) VALUES (?, ?, ?, ?)"
     username, (hashers/derive password) name, email]))
 
@@ -28,5 +27,5 @@
   jdbc/plan
   transduce
   reduce
-  (insert-to-db "howard3" "1234" "howard2" "idhowardgj9444@gmail.com")
-  (get-user-by-username "howard3"))
+  (insert-to-db (get-pool) "howard3" "1234" "howard2" "idhowardgj9444@gmail.com")
+  (get-user-by-username (get-pool) "howard3"))

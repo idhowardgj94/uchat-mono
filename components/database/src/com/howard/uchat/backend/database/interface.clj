@@ -39,20 +39,6 @@
   []
   (core/get-pool))
 
-(dbfn execute!
-  "a simple wraper for nextjdbc/execute!.
-  query: vector of sql query"
-  [tx q]
-  (jdbc/execute!
-   tx
-   q))
-
-(dbfn plan!
-  "a simple wraper for nextjdbc/plan
-  q: vector of query"
-  [tx q]
-  (jdbc/plan tx q))
-
 (def mk-migraiton-config
   "gererate a migration config for use for ragtime repl."
   #'core/mk-migration-config)

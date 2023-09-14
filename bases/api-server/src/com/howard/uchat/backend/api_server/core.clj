@@ -9,7 +9,7 @@
    [com.howard.uchat.backend.api-server.auth
     :refer [login-handler register-handler secret]]
    [com.howard.uchat.backend.api-server.middleware
-    :refer [wrap-authentication-guard wrap-cors]]
+    :refer [wrap-authentication-guard wrap-cors wrap-database]]
    [com.howard.uchat.backend.api-server.spec :as specs]
    [com.howard.uchat.backend.api-server.util :refer [json-response]]
    [com.howard.uchat.backend.database.interface :as database]
@@ -50,12 +50,13 @@
 (defn get-subscriptions-handler
   [request]
   (let [params (:params request)
+        db-conn (:db-conn request)
         valid? (s/valid? specs/get-subscriptions-spec params)]
     (if-not valid?
       (response/bad-request {:message  (str "Wrong body palyoad. please check the API docs. msg:" (s/explain-str specs/get-subscriptions-spec params))})
       (let [{:keys [type team_uuid]} params
             {:keys [:username]} (:identity request)]
-        (json-response (subscriptions/get-user-team-subscriptions {:type (keyword type)
+        (json-response (subscriptions/get-user-team-subscriptions db-conn {:type (keyword type)
                                                                    :username username
                                                                    :team-uuid  (parse-uuid team_uuid)}))))))
 
@@ -64,14 +65,14 @@
   [request]
   (let [params (:params request)
         username (:username params)]
-    ))
+    "TODO"))
 
 (defroutes app-routes
   (context "/api/v1" []
     (wrap-routes
      (routes
-      (GET "/subscriptions" [] get-subscriptions-handler))
-      (POST "/subscriptions/generate" [] post-gen-subscriptions-handler)
+      (GET "/subscriptions" [] get-subscriptions-handler)
+      (POST "/subscriptions/generate" [] post-gen-subscriptions-handler))
       wrap-authentication-guard)
     (POST "/register" [] register-handler)
     (POST "/login" [] login-handler))
@@ -83,11 +84,12 @@
   default: public
   TODO"
   []
-  (timbre/info "Check if default team 'public' exist or not......")
-  (when-not
-      (teams/is-team-exist? "public")
-    (timbre/info "'public' is not exist in uchat, create it.")
-    (teams/create-team-by-name "public")))
+  (let [db-conn (database/get-pool)]
+    (timbre/info "Check if default team 'public' exist or not......")
+    (when-not
+     (teams/is-team-exist? db-conn "public")
+      (timbre/info "'public' is not exist in uchat, create it.")
+      (teams/create-team-by-name db-conn "public"))))
 
 (defn start-server!
   "start a restful api server,
@@ -107,6 +109,7 @@
                (wrap-json-body  {:keywords? true :bigdecimals? true})
                (wrap-json-response  {:pretty false})
                (wrap-reload)
+               #_(wrap-database)
                (wrap-cors)
                (wrap-authorization auth-backend)
                (wrap-authentication auth-backend)
@@ -122,20 +125,20 @@
 (comment
   (require '[clj-http.client :as client])
   (require '[jsonista.core :as json])
-  (client/get "http://localhost:4000/api/v1/subscriptions?type=direct&team_uuid=bd9a04af-899d-4d61-a169-8dba5dca99d8" {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.j9HaHBdcJUtXso2F2Sc8U8oEG6M3Cdj2.S-Mz35r-lKJseEhw.-ncta6AIv54fiCS79nRH6W7Xv8wUwLBQBHBl0kQLQP9pO3kNw9XBnyG5iFjpbRo.HD8S9V2idFS-V9bH1X_Twg"}})
-  
-  (users/insert-to-db "idhowardgj94" "123456" "howard" "idhowardgj94@gmail.com")
-  (client/options "http://localhost:4000/api/v1/login"
+  (client/post "http://localhost:4000/api/v1/subscriptions?type=direct&team_uuid=bd9a04af-899d-4d61-a169-8dba5dca99d8" {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.j9HaHBdcJUtXso2F2Sc8U8oEG6M3Cdj2.S-Mz35r-lKJseEhw.-ncta6AIv54fiCS79nRH6W7Xv8wUwLBQBHBl0kQLQP9pO3kNw9XBnyG5iFjpbRo.HD8S9V2idFS-V9bH1X_Twg"}})
+  (client/get "http://localhost:4000/")
+  (users/insert-to-db (database/get-pool) "idhowardgj94" "123456" "howard" "idhowardgj94@gmail.com")
+  (client/get "http://localhost:4000/api/v1/login"
                {:content-type :json
                 :body
                 (json/write-value-as-string
                  {:username "idhowardgj94"
                   :password "123456"})})
-  (let [uuid (->> (teams/get-team-by-name "public")
+  (let [uuid (->> (teams/get-team-by-name (database/get-pool) "public")
                   first
                   :teams/uuid)]
-    (teams/add-user-to-team "idhowardgj94" uuid))
-  (teams/get-team-by-name "public")
+    (teams/add-user-to-team (database/get-pool) "idhowardgj94" uuid))
+  (teams/get-team-by-name (database/get-pool) "public")
   (client/post "http://localhost:4000/api/v1/register"
                {:content-type :json
                 :body

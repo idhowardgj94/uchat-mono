@@ -1,8 +1,6 @@
 (ns com.howard.uchat.backend.subscriptions.interface
-  (:require [next.jdbc :as jdbc]
-            [com.howard.uchat.backend.subscriptions.core :as core]
-            )
-  )
+  (:require
+   [com.howard.uchat.backend.subscriptions.core :as core]))
 
 (set! *warn-on-reflection* true)
 
@@ -15,5 +13,5 @@
   - type: :direct or :channel
   - username
   - team-uuid"
-  [opt]
-  (core/get-user-team-subscirptions opt))
+  [db-conn opt]
+  (core/get-user-team-subscirptions db-conn opt))

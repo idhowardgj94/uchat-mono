@@ -1,8 +1,7 @@
 (ns com.howard.uchat.backend.subscriptions.database
   (:require [next.jdbc :as jdbc]
             [com.howard.uchat.backend.database.interface :as database :refer [dbfn]]
-            
-            [com.howard.uchat.backend.database.interface :as db]))
+            ))
 
 (dbfn get-user-team-direct-subscriptions
   "get user team direct subscriptions"
@@ -16,6 +15,8 @@
     ["SELECT teams_users.username AS other_user, subscriptions.* FROM subscriptions RIGHT JOIN
 teams_users ON subscriptions.other_user = teams_users.username AND subscriptions.username = ? WHERE team_uuid = ?" username team-uuid])))
 
+(comment
+  )
 (dbfn get-user-team-channel-subscriptions
   "this is a dbfn TODO: docstring need to be optional"
   [tx username team-uuid]
@@ -37,8 +38,8 @@ WHERE team_uuid = ?" username team-uuid])))
       [tx team-uuid]
       (into []
             (map #(select-keys % [:username :email :name :id]))
-            (database/plan! tx
-                            ["SELECT users.* FROM users JOIN teams_users on users.username = teams_users.username where team_uuid = ?" team-uuid])))
+            (jdbc/plan tx
+                       ["SELECT users.* FROM users JOIN teams_users on users.username = teams_users.username where team_uuid = ?" team-uuid])))
 
 (dbfn get-team-channels
       "TODO: pagination
@@ -46,8 +47,8 @@ WHERE team_uuid = ?" username team-uuid])))
       [tx team-uuid]
       (into []
             (map #(select-keys % [:name :uuid :created_at :updated_at]))
-            (database/plan! tx
-                            ["SELECT * FROM channels where team_uuid = ?" team-uuid])))
+            (jdbc/plan tx
+                       ["SELECT * FROM channels where team_uuid = ?" team-uuid])))
 
 
 
@@ -106,7 +107,7 @@ WHERE team_uuid = ?" username team-uuid])))
      sql))
 
 (comment
-  (db/execute! ["select * from channels"])
+  (jdbc/execute! (database/get-pool) ["select * from channels"])
   (get-team-users #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
   (get-team-channels #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
   (get-team-users #uuid "684062e0-4b68-4458-873e-6bc22ddbd925")
