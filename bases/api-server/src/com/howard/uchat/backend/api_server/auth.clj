@@ -10,7 +10,10 @@
    [com.howard.uchat.backend.users.interface :as users]
    [ring.util.response :as response]
    [com.howard.uchat.backend.api-server.util :refer [json-response]]
-   [taoensso.timbre :as timbre]))
+   [taoensso.timbre :as timbre]
+   [next.jdbc :as jdbc]
+   [ring.util.response :as res-util]
+   [com.howard.uchat.backend.database.interface :as database]))
 
 
 (defonce secret (nonce/random-bytes 32))
@@ -43,15 +46,18 @@
                                            (type body))}))
       (do (timbre/info "start to save user data to db")
           (let [{:keys [username name password email]} body]
-            (users/insert-to-db db-conn username password name email)
-            (timbre/info "insert user to default teams 'public'")
-            (let [uuid (->> (teams/get-team-by-name db-conn "public")
-                            first
-                            :teams/uuid)]
-              (teams/add-user-to-team db-conn username uuid))
-
-            (json-response {:status "success"
-                            :token (get-login-token username)}))))))
+            (jdbc/with-transaction [tx db-conn]
+              (if (some? (users/get-user-by-username tx username))
+                (json-response {:status "failed"
+                                :message "username have already been registered."})
+                (do (users/insert-to-db tx username password name email)
+                    (timbre/info "insert user to default teams 'public'")
+                    (let [uuid (->> (teams/get-team-by-name tx "public")
+                                    first
+                                    :teams/uuid)]
+                      (teams/add-user-to-team tx username uuid))
+                    (json-response {:status "success"
+                                    :token (get-login-token username)})))))))))
 
 (defn login-handler
   [request]
