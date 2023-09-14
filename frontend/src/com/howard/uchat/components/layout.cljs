@@ -129,45 +129,35 @@
                    :title "Channels"
                    :right-button-component [:> AiOutlinePlus]
                    :data (->> (:channel-subscriptions @subscriptions)
-                                    (map (fn [it]
-                                           {:id (:other_user it)
-                                            :avatar [:> Avatar {:name (:other_user it) :size 18 :className "rounded-full"}]
-                                            :title (:other_user it)
-                                            :href (rfe/href :routes/channels {:uuid "#"})})))}]
+                              (map (fn [it]
+                                     {:id (:other_user it)
+                                      :avatar [:> Avatar {:name (:other_user it) :size 18 :className "rounded-full"}]
+                                      :title (:other_user it)
+                                      :href (rfe/href :routes/channels {:uuid "#"})})))}]
        [:div.my-2]
        [tree-menu {:open? open-direct?
                    :title "Direct Messages"
                    :right-button-component [:> AiOutlinePlus]
                    :data  (->> (:direct-subscriptions @subscriptions)
-                                    (map (fn [it]
-                                           {:id (:other_user it)
-                                            :avatar [:> Avatar {:name (:other_user it) :size 18 :className "rounded-full"}]
-                                            :title (:other_user it)
-                                            :href (rfe/href :routes/channels {:uuid "#"})})))
-                   }]])))
+                               (map (fn [it]
+                                      (let [{:keys [other_user channel_uuid]} it]
+                                        {:id (or channel_uuid other_user)
+                                         :avatar [:> Avatar {:name (:other_user it) :size 18 :className "rounded-full"}]
+                                         :title other_user
+                                         :href
+                                         (if (nil? channel_uuid)
+                                           (rfe/href :routes/create-direct {:other-username other_user})
+                                           (rfe/href :routes/channels {:uuid channel_uuid}))}))))}]])))
 
 (re-frame/reg-sub ::auth?
                   (fn [db _]
                     (:auth? db)))
                                         ;
-(defn guard
-  []
-  (let [auth (re-frame/subscribe [::db/subscribe [:auth?]])
-        auth? (:auth? @auth)]
-    (if (= auth? true)
-      true
-      (do
-        (println "inside else")
-        (re-frame/dispatch [:routes/navigate :routes/login])
-        false))))
 
 (defn main-layout
   "this is main layout for uchat."
   []
-  #_(guard)
-  (re-frame/dispatch [::event/get-subscriptions "direct"  "bd9a04af-899d-4d61-a169-8dba5dca99d8"])
-  (re-frame/dispatch [::event/get-subscriptions "channel"  "bd9a04af-899d-4d61-a169-8dba5dca99d8"])
-  
+  (re-frame/dispatch [::event/prepare-user-context])
   (fn []
     (let [active-route (re-frame/subscribe [:routes/current-route])
           view (:view (:data @active-route))]

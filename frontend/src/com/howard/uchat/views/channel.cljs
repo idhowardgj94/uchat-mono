@@ -2,9 +2,18 @@
   (:require
    [com.howard.uchat.views.rooms :refer [room]]
    [re-frame.core :as re-frame]
+   [com.howard.uchat.use-cases.core-cases :as event]
    [com.howard.uchat.db :as db]))
 
-;@(re-farme/subscribe [::db/subscribe [:auth?]])
+(defn create-direct
+  []
+  (let [{:keys [current-route]} @(re-frame/subscribe [::db/subscribe [:current-route]])
+        other-user (-> current-route
+                       :path-params
+                       :other-username)]
+    (re-frame/dispatch [::event/create-direct other-user])
+    (fn []
+      [:div "handling...."])))
 (defn guard
   []
   (let [auth (re-frame/subscribe [::db/subscribe [:auth?]])

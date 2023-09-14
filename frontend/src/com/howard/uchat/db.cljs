@@ -5,7 +5,11 @@
 (defonce default-db
   {:name "re-frame"
    :current-route nil
-   :current-sub-route nil
+   :user-context-status nil
+   :direct-subscriptions nil
+   :channel-subscriptions nil
+   :teams nil
+   :current-team nil
    :auth? nil
    :token nil
    :register-validate []

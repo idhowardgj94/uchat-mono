@@ -34,8 +34,8 @@
  (fn-traced
   [{:keys [db]} [_ response]]
   (let [{token :token} response]
-    (js/console.log "token: " token)
     (.setItem js/localStorage "token" token)
+    (reset! api/token token)
     {:db (assoc db
                 :token token
                 :auth? true)})))
@@ -123,6 +123,15 @@
   (js/console.log "hello, world"))
 
 ;; ------------------ get list
+(re-frame/reg-event-db
+ ::check-user-context-success
+ (fn-traced
+  [db _]
+  (let [{:keys [direct-subscriptions channel-subscriptions]} db]
+    (if (and (some? direct-subscriptions)
+             (some? channel-subscriptions))
+      (assoc db :user-context-status :success)
+      db))))
 
 (re-frame/reg-event-db
  ::assoc-db
@@ -134,15 +143,48 @@
 (re-frame/reg-event-fx
  ::get-subscriptions
  (fn-traced
-  [{:keys [db]} [_ type uuid]]
+  [{:keys [db]} [_ type]]
   ;; TODO: team
-  (api/get-subscription
-   {:type type
-    :team_uuid uuid}
-   #(case type
-      "direct" (do (js/console.log "direct~~~" (get % "result"))
-                   (re-frame/dispatch [::assoc-db :direct-subscriptions (:result %)]))
-      "channel" (re-frame/dispatch [::assoc-db :channel-subscriptions (:result %)])))
+  (let [team_uuid (-> db
+                      :current-team
+                      :team_uuid)]
+    (api/get-subscription
+     {:type type
+      :team_uuid team_uuid}
+     #(case type
+        "direct" (do 
+                     (re-frame/dispatch [::assoc-db :direct-subscriptions (:result %)])
+                     (re-frame/dispatch [::check-user-context-success]))
+        "channel" (do (re-frame/dispatch [::assoc-db :channel-subscriptions (:result %)])
+                      (re-frame/dispatch [::check-user-context-success]))))
+    nil)))
+
+(re-frame/reg-fx
+ ::get-teams
+ (fn-traced
+  [_]
+  (api/get-teams #(do
+                    (re-frame/dispatch [::assoc-db :teams (:result %)])
+                    (re-frame/dispatch [::assoc-db :current-team (first (:result %))])
+                    (re-frame/dispatch [::get-subscriptions "direct"])
+                    (re-frame/dispatch [::get-subscriptions "channel"])))))
+
+(re-frame/reg-event-fx
+ ::prepare-user-context
+ (fn-traced
+  [{:keys [db]} _]
+  {:fx [[:dispatch [::assoc-db :user-context-status :request]]
+        [::get-teams nil]]
+   :db (assoc db
+              :user-context-status :request
+              :direct-subscriptions nil
+              :channel-subscriptions nil
+              :teams nil
+              :current-team nil)}))
+
+(re-frame/reg-event-fx
+ ::create-direct
+ (fn-traced
+  [_ [_ other-user]]
+  "TODO"
   nil))
-
-

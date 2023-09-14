@@ -33,7 +33,11 @@
     ["/channels/channel/:uuid"
      {:name :routes/channels
       :view #'channel/channel
-      :parameters {:path {:uuid string?}}}]]
+      :parameters {:path {:uuid string?}}}]
+    ["/channels/create-direct/:other-username"
+     {:name :routes/create-direct
+      :view #'channel/create-direct
+      :parameters {:path {:other-username string?}}}]]
    {:data {:coercion rsc/coercion}}))
 
 (defn on-navigate [new-match]
