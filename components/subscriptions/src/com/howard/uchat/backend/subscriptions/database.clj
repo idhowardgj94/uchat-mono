@@ -15,8 +15,6 @@
     ["SELECT teams_users.username AS other_user, subscriptions.* FROM subscriptions RIGHT JOIN
 teams_users ON subscriptions.other_user = teams_users.username AND subscriptions.username = ? WHERE team_uuid = ?" username team-uuid])))
 
-(comment
-  )
 (dbfn get-user-team-channel-subscriptions
   "this is a dbfn TODO: docstring need to be optional"
   [tx username team-uuid]
@@ -29,7 +27,7 @@ teams_users ON subscriptions.other_user = teams_users.username AND subscriptions
     ["SELECT channels.*, subscriptions.* FROM subscriptions RIGHT JOIN
 channels ON channels.uuid=subscriptions.channel_uuid and
 subscriptions.username = ?
-WHERE team_uuid = ?" username team-uuid])))
+WHERE team_uuid = ? AND channels.type = 'channel'" username team-uuid])))
 
 (dbfn get-team-users
       "TODO: pagination.
@@ -52,17 +50,6 @@ WHERE team_uuid = ?" username team-uuid])))
 
 
 
-(defn insert-users-into-channel
-  "insert users into channel by username and channel uuid"
-  [tx cuuid & users]
-  (let [stmts (->> users
-                   (map #(vector % cuuid))
-                   (into []))]
-    (jdbc/execute-batch!
-     tx
-     "INSERT INTO channels_users (username, channel_uuid) VALUES
-(?, ?)"
-     stmts {})))
 
 (dbfn create-channel
       "create a channel by channel name and uuid."

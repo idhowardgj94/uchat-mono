@@ -27,7 +27,10 @@
    [ring.middleware.reload :refer [wrap-reload]]
    [ring.middleware.resource :refer [wrap-resource]]
    [ring.util.response :as response]
-   [taoensso.timbre :as timbre]))
+   [taoensso.timbre :as timbre]
+   [next.jdbc :as jdbc]
+   [com.howard.uchat.backend.channels.interface :as channels]
+   [com.howard.uchat.backend.api-server.util :as util]))
 
 (def auth-backend (jwe-backend {:secret secret
                                 :token-name "token"
@@ -62,19 +65,29 @@
                                                                    :username username
                                                                    :team-uuid  (parse-uuid team_uuid)}))))))
 
-;; TODO: username
-(defn post-gen-subscriptions-handler
+(defn post-gen-direct-handler
   [request]
-  (let [params (:params request)
-        username (:username params)]
-    "TODO"))
+  (let [username (-> (:identity request) :username)  
+        body (:body request)
+        valid? (s/valid? specs/post-generate-direct-spec body)
+        conn (:db-conn request)
+        other-user (:other_user body)]
+    (if-not valid?
+      (response/bad-request {:message (str "Wrong body palyoad. please check the API docs. msg: " (s/explain-str specs/post-generate-direct-spec body))})
+      (if (nil? (users/get-user-by-username conn other-user))
+        (response/bad-request {:message (str "Can't find the user " other-user)})
+        (jdbc/with-transaction [tx (database/get-pool)]
+          (let [channel-uuid (channels/create-direct-and-insert-users tx (-> (:team_uuid body) parse-uuid) username (:other_user body))]
+            (subscriptions/create-direct-subscriptions tx channel-uuid username other-user)
+            (util/json-response {:status "success"
+                                 :result channel-uuid})))))))
 
 (defroutes app-routes
   (context "/api/v1" []
     (wrap-routes
      (routes
       (GET "/subscriptions" [] get-subscriptions-handler)
-      (POST "/subscriptions/generate" [] post-gen-subscriptions-handler))
+      (POST "/direct/generate" [] post-gen-direct-handler))
      wrap-authentication-guard)
     (POST "/register" [] register-handler)
     (POST "/login" [] login-handler))
@@ -82,12 +95,6 @@
   (GET "/" [] index-handler)
   #'teams-endpoint/teams-routes
   )
-
-(defn all-routes
-  []
-  (routes
-   #'app-routes
-   #'teams-endpoint/teams-routes))
 
 (defn setup-default-teams
   "setup a default team, for now everyone will register into this team.
@@ -140,21 +147,26 @@
 (comment
   (require '[clj-http.client :as client])
   (require '[jsonista.core :as json])
+  (def auth {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.3R6M1wDvoIc-9p75RAWVx0hcr4LyAAsr._YqyBelquflmWDY_.zcz6DukZ4taGJ2vkHC9eIFuskgysqeV-NGuCTlpabDTKeV4ianfdLI8mUdPMVAA.ybEHFEcpI-JOy0mLkD5VcA"}})
+  
   (client/get "http://localhost:4000/api/v1/teams" {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.D2556dmpqXvbuahwSjD-vj8mOIuG2Oce.7XwdOihft0KppBQb.F5pCWIrmSsN0ls0uu92gFFdm26EH4kvY86s8PH4aHzzTp6wwKDChC8IkXFTGqNE.JG3VsYqyyfAiysFTQqQzlA"}})
   
   (client/post "http://localhost:4000/api/v1/subscriptions?type=direct&team_uuid=bd9a04af-899d-4d61-a169-8dba5dca99d8" {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.j9HaHBdcJUtXso2F2Sc8U8oEG6M3Cdj2.S-Mz35r-lKJseEhw.-ncta6AIv54fiCS79nRH6W7Xv8wUwLBQBHBl0kQLQP9pO3kNw9XBnyG5iFjpbRo.HD8S9V2idFS-V9bH1X_Twg"}})
-  (client/get "http://localhost:4000/")
+  
   (users/insert-to-db (database/get-pool) "idhowardgj94" "123456" "howard" "idhowardgj94@gmail.com")
+  (teams/get-teams (database/get-pool))
   (client/post "http://localhost:4000/api/v1/login"
                {:content-type :json
                 :body
-                (json/write-value-as-string
+                (json/write-value-as-string     
                  {:username "idhowardgj94"
                   :password "123456"})})
-  (let [uuid (->> (teams/get-team-by-name (database/get-pool) "public")
-                  first
-                  :teams/uuid)]
-    (teams/add-user-to-team (database/get-pool) "idhowardgj94" uuid))
+  (client/post "http://localhost:4000/api/v1/direct/generate"
+               (merge auth
+                      {:content-type :json
+                       :body (json/write-value-as-string
+                              {:team_uuid "d205e510-8dee-4fb5-8d55-4f4bc5174bad"
+                               :other_user "eva"})}))
   (teams/get-team-by-name (database/get-pool) "public")
   (client/post "http://localhost:4000/api/v1/register"
                {:content-type :json

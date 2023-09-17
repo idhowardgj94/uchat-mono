@@ -15,3 +15,18 @@
   - team-uuid"
   [db-conn opt]
   (core/get-user-team-subscirptions db-conn opt))
+
+(defn create-direct-subscriptions
+  "
+  create subscriptions for user
+  please give username and other_username, channel_type
+  params:
+  - tx
+  - channel-uuid
+  - username
+  - other-username
+  "
+  [tx channel-uuid username other-username]
+  (core/create-subscription tx channel-uuid username other-username "direct")
+  (when (not= username other-username)
+    (core/create-subscription tx channel-uuid other-username username "direct")))

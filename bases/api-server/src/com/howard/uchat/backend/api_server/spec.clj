@@ -19,3 +19,8 @@
   (ds/spec {:name ::get-subscriptions
             :spec {:type (s/spec #{"channel" "direct"})
                    :team_uuid string?}}))
+
+(def post-generate-direct-spec
+  (ds/spec {:name ::post-channels-generate
+            :spec {:team_uuid string?
+                   :other_user string?}}))
