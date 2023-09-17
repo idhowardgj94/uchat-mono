@@ -36,6 +36,7 @@
   (let [{token :token} response]
     (.setItem js/localStorage "token" token)
     (reset! api/token token)
+    (api/add-axios-auth token)
     {:db (assoc db
                 :token token
                 :auth? true)})))
@@ -182,9 +183,28 @@
               :teams nil
               :current-team nil)}))
 
-(re-frame/reg-event-fx
- ::create-direct
+
+
+;; ---- generate direct channel
+(re-frame/reg-event-db
+ ::set-direct-uuid
  (fn-traced
-  [_ [_ other-user]]
-  "TODO"
-  nil))
+  [db [_ other-user channel-uuid]]
+  (let [directs (-> db :direct-subscriptions)]
+    (assoc db :direct-subscriptions
+           (->> directs
+                (map #(if (= (:other_user %) other-user)
+                        (assoc % :channel_uuid channel-uuid)
+                        %)))))))
+
+(re-frame/reg-event-fx
+ ::generate-direct-channel
+ (fn-traced
+  [{:keys [db]} [_ other-user]]
+  (let [team-uuid (-> db :current-team :team_uuid)]
+    (-> (api/post-generate-direct team-uuid other-user)
+        (.then #(do
+                  (println %)
+                  (let [channel-uuid (-> % :data :result)]
+                    (re-frame/dispatch [::set-direct-uuid other-user channel-uuid])
+                    (re-frame/dispatch [:routes/navigate [:routes/channels {:uuid channel-uuid}]]))))))))

@@ -11,7 +11,7 @@
         other-user (-> current-route
                        :path-params
                        :other-username)]
-    (re-frame/dispatch [::event/create-direct other-user])
+    (re-frame/dispatch [::event/generate-direct-channel other-user])
     (fn []
       [:div "handling...."])))
 (defn guard
@@ -21,7 +21,6 @@
     (if (= auth? true)
       true
       (do
-        (println "inside else")
         (re-frame/dispatch [:routes/navigate :routes/login])
         false))))
 (defn channel

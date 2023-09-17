@@ -2,15 +2,61 @@
   #_{:clj-kondo/ignore [:unresolved-var]}
   (:require
    [com.howard.uchat.db :as db]
+   ["axios$default" :as axios]
+   [goog.object :as obj]
    [ajax.core :refer [GET POST] :as ajax]
    [re-frame.core :as re-farme]))
-
+;; TODO: migrate ajax to axios
 
 (defonce endpoint "http://localhost:4000")
 (defonce token (atom (-> js/localStorage
                          (.getItem "token"))))
-#_(reset! token (-> js/localStorage
-                  (.getItem "token")))
+
+(defn axios-response-to-clj
+  []
+  (-> axios
+      (.-interceptors)
+      (.-response)
+      (.use (fn [config]
+              (js->clj config :keywordize-keys true)))))
+
+(defn remove-response-to-clj
+  []
+  (-> axios
+      (.-interceptors)
+      (.-response)
+      (.clear)))
+
+(defn add-axios-auth
+  "add axios request auth header, given token."
+  [token]
+  (-> axios
+      (.-interceptors)
+      (.-request)
+      (.use (fn [config]
+              (obj/set
+               (-> config
+                   (.-headers))
+               "authorization"
+               (str "token " token))
+              config))))
+
+(defn remove-axios-auth
+  "basicly call clear and remove all interceptors.
+  in this project, just clear auth."
+  []
+  (-> axios
+      (.-interceptors)
+      (.-request)
+      (.clear)))
+
+(defn post-generate-direct
+  [team-uuid other-user]
+  (-> axios
+      (.post (str endpoint "/api/v1/direct/generate")
+             #js {:team_uuid team-uuid
+                  :other_user other-user})))
+
 (defn default-warning-handler
   [err]
   (js/console.warn (clj->js err)))

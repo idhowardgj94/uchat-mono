@@ -4,6 +4,7 @@
             [com.howard.uchat.styles :as styl]
             [com.howard.uchat.use-cases.core-cases :as ccases]
             [com.howard.uchat.views.home :as views]
+            [com.howard.uchat.api :as api]
             [goog.dom :as gdom]
             [react :as react]
             [re-frame.core :as re-frame]
@@ -29,6 +30,7 @@
 
 (defn ^:export init []
   (println "init again..")
+  (api/axios-response-to-clj)
   (re-frame/dispatch-sync [::ccases/initialize-db])
   (dev-setup)
   (routes/app-routes)

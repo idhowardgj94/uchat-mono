@@ -68,5 +68,5 @@
      (let [[name items] route]
        (rfe/push-state name items)))))
 
-#_(rf/dispatch [:routes/navigate [:routes/channels {:uuid "oeuoeu"}]])
+#_(rf/dispatch [:routes/navigate [:routes/channels {:uuid "38438f4b-8140-49e3-bf41-bfd540fcc626"}]])
 #_(rf/dispatch [:routes/navigate :routes/channels-home])
