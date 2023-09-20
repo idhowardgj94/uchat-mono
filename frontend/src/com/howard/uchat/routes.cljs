@@ -30,10 +30,11 @@
       :view #'room}]
     ["/channels/home" {:name :routes/channels-home
                        :view #'channel/home}]
-    ["/channels/channel/:uuid"
+    ["/channels/channel/:channel-type/:uuid"
      {:name :routes/channels
       :view #'channel/channel
-      :parameters {:path {:uuid string?}}}]
+      :parameters {:path {:uuid string?
+                          :channel-type keyword?}}}]
     ["/channels/create-direct/:other-username"
      {:name :routes/create-direct
       :view #'channel/create-direct

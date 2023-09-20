@@ -64,6 +64,7 @@
   (let [body (:body request)
         valid? (s/valid? specs/post-login-spec body)
         db-conn (:db-conn request)]
+    (timbre/info "inside login-handler")
     (if-not valid?
       (response/bad-request {:message  (str "Wrong body palyoad. please check the API docs. msg:" (s/explain-str specs/post-login-spec body))})
       (do

@@ -8,10 +8,13 @@
    :user-context-status nil
    :direct-subscriptions nil
    :channel-subscriptions nil
+   :user nil
    :teams nil
    :current-team nil
+   :current-channel nil
    :auth? nil
    :token nil
+   :message-box {}
    :register-validate []
    :register-request {}
    :login-validate []

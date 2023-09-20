@@ -14,6 +14,7 @@
     (re-frame/dispatch [::event/generate-direct-channel other-user])
     (fn []
       [:div "handling...."])))
+
 (defn guard
   []
   (let [auth (re-frame/subscribe [::db/subscribe [:auth?]])
@@ -23,6 +24,7 @@
       (do
         (re-frame/dispatch [:routes/navigate :routes/login])
         false))))
+
 (defn channel
   "This is a channel layout."
   []

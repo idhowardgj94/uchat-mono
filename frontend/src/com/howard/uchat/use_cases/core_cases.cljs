@@ -5,9 +5,8 @@
    [com.howard.uchat.api :as api]
    [com.howard.uchat.db-spec :as spec]
    [cljs.spec.alpha :as s]
-   [spec-tools.data-spec :as ds]
-   [day8.re-frame.tracing :refer-macros [fn-traced]]
-   
+   [com.howard.uchat.use-cases.socket :as socket]
+   [day8.re-frame.tracing :refer-macros [fn-traced]]  
    ))
 
 (defn get-error-fields
@@ -29,6 +28,16 @@
                                          {:status status
                                           :response response})))
 
+(re-frame/reg-fx
+ ::get-me
+ (fn-traced
+  [_]
+  (-> (api/get-me)
+      (.then (fn [response]
+               (let [data (:data response)]
+                 (re-frame/dispatch [::assoc-db :user data])
+                 ))))))
+
 (re-frame/reg-event-fx
  ::store-token-and-login
  (fn-traced
@@ -37,9 +46,12 @@
     (.setItem js/localStorage "token" token)
     (reset! api/token token)
     (api/add-axios-auth token)
+    (socket/init-sente token)
+    (socket/start-router!)
     {:db (assoc db
                 :token token
-                :auth? true)})))
+                :auth? true)
+     :fx [[::get-me]]})))
 
 (re-frame/reg-fx ::register-request
                  (fn [reg-form]
@@ -138,8 +150,13 @@
  ::assoc-db
  (fn-traced
   [db [_ key value]]
-  (js/console.log (clj->js value))
   (assoc db key value)))
+
+(re-frame/reg-event-db
+ ::assoc-in-db
+ (fn-traced [db [_ keys value]]
+            (js/console.log "inside assoc-in-db" value)
+            (assoc-in db keys value)))
 
 (re-frame/reg-event-fx
  ::get-subscriptions
@@ -207,4 +224,5 @@
                   (println %)
                   (let [channel-uuid (-> % :data :result)]
                     (re-frame/dispatch [::set-direct-uuid other-user channel-uuid])
-                    (re-frame/dispatch [:routes/navigate [:routes/channels {:uuid channel-uuid}]]))))))))
+                    (re-frame/dispatch [:routes/navigate [:routes/channels {:uuid channel-uuid
+                                                                            :channel-type :direct}]]))))))))

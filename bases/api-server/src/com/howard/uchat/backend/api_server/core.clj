@@ -2,6 +2,7 @@
 (ns com.howard.uchat.backend.api-server.core
   (:require
    [buddy.auth :refer [authenticated? throw-unauthorized]]
+   [buddy.auth.protocols :as proto]
    [buddy.auth.backends.token :refer [jwe-backend]]
    [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
    [clj-http.client :as client]
@@ -9,15 +10,17 @@
    [com.howard.uchat.backend.api-server.auth
     :refer [login-handler register-handler secret]]
    [com.howard.uchat.backend.api-server.middleware
-    :refer [wrap-authentication-guard wrap-cors wrap-database]]
+    :refer [wrap-authentication-guard wrap-cors wrap-database wrap-token-from-params]]
    [com.howard.uchat.backend.api-server.spec :as specs]
-   [com.howard.uchat.backend.api-server.util :refer [json-response]]
+   [com.howard.uchat.backend.api-server.util :refer [json-response] :as util]
    [com.howard.uchat.backend.database.interface :as database]
    [com.howard.uchat.backend.subscriptions.interface :as subscriptions]
    [com.howard.uchat.backend.teams.interface :as teams]
    [com.howard.uchat.backend.users.interface :as users]
-   [compojure.route :as route]
    [com.howard.uchat.backend.api-server.endpoints.teams :as teams-endpoint]
+   [com.howard.uchat.backend.api-server.endpoints.channels :as channels-endpoint]
+   [com.howard.uchat.backend.api-server.endpoints.messages :as messages-endpoint]
+   [com.howard.uchat.backend.socket.interface :as socket]
    [compojure.core :refer [context defroutes GET POST wrap-routes routes]]
    [jsonista.core :as json]
    [next.jdbc.connection :as connection]
@@ -29,14 +32,13 @@
    [ring.util.response :as response]
    [taoensso.timbre :as timbre]
    [next.jdbc :as jdbc]
-   [com.howard.uchat.backend.channels.interface :as channels]
-   [com.howard.uchat.backend.api-server.util :as util]))
+   [com.howard.uchat.backend.channels.interface :as channels]))
 
-(def auth-backend (jwe-backend {:secret secret
-                                :token-name "token"
-                                :options {:alg :a256kw :enc :a128gcm}}))
-
-;; (ns-unalias *ns* 'specs)
+(def auth-backend 
+  (jwe-backend {:secret secret
+                :token-name "token"
+                :options {:alg :a256kw :enc :a128gcm}}))
+#_[ns-unalias *ns* 'socket]
 
 (defn home
   [request]
@@ -82,19 +84,29 @@
             (util/json-response {:status "success"
                                  :result channel-uuid})))))))
 
+(defn get-me-handler
+  [request]
+  (let [username (-> request :identity :username)
+        conn (-> request :db-conn)]
+    (util/json-response (users/get-user-by-username conn username))))
+
 (defroutes app-routes
   (context "/api/v1" []
     (wrap-routes
      (routes
       (GET "/subscriptions" [] get-subscriptions-handler)
-      (POST "/direct/generate" [] post-gen-direct-handler))
+      (POST "/direct/generate" [] post-gen-direct-handler)
+      (GET "/me" [] get-me-handler))
      wrap-authentication-guard)
+    (GET "/chsk" [] socket/ring-ajax-get-or-ws-handshake)
+    (POST "/chsk" [] socket/ring-ajax-post)
     (POST "/register" [] register-handler)
     (POST "/login" [] login-handler))
   (GET "/home" [] home)
   (GET "/" [] index-handler)
   #'teams-endpoint/teams-routes
-  )
+  #'messages-endpoint/messages-routes
+  #'channels-endpoint/channel-routes)
 
 (defn setup-default-teams
   "setup a default team, for now everyone will register into this team.
@@ -120,6 +132,7 @@
                           :useSSL false})
     :username "postgres" :password "postgres"})
   (setup-default-teams)
+  (socket/start-router!)
   (reset! server
           (hk-server/run-server
            (-> #'app-routes
@@ -129,7 +142,8 @@
                (wrap-database)
                (wrap-cors)
                (wrap-authorization auth-backend)
-               (wrap-authentication auth-backend)
+               ;(wrap-authentication auth-backend)
+               (wrap-token-from-params auth-backend)
                (wrap-resource "public")
                (d/wrap-defaults d/api-defaults))
            {:join? false :port 4000})))
@@ -147,26 +161,27 @@
 (comment
   (require '[clj-http.client :as client])
   (require '[jsonista.core :as json])
-  (def auth {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.3R6M1wDvoIc-9p75RAWVx0hcr4LyAAsr._YqyBelquflmWDY_.zcz6DukZ4taGJ2vkHC9eIFuskgysqeV-NGuCTlpabDTKeV4ianfdLI8mUdPMVAA.ybEHFEcpI-JOy0mLkD5VcA"}})
-  
-  (client/get "http://localhost:4000/api/v1/teams" {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.D2556dmpqXvbuahwSjD-vj8mOIuG2Oce.7XwdOihft0KppBQb.F5pCWIrmSsN0ls0uu92gFFdm26EH4kvY86s8PH4aHzzTp6wwKDChC8IkXFTGqNE.JG3VsYqyyfAiysFTQqQzlA"}})
-  
-  (client/post "http://localhost:4000/api/v1/subscriptions?type=direct&team_uuid=bd9a04af-899d-4d61-a169-8dba5dca99d8" {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.j9HaHBdcJUtXso2F2Sc8U8oEG6M3Cdj2.S-Mz35r-lKJseEhw.-ncta6AIv54fiCS79nRH6W7Xv8wUwLBQBHBl0kQLQP9pO3kNw9XBnyG5iFjpbRo.HD8S9V2idFS-V9bH1X_Twg"}})
-  
-  (users/insert-to-db (database/get-pool) "idhowardgj94" "123456" "howard" "idhowardgj94@gmail.com")
+  (def auth {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.12Y59mvi-pdLuo9GO8q8AFIXtX03ywlC.hNkmh-0EeejEmjDH.5IIEcdh-4u5G--tzQ1BWUD7z4_S7p-exs4wXkW-im32YHJOwam0YSjOCFxJg2Lo.PjIMZakgbJGXSlkuC-UvAQ"}})
+
   (teams/get-teams (database/get-pool))
   (client/post "http://localhost:4000/api/v1/login"
                {:content-type :json
                 :body
-                (json/write-value-as-string     
+                (json/write-value-as-string
                  {:username "idhowardgj94"
                   :password "123456"})})
+  (client/get "http://localhost:4000/api/v1/channels/6a77e68b-4d47-4520-b0b4-a8421edc1041/messages"
+              (merge auth
+                     {:content-type :json}))
   (client/post "http://localhost:4000/api/v1/direct/generate"
                (merge auth
                       {:content-type :json
                        :body (json/write-value-as-string
                               {:team_uuid "d205e510-8dee-4fb5-8d55-4f4bc5174bad"
                                :other_user "eva"})}))
+
+  (client/get (str "http://localhost:4000/api/v1/messages/6e05177f-5e71-49ed-8004-2e70ed0dda40") (merge auth {:content-type :json}))
+
   (teams/get-team-by-name (database/get-pool) "public")
   (client/post "http://localhost:4000/api/v1/register"
                {:content-type :json

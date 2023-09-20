@@ -50,6 +50,22 @@
       (.-request)
       (.clear)))
 
+(defn post-message-to-channels
+  [username msg channel-uuid]
+  (-> axios
+      (.post (str endpoint "/api/v1/channels/" channel-uuid "/messages")
+             #js {:username username
+                  :msg msg})))
+
+(defn get-messages-by-channel-id
+  [channel-id]
+  (-> axios
+      (.get (str endpoint "/api/v1/channels/" channel-id "/messages"))))
+(defn get-me
+  []
+  (-> axios
+      (.get (str endpoint "/api/v1/me"))))
+
 (defn post-generate-direct
   [team-uuid other-user]
   (-> axios

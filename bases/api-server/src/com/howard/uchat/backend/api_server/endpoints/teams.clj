@@ -3,10 +3,12 @@
    [com.howard.uchat.backend.api-server.middleware :refer [wrap-authentication-guard]]
    [com.howard.uchat.backend.teams.interface :as teams]
    [com.howard.uchat.backend.api-server.util :as util]
+   [taoensso.timbre :as timbre]
    [compojure.core :refer [wrap-routes routes defroutes context GET]]))
 
 (defn get-teams-handler
   [request]
+  (timbre/info "inside get teams-handler")
   (let [{:keys [username]} (:identity request)
         db-conn (:db-conn request)]
     (util/json-response {:status "success"

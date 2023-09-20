@@ -1,5 +1,8 @@
 (ns com.howard.uchat.components.room-components
   (:require
+   [reagent.ratom :as r]
+   [re-frame.core :as re-frame]
+   [com.howard.uchat.use-cases.direct :as event]
    [com.howard.uchat.components.utilities :refer [get-childern >children]]
    ["react-icons/ci" :refer [CiUser]]
    ["react-icons/ai" :refer [AiOutlineStar AiOutlinePhone
@@ -15,47 +18,32 @@
   [icon]
   [:button.hover:bg-gray-200 {:className "p-0.5"}
    [:> icon {:size 18}]])
+;; TODO: should use name instead of username 
+(defn room-header [current-channel]
+  (let [{name :other_user} current-channel]
+    [:section.basis-16.flex.w-full.items-center.border-b.border-gray-200
+     [:div.flex.flex-1.px-6.items-center
+      [:> Avatar {:name name :size 36}]
+      [:div.flex-1.flex-col.px-2.mx-2
+       [:div.flex-1
+        [:> GoHash {:style {:display "inline"
+                            :margin  "0 4px"}}]
+        [:span.font-bold.mr-2.text-lg name]
+        [:> AiOutlineStar {:className "inline" :size 20}]]
+       (comment "TODO: need to be a dynamic component for comment")
+       [:div.flex-1.text-sm "TODO: How to ask for help"]]
+      [:div
+       [:ul.flex {:style {:gap "1em"}}
+        [:li [action-button AiOutlinePhone]]
+        [:li [action-button AiOutlineInfoCircle]]
+        [:li [action-button AiOutlineMessage]]
+        [:li [action-button GoCommentDiscussion]]
+        [:li [action-button AiOutlineUsergroupAdd]]
+        [:li [action-button AiOutlineSearch]]
+        [:li [action-button GrAttachment]]
+        [:li [action-button BsThreeDotsVertical]]]]]]))
 
-(defn room-header []
-  [:section.basis-16.flex.w-full.items-center.border-b.border-gray-200
-   [:div.flex.flex-1.px-6.items-center
-    [:> Avatar {:name "Howard" :size 36}]
-    [:div.flex-1.flex-col.px-2.mx-2
-     [:div.flex-1
-      [:> GoHash {:style {:display "inline"
-                          :margin  "0 4px"}}]
-      [:span.font-bold.mr-2.text-lg "support"]
-      [:> AiOutlineStar {:className "inline" :size 20}]]
-     (comment "TODO: need to be a dynamic component for comment")
-     [:div.flex-1.text-sm "How to ask for help"]]
-    [:div
-     [:ul.flex {:style {:gap "1em"}}
-      [:li [action-button AiOutlinePhone]]
-      [:li [action-button AiOutlineInfoCircle]]
-      [:li [action-button AiOutlineMessage]]
-      [:li [action-button GoCommentDiscussion]]
-      [:li [action-button AiOutlineUsergroupAdd]]
-      [:li [action-button AiOutlineSearch]]
-      [:li [action-button GrAttachment]]
-      [:li [action-button BsThreeDotsVertical]]]]]])
 
-(defn message-box
-  []
-  [:div.flex.basis-5.shrink-0
-   [:div.w-ull.my-4.px-3.flex-1.items-center.justify-center.flex.flex-1.flex-col
-    [:div.w-full.pt-2.pb.1.px-5
-     [:div.border-2.border-gray-200.focus:ring-blue-800.focus:ring-1
-      {:className
-       "focus-within:ring-blue-400 focus-within:ring-2"}
-      [:textarea.w-full.appearance-none
-       {:className "focus:outline-none"
-        :style {:resize "none"
-                :-webkit-appearance "none"}}]
-      [:div.flex
-       [:div.flex-1.bg-gray-200
-        ""]
-       [:button.mr-0.ml-auto.p-2.rounded.bg-blue-500.hover:bg-blue-700
-        [:> FiSend {:style {:color "white"}}]]]]]]])
 ;;
 (defn message-intro []
   [:div.mt-3.flex.justify-center.flex-col.items-center
@@ -78,6 +66,9 @@
 
 (defn message-contents
   [& children]
+  (println (type children))
+  (println  (type (first children)))
+  (println (type (second children)))
   [:div.flex.flex-col.flex-1.overflow-auto.h-full {:name "wraper"}
    [:div.pt-5
     [>children children]]])

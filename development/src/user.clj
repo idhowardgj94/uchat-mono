@@ -22,6 +22,7 @@
 
 (comment
   (print "hello")
+  (add-libs '{com.taoensso/sente {:mvn/version "1.19.2"}})
   (repl/rollback (database/mk-migraiton-config (database/get-pool)))
   (repl/migrate (database/mk-migraiton-config (database/get-pool)))
   ,)

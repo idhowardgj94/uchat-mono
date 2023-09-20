@@ -4,13 +4,13 @@
 (defn get-childern
   "This function is a utility function to get reagent childdren
   there are two cases: if the first opt is a vector, then it means
-  that this components get options field, then return only rest childern.
-  else means that there are no opt, then we should cons first & rest params"
+  that this components has no options field, then return all of childern.
+  else means that first params is opt, just return rest params"
   [opt & children]
   (if (vector? opt) (->> (cons opt children)
                         (map #(if (list? %) (first %) %))) children))
 
-
+;; TODO: rename to is-opts 
 (defn get-opts
   "give opt and to see if it's a vector
   if it's not vector, then return nil
@@ -22,6 +22,12 @@
   "TODO: type check"
   [children]
   (let [children' (->> children
+                       ;; TODO:  children may be like ([:div] ([:span])),
+                       ;; second one means that use & to get reamain argument,
+                       ;; which type is indexedseq,
+                       ;; so get the first element in it.
+                       ;; here I give a asumption, childern must contain only one
+                       ;; hiccup vector, and it may cause bug and need refactor.
                        (map #(if (= IndexedSeq (type %)) (first %) %)))]
     [:<>
      (for [[idx child] (map-indexed vector children')]

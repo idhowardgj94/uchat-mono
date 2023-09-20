@@ -133,7 +133,8 @@
                                      {:id (:other_user it)
                                       :avatar [:> Avatar {:name (:other_user it) :size 18 :className "rounded-full"}]
                                       :title (:other_user it)
-                                      :href (rfe/href :routes/channels {:uuid "#"})})))}]
+                                      :href (rfe/href :routes/channels {:uuid "#"
+                                                                        :channel-type :channel})})))}]
        [:div.my-2]
        [tree-menu {:open? open-direct?
                    :title "Direct Messages"
@@ -147,7 +148,8 @@
                                          :href
                                          (if (nil? channel_uuid)
                                            (rfe/href :routes/create-direct {:other-username other_user})
-                                           (rfe/href :routes/channels {:uuid channel_uuid}))}))))}]])))
+                                           (rfe/href :routes/channels {:uuid channel_uuid
+                                                                       :channel-type :direct}))}))))}]])))
 
 (re-frame/reg-sub ::auth?
                   (fn [db _]
