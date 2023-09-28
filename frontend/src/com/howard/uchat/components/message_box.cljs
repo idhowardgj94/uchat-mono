@@ -5,7 +5,6 @@
             [com.howard.uchat.use-cases.core-cases :as core-event]
             [com.howard.uchat.use-cases.direct :as event]
             [com.howard.uchat.db :as db]
-            [com.howard.uchat.components.utilities :refer [get-childern >children]]
             ["react-icons/ci" :refer [CiUser]]
             ["react-icons/ai" :refer [AiOutlineStar AiOutlinePhone
                                       AiOutlineInfoCircle AiOutlineMessage

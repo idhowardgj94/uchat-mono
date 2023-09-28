@@ -20,7 +20,6 @@
 (defonce root (rdc/create-root (gdom/getElement "app")))
 
 (defn mount-root []
-  (println "mount")
   (re-frame/clear-subscription-cache!)
   (styl/inject-trace-styles js/document)
   (rdc/render root [:> react/StrictMode {} [#'views/main-panel]]))

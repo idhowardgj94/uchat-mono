@@ -2,7 +2,7 @@
   "collect some basic component used in this project.
   for example, button, input form-group, etc.."
   (:require
-   [com.howard.uchat.components.utilities :refer [get-opts get-childern >children]]))
+   [com.howard.uchat.components.utilities :refer [get-opts get-childern ]]))
 
 (defn label
   "label for form
@@ -48,5 +48,5 @@
   (let [opts' (get-opts opts)
         children' (get-childern opts children)]
     [:div.mb-6 opts'
-     [>children children']]))
+     children']))
 

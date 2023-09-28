@@ -21,16 +21,15 @@
         [:main.flex.flex-col.flex-1
          [room-header current-channel]
          [message-contents
-          {:test 666}
           [message-intro current-channel]
           ;; TODO: message date 
           [message-date-line]
           (for [message messages]
-            ^{:keys (:uuid message)} [message-card {:avatar (:name message)
-                                                    :name (:name message)
-                                                    :username (:username message)
-                                                    :time (:created_at message)
-                                                    :message (:msg message)}])]
+            ^{:key (:uuid message)} [:<> [message-card {:avatar (:name message)
+                                                         :name (:name message)
+                                                         :username (:username message)
+                                                         :time (:created_at message)
+                                                         :message (:msg message)}]])]
          [message-box]]))))
 
 

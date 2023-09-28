@@ -6,9 +6,10 @@
   there are two cases: if the first opt is a vector, then it means
   that this components has no options field, then return all of childern.
   else means that first params is opt, just return rest params"
-  [opt & children]
-  (if (vector? opt) (->> (cons opt children)
-                        (map #(if (list? %) (first %) %))) children))
+  [opt children]
+  (if (vector? opt)
+    (into [:<> opt] children)
+    [:<> children]))
 
 ;; TODO: rename to is-opts 
 (defn get-opts
@@ -18,20 +19,6 @@
   [opt]
   (if (map? opt) opt nil))
 
-(defn >children
-  "TODO: type check"
-  [children]
-  (let [children' (->> children
-                       ;; TODO:  children may be like ([:div] ([:span])),
-                       ;; second one means that use & to get reamain argument,
-                       ;; which type is indexedseq,
-                       ;; so get the first element in it.
-                       ;; here I give a asumption, childern must contain only one
-                       ;; hiccup vector, and it may cause bug and need refactor.
-                       (map #(if (= IndexedSeq (type %)) (first %) %)))]
-    [:<>
-     (for [[idx child] (map-indexed vector children')]
-       ^{:key idx} [:<> (if (list? child) (first child) child)])]))
 (defn popup
   "popup component
    opt: style, open
@@ -47,7 +34,7 @@
       [:div.block.absolute.w-64.bg-white.overflow-auto
        {:style (assoc style-in :top "calc(100% + 4px)")
         :className (str class-name " text-black shadow-lg border border-gray-200")}
-       [>children children']])))
+       children'])))
 
 
 (defn verticle-line

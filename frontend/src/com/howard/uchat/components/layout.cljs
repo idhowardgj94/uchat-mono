@@ -7,7 +7,7 @@
    [com.howard.uchat.db :as db]
    [com.howard.uchat.use-cases.core-cases :as event]
    [com.howard.uchat.components.utilities :refer
-    [popup >children verticle-line get-childern get-opts]]
+    [popup verticle-line get-childern get-opts]]
    ["react-icons/go" :refer [GoPlusCircle]]
    ["react-icons/ai" :refer [AiOutlineCaretDown AiFillCaretRight AiOutlinePlus
                              AiOutlineGlobal AiFillCaretDown]]
@@ -35,7 +35,6 @@
      [:div.p-2 "Logout"]]]])
 
 (defn header []
-  (println "inside header")
   (let [popup-open? (r/atom false)]
     [:header.basis-10.flex.items-center.px-3.shrink-0
      {:style {:background-color "#14213e"
@@ -177,6 +176,7 @@
   (let [opt (get-opts opts)
         children' (get-childern opts children)
         auth? (re-frame/subscribe [::auth?])]
+    (println children')
     (when (= true @auth?)
       (re-frame/dispatch [:routes/navigate :routes/channels-home]))
     (fn []
@@ -186,4 +186,5 @@
          [:h1.text-6xl  "Welcome to
                                       UChat workspace"]]
         [:section.flex-1.items-center.justify-center
-         [>children children']]]])))
+         children']]])))
+  

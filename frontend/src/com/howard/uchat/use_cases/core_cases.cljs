@@ -97,7 +97,6 @@
                   (re-frame/dispatch-sync [::store-token-and-login %])
                   (re-frame/dispatch [:routes/navigate [:routes/channels-home]]))
              #(do (re-frame/dispatch [::login-result :fail %])
-                  (println %)
                   (re-frame/dispatch [::login-error-message (:message (:response %))])))))
 (re-frame/reg-event-db
  ::clear-login-validate
@@ -155,7 +154,6 @@
 (re-frame/reg-event-db
  ::assoc-in-db
  (fn-traced [db [_ keys value]]
-            (js/console.log "inside assoc-in-db" value)
             (assoc-in db keys value)))
 
 (re-frame/reg-event-fx
@@ -221,7 +219,6 @@
   (let [team-uuid (-> db :current-team :team_uuid)]
     (-> (api/post-generate-direct team-uuid other-user)
         (.then #(do
-                  (println %)
                   (let [channel-uuid (-> % :data :result)]
                     (re-frame/dispatch [::set-direct-uuid other-user channel-uuid])
                     (re-frame/dispatch [:routes/navigate [:routes/channels {:uuid channel-uuid

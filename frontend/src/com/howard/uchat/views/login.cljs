@@ -32,12 +32,12 @@
                 :error? (contains-in-vector? errors :username)
                 :error-msg "This field is required"}]]
       [form-group
-       [label {:for "password"} "Password"]
-       [input {:name "password"
-               :id "password"
-               :on-change #(re-frame/dispatch [::event/clear-login-validate])
-               :error? (contains-in-vector? errors :password)
-               :error-msg "This field is required"}]]
+        [label {:for "password"} "Password"]
+        [input {:name "password"
+                :id "password"
+                :on-change #(re-frame/dispatch [::event/clear-login-validate])
+                :error? (contains-in-vector? errors :password)
+                :error-msg "This field is required"}]]
       (when (some? message)
         [:div.text-red-500.bg-red-100.px-2 "Login failed, please check your username and password."])
       [:div.text-right

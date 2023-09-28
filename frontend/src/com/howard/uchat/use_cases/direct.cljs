@@ -14,7 +14,6 @@
             (-> (api/get-messages-by-channel-id channel-id)
                 (.then (fn [{:keys [data]}]
                          (let [messages (:result data)]
-                           (js/console.log "inside success")
                            (re-frame/dispatch [::core-cases/assoc-in-db [:current-channel :messages] messages])))))))
 (re-frame/reg-event-fx
  ::current-channel

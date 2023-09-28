@@ -3,7 +3,7 @@
    [reagent.ratom :as r]
    [re-frame.core :as re-frame]
    [com.howard.uchat.use-cases.direct :as event]
-   [com.howard.uchat.components.utilities :refer [get-childern >children]]
+   [com.howard.uchat.components.utilities :refer [get-childern ]]
    ["react-icons/ci" :refer [CiUser]]
    ["react-icons/ai" :refer [AiOutlineStar AiOutlinePhone
                              AiOutlineInfoCircle AiOutlineMessage
@@ -65,13 +65,11 @@
    [:div.flex-1.separate-line.flex.flex-col.p-1 ""]])
 
 (defn message-contents
-  [& children]
-  (println (type children))
-  (println  (type (first children)))
-  (println (type (second children)))
-  [:div.flex.flex-col.flex-1.overflow-auto.h-full {:name "wraper"}
-   [:div.pt-5
-    [>children children]]])
+  [opt & children]
+  (let [children' (get-childern opt children)]
+    [:div.flex.flex-col.flex-1.overflow-auto.h-full {:name "wraper"}
+     [:div.pt-5
+      children']]))
 
 (defn message-card
   "This is message component
