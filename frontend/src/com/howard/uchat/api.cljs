@@ -73,6 +73,17 @@
              #js {:team_uuid team-uuid
                   :other_user other-user})))
 
+(defn register'
+  [payload]
+  (-> axios
+      (.post (str endpoint "/api/v1/register")
+             (clj->js payload))))
+
+(defn login
+  [payload]
+  (-> axios
+      (.post (str endpoint "/api/v1/login") (clj->js payload))))
+
 (defn default-warning-handler
   [err]
   (js/console.warn (clj->js err)))
@@ -95,19 +106,6 @@
                                                   {:params payload
                                                    :error-handler error-handler
                                                    :handler handler}))))
-
-(defn login
-  "login user to uchat
-  params:
-  map :username :password"
-  ([payload handler]
-   (login payload handler #(js/console.error (clj->js %))))
-  ([payload handler error-handler]
-   #_{:clj-kondo/ignore [:unresolved-var]}
-   (POST (str endpoint "/api/v1/login") (merge json-request
-                                               {:params payload
-                                                :error-handler error-handler
-                                                :handler handler}))))
 
 (defn get-subscription
   ([payload handler]

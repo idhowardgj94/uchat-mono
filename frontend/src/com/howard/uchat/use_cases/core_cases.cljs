@@ -53,6 +53,7 @@
                 :auth? true)
      :fx [[::get-me]]})))
 
+;; TODO: migrate to axios, and remove useless request result event
 (re-frame/reg-fx ::register-request
                  (fn [reg-form]
                    (api/register
@@ -78,39 +79,27 @@
                                     (filter #(not (nil? %))))]
               (if (> (count error-fields) 0)
                 {:db (assoc db :register-validate error-fields)}
-                {:dispatch [::register-result :request]
-                 ::register-request reg-form}))))
+                {::register-request reg-form}))))
 
 ;; ------------ login ------------------
-(re-frame/reg-event-db
- ::login-error-message
- (fn-traced
-  [db [_ message]]
-  (assoc db :login-error-message message)))
-
 (re-frame/reg-fx
  ::login-request
  (fn-traced
   [form]
-  (api/login form
-             #(do (re-frame/dispatch [::login-result :success %])
-                  (re-frame/dispatch-sync [::store-token-and-login %])
-                  (re-frame/dispatch [:routes/navigate [:routes/channels-home]]))
-             #(do (re-frame/dispatch [::login-result :fail %])
-                  (re-frame/dispatch [::login-error-message (:message (:response %))])))))
+  (-> (api/login form)
+      (.then (fn [res]
+               (let [data (:data res)]
+                 (re-frame/dispatch-sync [::store-token-and-login data]))))
+      (.catch (fn [err]
+                (let [data err]
+                  (re-frame/dispatch [::assoc-db :login-error-message (.-response data)])))))))
+
 (re-frame/reg-event-db
  ::clear-login-validate
  (fn-traced [db [& _]]
             (assoc db
                    :login-validate []
                    :login-error-message nil)))
-
-(re-frame/reg-event-db
- ::login-result
- (fn-traced
-  [db [_ status response]]
-  (assoc db :login-request {:status status
-                            :response response})))
 
 (re-frame/reg-event-fx
  ::login
@@ -119,8 +108,7 @@
   (let [error-fields (get-error-fields spec/login-form-spec form)]
     (if (> (count error-fields) 0)
       {:db (assoc db :login-validate error-fields)}
-      {:dispatch [::login-result :request]
-       ::login-request form}))))
+      {::login-request form}))))
 
 (comment
   (def login-test (s/explain-data spec/post-login-spec {:username "hello" :password 1}))
