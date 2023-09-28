@@ -7,11 +7,13 @@
             [com.howard.uchat.api :as api]
             [goog.dom :as gdom]
             [react :as react]
+            ["javascript-time-ago/locale/en" :as en]
+            ["javascript-time-ago$default" :as time-ago]
             [re-frame.core :as re-frame]
             [reagent.dom.client :as rdc]))
 
-
-
+(doto time-ago
+  (.addLocale en))
 (defn dev-setup []
   (when config/debug?
     (enable-console-print!)

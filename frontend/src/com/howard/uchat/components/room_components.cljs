@@ -8,11 +8,15 @@
    ["react-icons/ai" :refer [AiOutlineStar AiOutlinePhone
                              AiOutlineInfoCircle AiOutlineMessage
                              AiOutlineUsergroupAdd AiOutlineSearch]]
+   ["react-time-ago$default" :as react-time-ago]
    ["react-icons/fi" :refer [FiSend]]
    ["react-icons/go" :refer [GoHash GoCommentDiscussion]]
    ["react-icons/gr" :refer [GrAttachment]]
    ["react-icons/bs" :refer [BsThreeDotsVertical]]
+   ["moment" :as moment]
+   ["react-time-ago" :as time-ago]
    ["react-avatar$default" :as Avatar]))
+
 
 (defn action-button
   [icon]
@@ -80,7 +84,11 @@
       t: head or message, default: head.
       avatar: string or component"
   [props]
-  (let [{:keys [t avatar name username time message] :or {t "head"}} props]
+  (let [{:keys [t avatar name username time message] :or {t "head"}} props
+        over-a-day? (let [time-moment (moment time)
+                          cur-moment (moment (js/Date.))]
+                      (> (-> cur-moment (.diff time-moment "days")) 1))]
+    (js/console.log time)
     (case t
       "head" [:div.px-5.flex.hover:bg-gray-200
               [:> Avatar {:name avatar :className "rounded pt-1.5" :size 36}]
@@ -88,7 +96,8 @@
                [:div.flex.items-center
                 [:div.text-sm.font-semibold.mr-1 name]
                 [:span.mr-1.text-xs.text-gray-500 (str "@" username)]
-                [:span.mr-1.text-xs.text-gray-500 time]]
+                [:span.mr-1.text-xs.text-gray-500 (if over-a-day? (-> (moment time)
+                                                                      (.format "YYYY-MM-DD HH:mm:ss")) [:> time-ago {:date time}])]]
                [:div.flex-1
                 message]]]
       "message" [:div.px-5.flex.hover:bg-gray-200.items-center {:style {:padding-left "65px"}}

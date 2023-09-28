@@ -15,7 +15,9 @@
                 :tailwind/output  "frontend/resources/public/app.css"
                 :tailwind/files   {:base-path "."
                                    :tailwind.css ".frontend/resources/tw/style.css"}
-                :compiler-options {:infer-externs :auto}
+                :compiler-options {:infer-externs :auto
+                                   :source-map true
+                                   }
                 :modules          {
                                    :main {:entries [com.howard.uchat.core]
                                           :init-fn com.howard.uchat.core/init}}
