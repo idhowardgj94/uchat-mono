@@ -140,10 +140,10 @@
                    :right-button-component [:> AiOutlinePlus]
                    :data  (->> (:direct-subscriptions @subscriptions)
                                (map (fn [it]
-                                      (let [{:keys [other_user channel_uuid]} it]
-                                        {:id (or channel_uuid other_user)
-                                         :avatar [:> Avatar {:name (:other_user it) :size 18 :className "rounded-full"}]
-                                         :title other_user
+                                      (let [{:keys [other_name other_user channel_uuid]} it]
+                                        {:id (or channel_uuid other_name)
+                                         :avatar [:> Avatar {:name (:other_name it) :size 18 :className "rounded-full"}]
+                                         :title other_name
                                          :href
                                          (if (nil? channel_uuid)
                                            (rfe/href :routes/create-direct {:other-username other_user})

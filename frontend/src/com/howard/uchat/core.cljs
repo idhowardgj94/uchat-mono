@@ -27,7 +27,7 @@
   (rdc/render root [:> react/StrictMode {} [#'views/main-panel]]))
 
 (defn ^:after-load re-render []
-  (mount-root))
+  (mount-root))  
 
 (defn ^:export init []
   (println "init again..")

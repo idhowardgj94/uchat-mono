@@ -24,7 +24,7 @@
    [:> icon {:size 18}]])
 ;; TODO: should use name instead of username 
 (defn room-header [current-channel]
-  (let [{name :other_user} current-channel]
+  (let [{name :other_name} current-channel]
     [:section.basis-16.flex.w-full.items-center.border-b.border-gray-200
      [:div.flex.flex-1.px-6.items-center
       [:> Avatar {:name name :size 36}]
@@ -35,7 +35,7 @@
         [:span.font-bold.mr-2.text-lg name]
         [:> AiOutlineStar {:className "inline" :size 20}]]
        (comment "TODO: need to be a dynamic component for comment")
-       [:div.flex-1.text-sm "TODO: How to ask for help"]]
+       #_[:div.flex-1.text-sm "TODO: How to ask for help"]]
       [:div
        [:ul.flex {:style {:gap "1em"}}
         [:li [action-button AiOutlinePhone]]
@@ -49,17 +49,18 @@
 
 
 ;;
-(defn message-intro []
+(defn message-intro [current-channel]
+  (println current-channel)
   [:div.mt-3.flex.justify-center.flex-col.items-center
    [:div
-    [:> Avatar {:name "Howard" :className "rounded" :size 49}]]
+    [:> Avatar {:name (:other_name current-channel) :className "rounded" :size 49}]]
    [:div.my-4
     [:p.text-lg.font-bold "You have joined a new direct message with"]]
    [:div.flex-1
     [:button.bg-gray-300 {:className "rounded p-0.5 hover:bg-gray-100"}
      [:span.inline-block.mr-1
       [:> CiUser]]
-     [:span.font-semibold.text-sm "LiShin Chang"]]]])
+     [:span.font-semibold.text-sm (:other_name current-channel)]]]])
 
 (defn message-date-line
   []
@@ -88,7 +89,6 @@
         over-a-day? (let [time-moment (moment time)
                           cur-moment (moment (js/Date.))]
                       (> (-> cur-moment (.diff time-moment "days")) 1))]
-    (js/console.log time)
     (case t
       "head" [:div.px-5.flex.hover:bg-gray-200
               [:> Avatar {:name avatar :className "rounded pt-1.5" :size 36}]

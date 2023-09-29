@@ -6,7 +6,33 @@
    [re-frame.core :as re-frame]
    [com.howard.uchat.db :as db]
    [com.howard.uchat.use-cases.direct :as direct-event]
+   ["moment" :as moment]
    ))
+(defn- transform-messages
+  "transform message by group message,
+  if messages' created time less than one minutes
+  then group them together (by add a field :t)"
+  [messages]
+  (loop [message (nth messages 0)
+         messages messages
+         idx 0
+         res (transient [])]
+    (if (= 0 (count messages))
+      messages
+      (let [cur-message-moment  (moment (:updated_at message))
+            prev-message-moment (moment (if (= idx 0) nil (-> (nth messages (- idx 1))
+                                                              :updated_at)))
+            message' (if (< (-> cur-message-moment
+                                (.diff prev-message-moment "minutes")) 1)
+                       (assoc message :t "message")
+                       (assoc message :t "head"))]
+        (conj! res message')
+        (if (= (- (count messages) 1) idx)
+          (persistent! res)
+          (recur (nth messages (+ idx 1))
+                 messages
+                 (+ idx 1)
+                 res))))))
 
 (defn room
   []
@@ -15,7 +41,8 @@
       (let [channel-uuid (-> @sub :current-route :path-params :uuid)
             channel-type (-> @sub :current-route :path-params :channel-type)
             current-channel (-> @sub :current-channel)
-            messages (-> @sub :current-channel :messages)]
+            messages (-> @sub :current-channel :messages
+                         transform-messages)]
         (when-not (= channel-uuid (:channel_uuid current-channel))
           (re-frame/dispatch [::direct-event/current-channel (keyword channel-type) channel-uuid]))
         [:main.flex.flex-col.flex-1
@@ -26,10 +53,11 @@
           [message-date-line]
           (for [message messages]
             ^{:key (:uuid message)} [:<> [message-card {:avatar (:name message)
-                                                         :name (:name message)
-                                                         :username (:username message)
-                                                         :time (:created_at message)
-                                                         :message (:msg message)}]])]
+                                                        :t (:t message)
+                                                        :name (:name message)
+                                                        :username (:username message)
+                                                        :time (:created_at message)
+                                                        :message (:msg message)}]])]
          [message-box]]))))
 
 

@@ -8,12 +8,14 @@
   [tx username team-uuid]
   (into
    []
-   (map #(-> (select-keys % [:channel_uuid :username :other_user :unread :last_message_uuid :created_at :updated_at :name :type])
+   (map #(-> (select-keys % [:channel_uuid :username :other_user :other_name :other_name :unread :last_message_uuid :created_at :updated_at :name :type])
              (assoc :type "direct")))
    (jdbc/plan
     tx
-    ["SELECT teams_users.username AS other_user, subscriptions.* FROM subscriptions RIGHT JOIN
-teams_users ON subscriptions.other_user = teams_users.username AND subscriptions.username = ? WHERE team_uuid = ?" username team-uuid])))
+    ["SELECT teams_users.username AS other_user, users.name AS other_name, subscriptions.* FROM subscriptions
+RIGHT JOIN
+teams_users ON subscriptions.other_user = teams_users.username AND subscriptions.username = ?
+JOIN users ON users.username = subscriptions.other_user WHERE team_uuid = ?" username team-uuid])))
 
 (dbfn get-user-team-channel-subscriptions
   "this is a dbfn TODO: docstring need to be optional"

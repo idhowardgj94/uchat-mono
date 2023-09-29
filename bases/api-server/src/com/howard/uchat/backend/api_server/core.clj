@@ -88,7 +88,8 @@
   [request]
   (let [username (-> request :identity :username)
         conn (-> request :db-conn)]
-    (util/json-response (users/get-user-by-username conn username))))
+    (util/json-response (dissoc (users/get-user-by-username conn username)
+                                :password))))
 
 (defroutes app-routes
   (context "/api/v1" []

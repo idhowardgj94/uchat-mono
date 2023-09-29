@@ -12,7 +12,7 @@
   [db-conn username]
   (first
    (into (list)
-         (map #(select-keys % [:id :username :password]))
+         (map #(select-keys % [:id :username :password :name :email]))
          (jdbc/plan db-conn ["SELECT * FROM users where username=?"
                                    username]))))
 
