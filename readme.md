@@ -1,6 +1,6 @@
 # uChat
 
-![demo](https://github.com/uchat-backend/tree/main/pics/demo-1.png =500x)
+![demo](https://github.com/idhowardgj94/uchat-backend/blob/main/pics/demo-1.png?raw=true)
 
 uChat is a chat software written in clojure / clojurescript.
 
