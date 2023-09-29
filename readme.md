@@ -1,13 +1,13 @@
-<img src="logo.png" width="30%" alt="Polylith" id="logo">
+# uChat
 
-The Polylith documentation can be found here:
+![demo](https://github.com/uchat-backend/tree/main/pics/demo-1.png =500x)
 
-- The [high-level documentation](https://polylith.gitbook.io/polylith)
-- The [Polylith Tool documentation](https://polylith.gitbook.io/polylith/poly)
-- The [RealWorld example app documentation](https://github.com/furkan3ayraktar/clojure-polylith-realworld-example-app)
+uChat is a chat software written in clojure / clojurescript.
 
-You can also get in touch with the Polylith Team on [Slack](https://clojurians.slack.com/archives/C013B7MQHJQ).
+Currently under development.
 
-<h1>uchat-backend</h1>
+This app is a clone of **Rocket Chat** **MatterMost**
 
-<p>Add your workspace documentation here...</p>
+The purpose of this project is just to practice skill and try to implement architecture design.
+
+
