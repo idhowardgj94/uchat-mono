@@ -2,6 +2,7 @@
 (ns com.howard.uchat.backend.api-server.core
   (:require
    [buddy.auth :refer [authenticated? throw-unauthorized]]
+   [buddy.auth.middleware :refer [authenticate-request]]
    [buddy.auth.protocols :as proto]
    [buddy.auth.backends.token :refer [jwe-backend]]
    [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
@@ -143,7 +144,7 @@
                (wrap-database)
                (wrap-cors)
                (wrap-authorization auth-backend)
-               ;(wrap-authentication auth-backend)
+               #_(wrap-authentication auth-backend)
                (wrap-token-from-params auth-backend)
                (wrap-resource "public")
                (d/wrap-defaults d/api-defaults))
@@ -194,4 +195,3 @@
                   :email "idhowardgj94@gmail.com"})})
   (start-server!)
   (stop-server!))
-

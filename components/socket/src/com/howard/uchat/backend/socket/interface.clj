@@ -15,7 +15,12 @@
     (sente/make-channel-socket-server!
      (get-sch-adapter) {:packer packer
                         :csrf-token-fn nil
-                        ;; :user-id-fn (fn [request] (get-in request [:identity :username]))
+                        :user-id-fn (fn [request]
+                                     
+                                      (timbre/info "inside user-id-fn")
+                                      (timbre/info request)
+                                      (timbre/info (get-in request [:identity :username]))
+                                      (get-in request [:identity :username]))
                         })))
 
 (let [{:keys [ch-recv send-fn connected-uids_ private
@@ -35,6 +40,7 @@
              (when (not= old new)
                (timbre/infof "Connected uids change: %s" new))))
 
+#_(remove-watch connected-uids_ :connected-uids)
 ;; event msg handler
 (defmulti -event-msg-handler
   "Multimethod to handle Sente `event-msg`s"
@@ -60,8 +66,8 @@
 (defonce router_ (atom nil))
 (defn  stop-router! [] (when-let [stop-fn @router_] (stop-fn)))
 (comment
-  (stop-router!)
-  )
+  (stop-router!))
+
 (defn start-router! []
   (stop-router!)
   (reset! router_
