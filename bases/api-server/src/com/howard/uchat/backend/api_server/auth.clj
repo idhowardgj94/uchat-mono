@@ -77,6 +77,7 @@
                          :valid) false))
             (response/bad-request {:message "Login failed, please check username and password."})
             (let [claims {:username (keyword username)
+                          :name (:name result)
                           :exp (.getMillis (time/plus (time/now) (time/seconds 3600)))}
                   token (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})]
               (timbre/debug "success logined")

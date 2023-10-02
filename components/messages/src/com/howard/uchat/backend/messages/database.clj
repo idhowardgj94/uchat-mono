@@ -30,7 +30,14 @@
         (jdbc/plan tx
                    ["SELECT messages.*,  users.name FROM messages JOIN users on users.username = messages.username WHERE channel_uuid = ?" channel-id])))
 
+(defn get-message-by-uuid
+  [tx message-id]
+  (into []
+        (map #(select-keys % [:uuid :channel_uuid :username :msg :created_at :updated_at :name]))
+        (jdbc/plan tx
+                   ["SELECT messages.*,  users.name FROM messages JOIN users on users.username = messages.username WHERE messages.uuid = ?" message-id])))
+
 (comment
-  (create-message (db/get-pool) "idhowardgj94" "hello, world" (parse-uuid "21adabdc-f5d6-4348-9ac9-e9d1be7263b3"))
+  (create-message (db/get-pool) "ttt" "hello, world" (parse-uuid "21adabdc-f5d6-4348-9ac9-e9d1be7263b3"))
   (get-messages-by-channel (db/get-pool) (parse-uuid "21adabdc-f5d6-4348-9ac9-e9d1be7263b3"))
   ,)
