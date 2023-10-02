@@ -50,7 +50,6 @@
 
 ;;
 (defn message-intro [current-channel]
-  (println current-channel)
   [:div.mt-3.flex.justify-center.flex-col.items-center
    [:div
     [:> Avatar {:name (:other_name current-channel) :className "rounded" :size 49}]]

@@ -176,7 +176,6 @@
   (let [opt (get-opts opts)
         children' (get-childern opts children)
         auth? (re-frame/subscribe [::auth?])]
-    (println children')
     (when (= true @auth?)
       (re-frame/dispatch [:routes/navigate :routes/channels-home]))
     (fn []

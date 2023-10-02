@@ -15,6 +15,18 @@
                 (.then (fn [{:keys [data]}]
                          (let [messages (:result data)]
                            (re-frame/dispatch [::core-cases/assoc-in-db [:current-channel :messages] messages])))))))
+
+(re-frame/reg-event-db
+ :new-message
+ (fn-traced
+  [db [_ channel-id message]]
+  (comment "given channel-id and message,
+  append to current-channel message if need")
+  (let [current-channel-id (get-in db [:current-channel :channel_uuid])]
+    (if (= current-channel-id channel-id)
+      (update-in db [:current-channel :messages] conj message)
+      db))))
+
 (re-frame/reg-event-fx
  ::current-channel
  (fn-traced

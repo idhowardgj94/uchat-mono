@@ -13,26 +13,30 @@
   if messages' created time less than one minutes
   then group them together (by add a field :t)"
   [messages]
-  (loop [message (nth messages 0)
-         messages messages
-         idx 0
-         res (transient [])]
-    (if (= 0 (count messages))
-      messages
-      (let [cur-message-moment  (moment (:updated_at message))
-            prev-message-moment (moment (if (= idx 0) nil (-> (nth messages (- idx 1))
-                                                              :updated_at)))
-            message' (if (< (-> cur-message-moment
-                                (.diff prev-message-moment "minutes")) 1)
-                       (assoc message :t "message")
-                       (assoc message :t "head"))]
-        (conj! res message')
-        (if (= (- (count messages) 1) idx)
-          (persistent! res)
-          (recur (nth messages (+ idx 1))
-                 messages
-                 (+ idx 1)
-                 res))))))
+  (if (<= (count messages) 0) messages
+      (loop [message (nth messages 0)
+             messages messages
+             idx 0
+             res (transient [])]
+        (if (= 0 (count messages))
+          messages
+          (let [prev-message (if (= idx 0) nil (-> (nth messages (- idx 1))))
+                cur-message-moment  (moment (:updated_at message))
+                prev-message-moment (moment (if (= idx 0) nil (-> (nth messages (- idx 1))
+                                                                  :updated_at)))
+                message' (if (and
+                              (= (:name prev-message) (:name message))
+                              (< (-> cur-message-moment
+                                     (.diff prev-message-moment "minutes")) 1))
+                           (assoc message :t "message")
+                           (assoc message :t "head"))]
+            (conj! res message')
+            (if (= (- (count messages) 1) idx)
+              (persistent! res)
+              (recur (nth messages (+ idx 1))
+                     messages
+                     (+ idx 1)
+                     res)))))))
 
 (defn room
   []
