@@ -139,7 +139,4 @@
   (register {:name "client0355"
              :password "123445"
              :email "client0535@gmail.com"
-             :username "clie3nt52034"} #(println %))
-  (login {:username "idhowardgj94"
-          :password "Eva831219"}
-         #(println %)))
+             :username "clie3nt52034"} #(println %)))

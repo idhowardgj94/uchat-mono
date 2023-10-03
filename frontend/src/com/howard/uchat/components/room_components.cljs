@@ -1,15 +1,10 @@
 (ns com.howard.uchat.components.room-components
   (:require
-   [reagent.ratom :as r]
-   [re-frame.core :as re-frame]
-   [com.howard.uchat.use-cases.direct :as event]
    [com.howard.uchat.components.utilities :refer [get-childern ]]
    ["react-icons/ci" :refer [CiUser]]
    ["react-icons/ai" :refer [AiOutlineStar AiOutlinePhone
                              AiOutlineInfoCircle AiOutlineMessage
                              AiOutlineUsergroupAdd AiOutlineSearch]]
-   ["react-time-ago$default" :as react-time-ago]
-   ["react-icons/fi" :refer [FiSend]]
    ["react-icons/go" :refer [GoHash GoCommentDiscussion]]
    ["react-icons/gr" :refer [GrAttachment]]
    ["react-icons/bs" :refer [BsThreeDotsVertical]]
@@ -50,7 +45,6 @@
 
 ;;
 (defn message-intro [current-channel]
-  (println current-channel)
   [:div.mt-3.flex.justify-center.flex-col.items-center
    [:div
     [:> Avatar {:name (:other_name current-channel) :className "rounded" :size 49}]]
@@ -63,10 +57,11 @@
      [:span.font-semibold.text-sm (:other_name current-channel)]]]])
 
 (defn message-date-line
-  []
+  "given a date string, show a date string seprate line."
+  [date-string]
   [:div.flex.items-center.p-1
    [:div.flex-1.separate-line.flex.flex-col.p-1 ""]
-   [:div.text-xs.font-semibold "June 3, 2023"]
+   [:div.text-xs.font-semibold date-string]
    [:div.flex-1.separate-line.flex.flex-col.p-1 ""]])
 
 (defn message-contents
@@ -86,9 +81,10 @@
       avatar: string or component"
   [props]
   (let [{:keys [t avatar name username time message] :or {t "head"}} props
-        over-a-day? (let [time-moment (moment time)
+        over-a-day? (let [time-moment (moment (js/Date. time))
                           cur-moment (moment (js/Date.))]
-                      (> (-> cur-moment (.diff time-moment "days")) 1))]
+                      (> (-> cur-moment (.diff time-moment "hours")) 24))]
+
     (case t
       "head" [:div.px-5.flex.hover:bg-gray-200
               [:> Avatar {:name avatar :className "rounded pt-1.5" :size 36}]

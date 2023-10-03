@@ -23,3 +23,9 @@
   [tx channel-id]
   {:pre [(uuid? channel-id)]}
   (database/get-messages-by-channel tx channel-id))
+
+(defn get-message-by-uuid
+  "get message by message-uuid"
+  [tx message-id]
+  {:pre [(uuid? message-id)]}
+  (database/get-message-by-uuid tx message-id))

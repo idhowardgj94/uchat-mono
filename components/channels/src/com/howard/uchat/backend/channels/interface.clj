@@ -16,6 +16,10 @@
       (channels/insert-users-into-channel conn channel-uuid user other-user))
     channel-uuid))
 
+(defn get-cahnnel-users-by-channel-uuid
+  [conn channel-uuid]
+  (channels/get-cahnnel-users-by-channel-uuid conn (parse-uuid channel-uuid)))
+
 (comment
   (jdbc/with-transaction [tx (db/get-pool)]
     (create-direct-and-insert-users tx #uuid "d205e510-8dee-4fb5-8d55-4f4bc5174bad" "eva" nil))

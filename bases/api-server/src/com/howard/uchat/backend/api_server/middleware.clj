@@ -34,7 +34,9 @@
   (let [header (some->> (-> request :headers (get "authorization"))
                         (re-find (re-pattern (str "^" token-name " (.+)$")))
                         (second))
-        token (-> request :params :token)]
+        token (some->> (-> request :params :authorization)
+                        (re-find (re-pattern (str "^" token-name " (.+)$")))
+                        (second))]
     (or header token)))
 
 (defn wrap-token-from-params
