@@ -8,6 +8,37 @@
    [com.howard.uchat.use-cases.direct :as direct-event]
    ["moment" :as moment]
    ))
+(defn- add-timeline-string-to-messages
+  "add timeline string to messages if need.
+  ; TODO: it should have cchance to refactor it to use map"
+  [messages]
+  (if (= (count messages) 0)
+    messages
+    (loop [message (first messages)
+           messages messages
+           idx 0
+           res (transient [])]
+      (if (= idx 0)
+        (conj! res (assoc message :time-string
+                          (-> (moment (:created_at message))
+                              (.format "ll"))))
+        (let [prev-message (nth messages (- idx 1))
+              prev-message-moment (moment (:created_at prev-message))
+              curr-message-moment (moment (:created_at message))]
+          (if (not= (-> prev-message-moment
+                        (.format "ll"))
+                    (-> curr-message-moment
+                        (.format "ll")))
+            (conj! res (assoc message :time-string (-> curr-message-moment (.format "ll"))))
+            (conj! res (assoc message :time-string nil)))))
+      (if (or (= (count messages) 0)
+              (= idx (- (count messages) 1)))
+        (persistent! res)
+        (recur (nth messages (+ idx 1))
+               messages
+               (+ idx 1)
+               res)))))
+
 (defn- transform-messages
   "transform message by group message,
   if messages' created time less than one minutes
@@ -46,54 +77,23 @@
             channel-type (-> @sub :current-route :path-params :channel-type)
             current-channel (-> @sub :current-channel)
             messages (-> @sub :current-channel :messages
-                         transform-messages)]
+                         transform-messages
+                         add-timeline-string-to-messages)]
         (when-not (= channel-uuid (:channel_uuid current-channel))
           (re-frame/dispatch [::direct-event/current-channel (keyword channel-type) channel-uuid]))
         [:main.flex.flex-col.flex-1
          [room-header current-channel]
          [message-contents
           [message-intro current-channel]
-          ;; TODO: message date 
-          [message-date-line]
           (for [message messages]
-            ^{:key (:uuid message)} [:<> [message-card {:avatar (:name message)
-                                                        :t (:t message)
-                                                        :name (:name message)
-                                                        :username (:username message)
-                                                        :time (:created_at message)
-                                                        :message (:msg message)}]])]
+            ^{:key (:uuid message)} [:<>
+                                     (when (some? (:time-string message))
+                                       [message-date-line (:time-string message)])
+                                     [message-card {:avatar (:name message)
+                                                    :t (:t message)
+                                                    :name (:name message)
+                                                    :username (:username message)
+                                                    :time (:created_at message)
+                                                    :message (:msg message)}]])]
          [message-box]]))))
 
-
-#_(
-   [message-card {:avatar "Howard"
-                         :name "Howardtest"
-                         :username "HowardTest"
-                         :time "2:29 pm"
-                         :message "hello, world"}]
-          [message-card {:t "message"
-                         :message "Something change me inside, that is emacs is a best IDE I've ever use, so I'd like to share this thing with you."}]
-          [message-card {:t "message"
-                         :message "Generating random paragraphs can be an excellent way for writers to get their creative flow going at the beginning of the day. The writer has no idea what topic the random paragraph will be about when it appears. This forces the writer to use creativity to complete one of three common writing challenges. The writer can use the paragraph as the first one of a short story and build upon it. A second option is to use the random paragraph somewhere in a short story they create. The third option is to have the random paragraph be the ending paragraph in a short story. No matter which of these challenges is undertaken, the writer is forced to use creativity to incorporate the paragraph into their writing. "}]
-          [message-card {:avatar "Eva"
-                         :name "Eva"
-                         :username "EvaTest"
-                         :time "2:29 pm"
-                         :message " A random paragraph can also be an excellent way for a writer to tackle writers' block. Writing block can often happen due to being stuck with a current project that the writer is trying to complete. By inserting a completely random paragraph from which to begin, it can take down some of the issues that may have been causing the writers' block in the first place. "}]
-          [message-card {:t "message"
-                         :message "he howard"}]
-          [message-card {:t "message"
-                         :message "Generating random paragraphs can be an excellent way for writers to get their creative flow going at the beginning of the day. The writer has no idea what topic the random paragraph will be about when it appears. This forces the writer to use creativity to complete one of three common writing challenges. The writer can use the paragraph as the first one of a short story and build upon it. A second option is to use the random paragraph somewhere in a short story they create. The third option is to have the random paragraph be the ending paragraph in a short story. No matter which of these challenges is undertaken, the writer is forced to use creativity to incorporate the paragraph into their writing. "}]
-          [message-card {:t "message"
-                         :message "Generating random paragraphs can be an excellent way for writers to get their creative flow going at the beginning of the day. The writer has no idea what topic the random paragraph will be about when it appears. This forces the writer to use creativity to complete one of three common writing challenges. The writer can use the paragraph as the first one of a short story and build upon it. A second option is to use the random paragraph somewhere in a short story they create. The third option is to have the random paragraph be the ending paragraph in a short story. No matter which of these challenges is undertaken, the writer is forced to use creativity to incorporate the paragraph into their writing. "}]
-          [message-card {:t "message"
-                         :message "Generating random paragraphs can be an excellent way for writers to get their creative flow going at the beginning of the day. The writer has no idea what topic the random paragraph will be about when it appears. This forces the writer to use creativity to complete one of three common writing challenges. The writer can use the paragraph as the first one of a short story and build upon it. A second option is to use the random paragraph somewhere in a short story they create. The third option is to have the random paragraph be the ending paragraph in a short story. No matter which of these challenges is undertaken, the writer is forced to use creativity to incorporate the paragraph into their writing. "}]
-          [message-card {:t "message"
-                         :message "Generating random paragraphs can be an excellent way for writers to get their creative flow going at the beginning of the day. The writer has no idea what topic the random paragraph will be about when it appears. This forces the writer to use creativity to complete one of three common writing challenges. The writer can use the paragraph as the first one of a short story and build upon it. A second option is to use the random paragraph somewhere in a short story they create. The third option is to have the random paragraph be the ending paragraph in a short story. No matter which of these challenges is undertaken, the writer is forced to use creativity to incorporate the paragraph into their writing. "}]
-          [message-card {:t "message"
-                         :message "Generating random paragraphs can be an excellent way for writers to get their creative flow going at the beginning of the day. The writer has no idea what topic the random paragraph will be about when it appears. This forces the writer to use creativity to complete one of three common writing challenges. The writer can use the paragraph as the first one of a short story and build upon it. A second option is to use the random paragraph somewhere in a short story they create. The third option is to have the random paragraph be the ending paragraph in a short story. No matter which of these challenges is undertaken, the writer is forced to use creativity to incorporate the paragraph into their writing. "}]
-          [message-card {:t "message"
-                         :message "Generating random paragraphs can be an excellent way for writers to get their creative flow going at the beginning of the day. The writer has no idea what topic the random paragraph will be about when it appears. This forces the writer to use creativity to complete one of three common writing challenges. The writer can use the paragraph as the first one of a short story and build upon it. A second option is to use the random paragraph somewhere in a short story they create. The third option is to have the random paragraph be the ending paragraph in a short story. No matter which of these challenges is undertaken, the writer is forced to use creativity to incorporate the paragraph into their writing. "}]
-          [message-card {:t "message"
-                         :message "he howard"}]
-   ,)

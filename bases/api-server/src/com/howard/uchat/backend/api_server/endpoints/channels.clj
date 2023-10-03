@@ -2,11 +2,10 @@
   (:require
    [com.howard.uchat.backend.api-server.middleware :refer [wrap-authentication-guard]]
    [com.howard.uchat.backend.messages.interface :as messages]
+   [com.howard.uchat.backend.channels.interface :as channels]
    [com.howard.uchat.backend.api-server.util :as util]
    [ring.util.response :as response]
-   [next.jdbc :as jdbc]
    [taoensso.timbre :as timbre]
-   [com.howard.uchat.backend.database.interface :as database]
    [spec-tools.data-spec :as ds]
    [clojure.spec.alpha :as s]
    [com.howard.uchat.backend.socket.interface :as socket]
@@ -61,9 +60,11 @@
                           :username username
                           :name name)]
         (future
-          (timbre/info "try to sent a message out")
-          (socket/broadcast! username [(keyword (str "channel." channel-id) "message")
-                                       result]))
+          (let [channel-users (channels/get-cahnnel-users-by-channel-uuid conn channel-id)]
+            (doseq [channel-user channel-users]
+              (let [username (:username channel-user)]
+                (socket/broadcast! username [(keyword (str "channel." channel-id) "message")
+                                             result])))))
         (util/json-response
          {:status "success"
           :debug result})))))
