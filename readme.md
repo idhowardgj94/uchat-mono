@@ -6,7 +6,7 @@ uChat is a chat software written in clojure / clojurescript.
 
 Currently under development.
 
-This app is a clone of **Rocket Chat** **MatterMost**
+This app is a clone of **Rocket Chat** **Mattermost**
 
 The purpose of this project is just to practice skill and try to implement architecture design.
 
