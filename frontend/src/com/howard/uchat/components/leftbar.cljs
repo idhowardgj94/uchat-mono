@@ -1,17 +1,22 @@
 (ns com.howard.uchat.components.leftbar
   (:require
+   ["react-modal" :as Modal]
    ["react-avatar$default" :as Avatar]
    ["react-icons/ai" :refer [AiFillCaretDown AiFillCaretRight
                              AiOutlineCaretDown AiOutlinePlus]]
    ["react-icons/go" :refer [GoPlusCircle]]
    [com.howard.uchat.components.utilities :refer
     [popup]]
+   [com.howard.uchat.components.basic :refer [form-group label input]]
    [com.howard.uchat.db :as db]
    [re-frame.core :as re-frame]
    [reagent.core :as r]
    [reitit.frontend.easy :as rfe]))
 
-
+(defn multi-choose-list
+  []
+  [:div.flex.bg-yellow-300
+   [:div "test"]])
 (defn tree-menu
   "tree menu components,
   opts:
@@ -45,7 +50,21 @@
            [:a.flex-1.flex.pl-4.flex.items-center.hover:bg-gray-400.p-1
             {:href href}
             avatar
-            [:spac.ml-2  title]]])])]))
+            [:spac.ml-2  title]]])])
+     [:> Modal {:isOpen true
+                :style {:overlay {:backgroundColor "rgba(90,90,90, 0.3)"}
+                        :content {:margin "0 auto"
+                                  :width "70%"
+                                  :max-height "fit-content"
+                                  :display "block"}}
+                :contentLabel "Create channel"}
+      [:div
+       [:div.text-2xl.font-bold.text-center "Create channel"]
+       [form-group
+        [label {:for "name"} "Channel Name"]
+        [input {:name "name"
+                :id "name"}]]
+       [multi-choose-list]]]]))
 
 (defn leftbar
   "navigation component"

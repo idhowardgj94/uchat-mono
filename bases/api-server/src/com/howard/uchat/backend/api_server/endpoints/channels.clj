@@ -68,11 +68,25 @@
         (util/json-response
          {:status "success"
           :debug result})))))
-
+(def post-create-channels-spec
+  (ds/spec
+   {:name ::post-create-channels
+    :spec {:channel-name string?
+           :username-list (s/coll-of string? :kind vector?)}}))
+(defn post-create-channels
+  [request]
+  (let [body (-> request :body)
+        conn (-> request :db-conn)
+        name (-> request :identity :name)]
+    ;; TODO check auth
+    ;; TODO check body params (throw exception to middleware.)
+    "TODO"
+    ))
 (defroutes channel-routes
   (context "/api/v1/channels" []
            (wrap-routes
             (routes
+             (POST "/" [] post-create-channels)
              (POST "/:channel-id/messages" [] post-channels-message)
              (GET "/:channel-id/messages" [] get-channels-message))
             wrap-authentication-guard)))

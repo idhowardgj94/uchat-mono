@@ -12,9 +12,9 @@
                                    :build-options
                                    {:ns-aliases
                                     {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
-                :tailwind/output  "frontend/resources/public/app.css"
+                :tailwind/output  "./frontend/resources/public/app.css"
                 :tailwind/files   {:base-path "."
-                                   :tailwind.css ".frontend/resources/tw/style.css"}
+                                   :tailwind.css "./frontend/resources/tw/style.css"}
                 :compiler-options {:infer-externs :auto
                                    :source-map true
                                    }
