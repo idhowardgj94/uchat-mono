@@ -1,4 +1,4 @@
-{:deps   {:aliases [:dev :test]}
+{:deps   {:aliases [:frontend]}
 
  :nrepl  {:port 7002}
  :builds {:app {:target           :browser
@@ -16,7 +16,6 @@
                 :tailwind/files   {:base-path "."
                                    :tailwind.css "./frontend/resources/tw/style.css"}
                 :compiler-options {:infer-externs :auto
-                                   :source-map true
                                    }
                 :modules          {
                                    :main {:entries [com.howard.uchat.core]

@@ -2,8 +2,6 @@
   (:require
    [clojure.string  :as str]
    [cljs.core.async :as async  :refer [<! >! put! chan]]
-   [taoensso.encore :as encore :refer-macros [have have?]]
-   [taoensso.timbre :as timbre :refer-macros []]
    [taoensso.sente  :as sente  :refer [cb-success?]]
    ; [com.howard.uchat.use-cases.direct :as direct]
    ;; Optional, for Transit encoding:

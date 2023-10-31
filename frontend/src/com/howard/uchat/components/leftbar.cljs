@@ -15,8 +15,25 @@
 
 (defn multi-choose-list
   []
-  [:div.flex.bg-yellow-300
-   [:div "test"]])
+  [:div.flex.bg-red-300
+   [:div.border-b.flex-1.inline-flex
+    [:label {:className "relative flex items-center p-3 rounded-full cursor-pointer"
+             :for "checkbox"}
+     [:input {:type "checkbox"
+              :name "checkbox"
+              :className "peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border transition-all checked:border-pink-500 checked:bg-pink-500"}]
+     [:div {:className "absolute text-white transition-opacity opacity-0 pointer-events-none top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 peer-checked:opacity-100"}
+      [:svg {:xmlns "http://www.w3.org/2000/svg"
+             :className "h-3.5 w-3.5"
+             :viewBox "0 0 20 20"
+             :fill "currentColor"
+             :stroke "currentColor"
+             :strokeWidth "1"}
+       [:path {:fillRule "evenodd"
+               :d "M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+               :clipRule "evenodd"
+               }]]]]]])
+
 (defn tree-menu
   "tree menu components,
   opts:
@@ -55,11 +72,12 @@
                 :style {:overlay {:backgroundColor "rgba(90,90,90, 0.3)"}
                         :content {:margin "0 auto"
                                   :width "70%"
+                                  :height "fit-content"
                                   :max-height "fit-content"
                                   :display "block"}}
                 :contentLabel "Create channel"}
       [:div
-       [:div.text-2xl.font-bold.text-center "Create channel"]
+       [:div.text-2xl.font-bold.text-center.border-b.border-solid.py-2.mb-2 "Create channel"]
        [form-group
         [label {:for "name"} "Channel Name"]
         [input {:name "name"

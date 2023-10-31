@@ -1,6 +1,9 @@
 module.exports = {
   mode: "jit",
-  content: ["./frontend/resources/**/*.html", "./frontend/resources/**/main.js"],
+  content: [
+    "./frontend/resources/**/*.html",
+    "./frontend/resources/public/js/main.js"
+  ],
   theme: {
     extend: {}
   },
