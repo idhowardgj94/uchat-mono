@@ -1,4 +1,4 @@
-{:deps   {:aliases [:frontend]}
+{:deps   {:aliases [:dev :test]}
 
  :nrepl  {:port 7002}
  :builds {:app {:target           :browser

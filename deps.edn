@@ -19,29 +19,19 @@
                                ring/ring-json {:mvn/version "0.5.1"}
                                ring/ring-jetty-adapter {:mvn/version "1.8.2"}
                                ring/ring-devel {:mvn/version "1.10.0"}
+                               com.taoensso/sente {:mvn/version "1.19.2"}
                                buddy/buddy-auth {:mvn/version "3.0.323"}
                                buddy/buddy-hashers {:mvn/version "2.0.167"}
                                http-kit/http-kit {:mvn/version "2.7.0"}
                                com.taoensso/timbre {:mvn/version "6.2.2"}
                                compojure/compojure {:mvn/version "1.7.0"}
-                               metosin/jsonista {:mvn/version "0.3.8"}
                                clj-http/clj-http {:mvn/version "3.12.3"}
-                               com.taoensso/sente {:mvn/version "1.19.2"}
                                com.github.seancorfield/next.jdbc {:mvn/version "1.3.883"}
                                clj-time/clj-time {:mvn/version "0.15.2"}
                                dev.weavejester/ragtime {:mvn/version "0.9.3"}
                                org.postgresql/postgresql {:mvn/version "42.2.10"}
                                org.clojure/tools.deps.alpha {:git/url "https://github.com/clojure/tools.deps.alpha"
                                                              :sha "8f8fc2571e721301b6d52e191129248355cb8c5a"}
-                               }}
-            :frontend {:extra-paths [
-                                "frontend/src"
-                                "frontend/resources"]
-                       :extra-deps {
-                                    org.clojure/clojurescript {:mvn/version "1.11.54"}
-                               org.clojure/clojure {:mvn/version "1.11.1"}
-                               com.taoensso/sente {:mvn/version "1.19.2"}
-                               metosin/spec-tools {:mvn/version "0.10.5"}
                                reagent/reagent           {:mvn/version "1.2.0"}
                                ns-tracker/ns-tracker     {:mvn/version "0.4.0"}
                                re-pressed/re-pressed     {:mvn/version "0.3.2"
@@ -59,6 +49,7 @@
                                day8.re-frame/re-frame-10x {:mvn/version "1.8.1"}
                                day8.re-frame/tracing      {:mvn/version "0.6.2"}
                                }}
+
             :test {:extra-paths []}
             :poly {:main-opts ["-m" "polylith.clj.core.poly-cli.core"]
                    :extra-deps {polyfy/polylith

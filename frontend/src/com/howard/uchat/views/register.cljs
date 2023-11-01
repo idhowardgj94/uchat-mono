@@ -4,7 +4,8 @@
    [re-frame.core :as re-farme]
    [com.howard.uchat.use-cases.core-cases :as event]
    [com.howard.uchat.util :refer [get-form-map contains-in-vector?]]
-   [com.howard.uchat.components.basic :refer [form-group label input button]]
+   [com.howard.uchat.components.basic :refer [form-group label input]]
+   [com.howard.uchat.components.button :refer [button]]
    [com.howard.uchat.components.layout :refer [guest-layout]]
    [cljs.core :as c]))
 
@@ -64,7 +65,7 @@
                :error? (contains-in-vector? errors :confirm-password)
                :error-msg  "This field should be same as password"}]]
       [:div.flex.items-center.pb-4
-       [button {:word "register"}]
+       [button {:text "register"}]
        [:div.inline-block.text-right.flex-1.font-light.text-sm "Already has account? "
         [:a.text-blue-600.font-light.text-sm {:href (rfe/href :routes/login)} "Back to login"]]]]]))
 
