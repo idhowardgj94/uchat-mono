@@ -24,7 +24,7 @@
                                           
                 :devtools         {
                                    :http-port 8021
-                                   :http-root "frontend/resources/public/"
+                                   :http-root "./frontend/resources/public/"
                                    :after-load com.howard.uchat.core/re-render
                                    :preloads  [devtools.preload shadow.remote.runtime.cljs.browser
                                                day8.re-frame-10x.preload]
