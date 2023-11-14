@@ -13,7 +13,8 @@
    [taoensso.timbre :as timbre]
    [next.jdbc :as jdbc]
    [ring.util.response :as res-util]
-   [com.howard.uchat.backend.database.interface :as database]))
+   [com.howard.uchat.backend.database.interface :as database]
+   [jsonista.core :as json]))
 
 
 (defonce secret (nonce/random-bytes 32))
@@ -59,6 +60,27 @@
                     (json-response {:status "success"
                                     :token (get-login-token username)})))))))))
 
+(defrecord Claims [username name exp])
+
+(defn- new-exp
+  "generate new expire time, given:
+  seconds
+  params:
+  seconds - int"
+  ^org.joda.time.PeriodType [seconds]
+  (.getMillis (time/plus (time/now) (time/seconds seconds))))
+
+(defn generate-auth-token
+  "generate auth token for login.
+  params:
+  username - string
+  name - string
+  exp default 3600 timestamp in millis"
+  [username name]
+  (let [claims (Claims. username name (new-exp 3600))]
+    (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})))
+
+
 (defn login-handler
   [request]
   (let [body (:body request)
@@ -76,10 +98,7 @@
                   (= (-> (hashers/verify password real-password)
                          :valid) false))
             (response/bad-request {:message "Login failed, please check username and password."})
-            (let [claims {:username (keyword username)
-                          :name (:name result)
-                          :exp (.getMillis (time/plus (time/now) (time/seconds 3600)))}
-                  token (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})]
+            (do
               (timbre/debug "success logined")
-              (json-response {:token token}))))))))
+              (json-response {:token (generate-auth-token (keyword username) (:name result))}))))))))
 

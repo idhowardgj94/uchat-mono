@@ -12,6 +12,16 @@
         uuid (-> channel
                  :channels/uuid)]
     uuid))
+ 
+(defn create-channel
+  "create a channel by team_uuid, channel name, return channel uuid"
+  [conn team_uuid name]
+  (let [channel (jdbc/execute-one!
+                 conn
+                 ["INSERT INTO channels (name, team_uuid, type) VALUES (?, ?, ?)" name team_uuid "channel"] {:return-keys true})
+        uuid (-> channel
+                 :channels/uuid)]
+    uuid))
 
 (defn insert-users-into-channel
   "insert users into channel by username and channel uuid"

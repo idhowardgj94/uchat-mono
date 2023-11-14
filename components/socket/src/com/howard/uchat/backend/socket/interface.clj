@@ -21,6 +21,13 @@
     (sente/start-server-chsk-router!
       core/ch-chsk events/event-msg-handler)))
 
+(defn create-channel-message-event
+  "create a :channel.<channel-id>/message event
+  :channel-id channel id
+  :event any format of map"
+  [channel-id event]
+  [(keyword (str "channel." channel-id) "message") event])
+
 (defn broadcast!
   "given a username and a event,
   send it thourgh the chsk.

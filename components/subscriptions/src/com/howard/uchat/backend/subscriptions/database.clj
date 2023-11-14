@@ -26,7 +26,7 @@ JOIN users ON users.username = subscriptions.other_user WHERE team_uuid = ?" use
              (assoc :type "channel")))
    (jdbc/plan
     tx
-    ["SELECT channels.*, subscriptions.* FROM subscriptions RIGHT JOIN
+    ["SELECT channels.*, subscriptions.* FROM subscriptions JOIN
 channels ON channels.uuid=subscriptions.channel_uuid and
 subscriptions.username = ?
 WHERE team_uuid = ? AND channels.type = 'channel'" username team-uuid])))
