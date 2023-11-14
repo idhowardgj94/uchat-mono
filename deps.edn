@@ -10,6 +10,7 @@
                                uchat/channels {:local/root "./components/channels"}
                                uchat/socket {:local/root "./components/socket"}
                                uchat/messages {:local/root "./components/messages"}
+                               uchat/tools {:local/root "./components/tools"}
                                org.clojure/clojure {:mvn/version "1.11.1"}
                                integrant/integrant {:mvn/version "0.8.1"}
                                metosin/spec-tools {:mvn/version "0.10.5"}
