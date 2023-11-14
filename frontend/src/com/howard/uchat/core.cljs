@@ -10,7 +10,11 @@
             ["javascript-time-ago/locale/en" :as en]
             ["javascript-time-ago$default" :as time-ago]
             [re-frame.core :as re-frame]
+            [reagent.core :as rc]
             [reagent.dom.client :as rdc]))
+
+;(def functional-compiler (reagent.core/create-compiler {:function-components true}))
+;(reagent.core/set-default-compiler! functional-compiler)
 
 (doto time-ago
   (.addLocale en))

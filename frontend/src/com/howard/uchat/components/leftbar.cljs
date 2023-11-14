@@ -1,5 +1,6 @@
 (ns com.howard.uchat.components.leftbar
   (:require
+   ["react" :refer [useEffect]]
    ["react-modal" :as Modal]
    ["react-avatar$default" :as Avatar]
    ["react-icons/ai" :refer [AiFillCaretDown AiFillCaretRight
@@ -13,9 +14,7 @@
    [com.howard.uchat.db :as db]
    [re-frame.core :as re-frame]
    [reagent.core :as r]
-   [reitit.frontend.easy :as rfe]
-   ))
-
+   [reitit.frontend.easy :as rfe]))
 
 (def mocks  [{:id 1
               :text "idhowardgj94"
@@ -33,43 +32,93 @@
               :text "lisa"
               :avatar [:> Avatar {:name "lisa" :size 30 :className "rounded-full"}]}])
 
+(defn- default-create-channel-form
+  []
+  {:name {:error? false
+          :value ""}
+   :usernames #{}})
+
+(defn- get-reagent-props
+  "get reagent props from this.
+  helper function when use reagent lifecycle hook."
+  [this]
+  (-> this .-props .-argv))
+
 (defn create-channel-modal
-  [opt]
-  [:> Modal {:isOpen (-> opt :is-open)
-             :style {:overlay {:backgroundColor "rgba(90,90,90, 0.3)"}
-                     :content {:margin "0 auto"
-                               :width "70%"
-                               :height "fit-content"
-                               :max-height "80%"
-                               :display "block"}}
-             :contentLabel "Create channel"}
-      [:div
-       [:div.text-2xl.font-bold.text-center.border-b.border-solid.py-2.mb-2 "Create channel"]
-       [form-group
-        [label {:for "name"} "Channel Name"]
-        [input {:name "name"
-                :id "name"}]]
-       [multi-choose-list {:data mocks
-                           :on-click (fn [e]
-                                       (js/console.log (clj->js e)))}]
-       [:div.flex.items-center.my-4.justify-center
-        [button {:text "create"}]
-        [:div.mx-2]
-        [button {:text "Cancel" :color "yellow"}]
-        ]]])
+  "opt:
+   :open? - atom<bool>, open modal or not.
+   :close - fn, close modal fn"
+  []
+  (let [form (r/atom (default-create-channel-form))]
+    (r/create-class
+     {:component-did-update (fn [this prev]
+                              ;; props format will be a clojure vector like following structure.
+                              ;; [fn {:foo "bar"}]
+                              ;; where second map is the real props.
+                              (let [prev-open? (-> prev
+                                                   second
+                                                   :open?)
+                                    current-open? (-> (get-reagent-props this)
+                                                      second
+                                                      :open?)]
+                                (when (and
+                                       (not current-open?)
+                                       (not= prev-open? current-open?))
+                                  (reset! form (default-create-channel-form)))))
+      :reagent-render
+      (fn [opt]
+        (let [{:keys [close]} opt]
+          [:> Modal {:isOpen (-> opt :open?)
+                     :onRequestClose (fn []
+                                       (reset! form (default-create-channel-form))
+                                       (close))
+                     :style {:overlay {:backgroundColor "rgba(90,90,90, 0.3)"}
+                             :content {:margin "0 auto"
+                                       :width "70%"
+                                       :height "fit-content"
+                                       :max-height "80%"
+                                       :display "block"}}
+                     :contentLabel "Create channel"}
+           [:div
+            [:div.text-2xl.font-bold.text-center.border-b.border-solid.py-2.mb-2 "Create channel"]
+            [form-group
+             [label {:for "name"} "Channel Name"]
+             [input {:name "name"
+                     :error? (-> @form :name :error?)
+                     :on-change (fn [e]
+                                  (swap! form assoc-in [:name :value] (-> e .-target .-value)))
+                     :id "name"}]]
+            [multi-choose-list {:data mocks
+                                :on-click (fn [e]
+                                            (let [{:keys [value checked]} e]
+                                              (js/console.log checked)
+                                              (swap! form update :usernames (if checked conj disj) value)
+                                              (js/console.log (clj->js e))))}]
+            [:div.flex.items-center.my-4.justify-center
+             [button {:text "create"}]
+             [:div.mx-2]
+             [button {:text "Cancel" :color "yellow"
+                      :on-click (fn []
+                                  (print @form)
+                                  (close))}]]]]))})))
+
 (defn tree-menu
   "tree menu components,
   opts:
-  open?
-  title: string
-  right-button-component: reagent fn
-  data: vector of map {:avatar :title :href}
+  :open? - bool
+  :title - string
+  :right-button-component - reagent fn
+  :data - vector of map {:avatar :title :href}
+  :open-create-handler - fn 
+  :create-modal - vector (hicup)
   TODO: row-component
   "
   [opts]
   (let [open-tree? (:open? opts)
+        open-create-handler (:open-create-handler opts)
         title (:title opts)
         {right :right-button-component} opts
+        create-modal (:create-modal opts)
         data (:data opts)]
     [:<>
      [:section.px-1.w-full.flex.mb-1
@@ -80,6 +129,7 @@
          [:> AiFillCaretRight])
        [:p.px-1 title]]
       [:button.mr-2.ml-auto.text-gray-200
+       {:on-click open-create-handler}
        right]]
      (when @open-tree?
        [:<>
@@ -91,7 +141,7 @@
             {:href href}
             avatar
             [:spac.ml-2  title]]])])
-     [create-channel-modal]]))
+     create-modal]))
 
 (defn leftbar
   "navigation component"
@@ -100,6 +150,7 @@
         open-new (r/atom false)
         open-tree? (r/atom true)
         open-direct? (r/atom true)
+        open-create-channel? (r/atom false)
         subscriptions (re-frame/subscribe [::db/subscribe [:direct-subscriptions :channel-subscriptions]])]
     (fn []
       [:sidebar {:style {:color "rgb(63, 67, 80)"
@@ -130,11 +181,15 @@
        [tree-menu {:open? open-tree?
                    :title "Channels"
                    :right-button-component [:> AiOutlinePlus]
+                   :open-create-handler (fn [] (reset! open-create-channel? true))
+                   :create-modal [create-channel-modal {:open? @open-create-channel?
+                                                        :close (fn []
+                                                                 (swap! open-create-channel? not))}]
                    :data (->> (:channel-subscriptions @subscriptions)
                               (map (fn [it]
                                      {:id (:other_user it)
-                                      :avatar [:> Avatar {:name (:other_user it) :size 18 :className "rounded-full"}]
-                                      :title (:other_user it)
+                                      :avatar [:> Avatar {:name  (:name it) :size 18 :className "rounded-full"}]
+                                      :title (:name it)
                                       :href (rfe/href :routes/channels {:uuid "#"
                                                                         :channel-type :channel})})))}]
        [:div.my-2

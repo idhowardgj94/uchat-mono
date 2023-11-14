@@ -46,19 +46,33 @@
   :id ; Dispatch on event-id
   )
 
-(defn event-msg-handler
-  "Wraps `-event-msg-handler` with logging, error catching, etc."
-  [{:as ev-msg :keys [id ?data event]}]
+(defn channel-event-handler
+  "handle channel event, try to separte event handler by different event context.
+  params
+  ev-msg
+  {:id string
+   :?data ???
+   :event map
+  }
+  :id will be the event's name (first element of a vector) sent from server.
+  for example, when server send event
+  [:channel.channel-id/message {:foo \"bar\"}]
+  then id will be :channel.channel-id/message"
+  [{:as ev-msg :keys [id]}]
   (let [channel-regex #"channel\.([\w|-]+)/(\w*)"
         channel-match? (re-find channel-regex (str id))]
     (cond
       (some? channel-match?) (let [channel-id (second channel-match?)
                                    event (get channel-match? 2)]
-                               ;; channel.<channel-id>/<event> -> channel/<event>
                                (-event-msg-handler (assoc ev-msg
                                                           :id (keyword "channel" event)
-                                                          :channel-id channel-id)))
-      :else (-event-msg-handler ev-msg))))
+                                                          :channel-id channel-id)) true))))
+
+(defn event-msg-handler
+  "Wraps `-event-msg-handler` with logging, error catching, etc."
+  [ev-msg]
+  (cond
+    (some? (channel-event-handler ev-msg)) true))
 
 (defmethod -event-msg-handler
   :channel/message

@@ -17,11 +17,17 @@
 (defn input
   "input for uchat. contain default style.
   opts: name, id
-  error? atom of boolean or boolean"
+  :on-click - input's onClick handler
+  :error-msg - string
+  :id - input's id
+  :name - input's name
+  :on-change - input's onChange
+  :error? - atom of boolean or boolean"
   [opts]
   (let [error-msg (:error-msg opts)
-        error-field (:error? opts)
+        error-field (:error? opts) 
         error (if (instance? cljs.core.Atom error-field) @error-field error-field)
+        ; if not set error?, then default true to open msg
         error? (if (nil? error) true error)]
     [:<>
      [:div.flex.rounded-md.shadow-sm.ring-1.ring-inset.ring-gray-300.appearance-none

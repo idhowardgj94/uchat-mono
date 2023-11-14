@@ -33,10 +33,9 @@
                                                    (let [it (-> elem (.querySelector "input"))]
                                                      (.click it))
                                                    (when (fn? on-click)
-                                                     (js/console.log (-> e .-target .-checked))
                                                      (on-click {:event e
                                                                 :value (-> e .-target .-value)
-                                                                :cehcked (-> e .-target .-checked)})))))}
+                                                                :checked (-> e .-target .-checked)})))))}
         [:div.inline-flex.border-b.flex-1.items-center
          [:label {:className "relative flex items-center p-3 rounded-full cursor-pointer"
                   :for "checkbox"}
