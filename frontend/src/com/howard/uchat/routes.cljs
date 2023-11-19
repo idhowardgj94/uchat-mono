@@ -35,6 +35,7 @@
       :view #'channel/channel
       :parameters {:path {:uuid string?
                           :channel-type keyword?}}}]
+    
     ["/channels/create-direct/:other-username"
      {:name :routes/create-direct
       :view #'channel/create-direct
@@ -58,12 +59,16 @@
 ;;; Events
 (rf/reg-event-db
  :routes/navigated
- (fn-traced [db [_ v]]
-            (assoc-in db [:current-route] v)))  
+ (fn-traced
+ ;; "navigated use to change routes store in db."
+  [db [_ v]]
+  (assoc-in db [:current-route] v)))  
 
 (rf/reg-event-fx
  :routes/navigate
- (fn [_ [_ route]]
+ (fn
+  ;; "navigate use to do action"
+   [_ [_ route]]
    (condp = (type route)
      cljs.core/Keyword (rfe/push-state route)
      (let [[name items] route]

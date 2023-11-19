@@ -1,11 +1,12 @@
 (ns com.howard.uchat.api
   #_{:clj-kondo/ignore [:unresolved-var]}
   (:require
-   [com.howard.uchat.db :as db]
+   [spec-tools.data-spec :as ds]
+   [cljs.spec.alpha :as s]
    ["axios$default" :as axios]
    [goog.object :as obj]
-   [ajax.core :refer [GET POST] :as ajax]
-   [re-frame.core :as re-farme]))
+   [ajax.core :refer [GET POST] :as ajax]))
+
 ;; TODO: migrate ajax to axios
 
 (defonce endpoint "http://localhost:4000")
@@ -61,6 +62,7 @@
   [channel-id]
   (-> axios
       (.get (str endpoint "/api/v1/channels/" channel-id "/messages"))))
+
 (defn get-me
   []
   (-> axios
@@ -72,6 +74,31 @@
       (.post (str endpoint "/api/v1/direct/generate")
              #js {:team_uuid team-uuid
                   :other_user other-user})))
+
+(defn get-team-users
+  "get team users by teams-id"
+  [team-id]
+  {:pre [(string? team-id)]}
+  (-> axios
+      (.get (str endpoint "/api/v1/teams/" team-id "/users"))))
+
+(def post-generate-channel-spec
+  (ds/spec
+   {:name ::post-generate-channel-spec
+    :spec {:channel-name string?
+           :team-id string?
+           :username-list (s/coll-of string? :kind vector?)}}))
+
+(defn post-generate-channels
+  "params:
+  :channel-name - string
+  :team-id - string
+  :username-list - vocter<string>"
+  [payload]
+  {:pre [(s/assert post-generate-channel-spec payload)]}
+  (-> axios
+      (.post (str endpoint "/api/v1/channels")
+             (clj->js payload))))
 
 (defn register'
   [payload]

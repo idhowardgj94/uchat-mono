@@ -20,8 +20,9 @@
   :value (string) - value of this checkbox, i.e. title for now
   :checked (bool) - if checked."
   [opt]
-  (when-not (s/valid? multi-choose-list-opt opt)
-    (js/console.error  (s/explain-str multi-choose-list-opt opt)))
+  (when-not (= true (s/valid? multi-choose-list-opt opt))
+    (print opt)
+    (print (s/explain multi-choose-list-opt opt)))
   (let [{:keys [on-click]} opt]
     [:div.block
      (for [{:keys [text id avatar]} (-> opt :data)]
@@ -31,7 +32,11 @@
                                                  (if (or (object? elem)
                                                          (not= (-> elem .-tagName) "INPUT"))
                                                    (let [it (-> elem (.querySelector "input"))]
-                                                     (.click it))
+                                                     (when (and
+                                                            (some? it)
+                                                            (.hasOwnProperty it "click"))
+                                                       (.click it)))
+
                                                    (when (fn? on-click)
                                                      (on-click {:event e
                                                                 :value (-> e .-target .-value)
