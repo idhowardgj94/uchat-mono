@@ -4,12 +4,16 @@
    [com.howard.uchat.backend.messages.interface :as messages]
    [com.howard.uchat.backend.channels.interface :as channels]
    [com.howard.uchat.backend.api-server.util :as util]
+   [com.howard.uchat.backend.socket.interface :as socket]
    [ring.util.response :as response]
-   [taoensso.timbre :as timbre]
    [spec-tools.data-spec :as ds]
    [clojure.spec.alpha :as s]
-   [com.howard.uchat.backend.socket.interface :as socket]
-   [compojure.core :refer [wrap-routes routes defroutes context GET POST]]))
+   [compojure.core :refer [wrap-routes routes defroutes context GET POST]]
+   [com.howard.uchat.backend.teams.interface :as teams]
+   [com.howard.uchat.backend.tools.interface :as tools :refer [post Post new-client]]
+   [com.howard.uchat.backend.subscriptions.interface :as subscriptions]
+   [next.jdbc :as jdbc]
+   ))
 
 
 (defn ns-map->simple-map
@@ -50,7 +54,6 @@
         conn (-> request :db-conn)
         name (-> request :identity :name)
         channel-id (-> request :params :channel-id)]
-    (timbre/info (instance? java.sql.Connection conn))
     (if-not (s/valid? post-channels-message-spec body)
       (response/bad-request
        {:message  (str "Wrong body palyoad. please check the API docs. msg:" (s/explain-str post-channels-message body))})
@@ -63,16 +66,63 @@
           (let [channel-users (channels/get-cahnnel-users-by-channel-uuid conn channel-id)]
             (doseq [channel-user channel-users]
               (let [username (:username channel-user)]
-                (socket/broadcast! username [(keyword (str "channel." channel-id) "message")
-                                             result])))))
+                ;; keyword -- :channel.<channel-id>/message
+                (socket/broadcast! username (socket/create-channel-message-event
+                                             channel-id result))))))
         (util/json-response
          {:status "success"
           :debug result})))))
+
+
+(def post-create-channels-spec
+  (ds/spec
+   {:name ::post-create-channels
+    :spec {:channel-name string?
+           :team-id string?
+           :username-list (s/coll-of string? :kind vector?)}}))
+
+(defn- create-subscriptions
+  "create subscription (will call after create channels)"
+  [conn body channel-id]
+  (jdbc/with-transaction [tx conn]
+              (let [username-list (:username-list body)]
+                (doseq [username username-list]
+                  (subscriptions/create-subscription tx channel-id username)))))
+
+(defn post-create-channels
+  [request]
+  (let [body (-> request :body)
+        conn (-> request :db-conn)
+        username (-> request :identity :username)]
+    (cond
+      (not (s/valid? post-create-channels-spec body)) (response/bad-request
+                                                       {:message (str "Wrong body palyoad. please check the API docs. msg:"
+                                                                      (s/explain-str post-create-channels-spec body))})
+      (not (teams/user-belong-to-team? conn username (parse-uuid (-> body :team-id))))
+      (response/bad-request
+       {:message (str "You don't have right permission to do this operation.")})
+      :else
+      (jdbc/with-transaction [tx conn]
+        (let [channel-id (channels/create-channel-and-insert-users tx body)]
+          (future 
+            (create-subscriptions conn body channel-id))
+          (util/json-response
+           {:status "success"
+            :channel-id channel-id}))))))
 
 (defroutes channel-routes
   (context "/api/v1/channels" []
            (wrap-routes
             (routes
+             (POST "/" [] post-create-channels)
              (POST "/:channel-id/messages" [] post-channels-message)
              (GET "/:channel-id/messages" [] get-channels-message))
             wrap-authentication-guard)))
+#_((-> (new-client "idhowardgj94" "howard")
+       (tools/get_ "/api/v1/teams"))
+   (-> (new-client "idhowardgj94" "howard")
+       (tools/post "/api/v1/channels" {:channel-name "hello"
+                                       :team-id "d205e510-8dee-4fb5-8d55-4f4bc5174bad"
+                                       :username-list ["idhowardgj94" "eva"]}))
+   ,)
+

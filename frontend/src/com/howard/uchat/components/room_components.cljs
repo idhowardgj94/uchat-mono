@@ -19,7 +19,10 @@
    [:> icon {:size 18}]])
 ;; TODO: should use name instead of username 
 (defn room-header [current-channel]
-  (let [{name :other_name} current-channel]
+  (let [name (case (:type current-channel)
+               "direct" (:other_name current-channel)
+               "channel" (:name current-channel)
+               "loading...")]
     [:section.basis-16.flex.w-full.items-center.border-b.border-gray-200
      [:div.flex.flex-1.px-6.items-center
       [:> Avatar {:name name :size 36}]

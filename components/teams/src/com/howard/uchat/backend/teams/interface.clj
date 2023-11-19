@@ -1,6 +1,9 @@
 (ns com.howard.uchat.backend.teams.interface
   (:require [com.howard.uchat.backend.teams.database :as db]
+            [com.howard.uchat.backend.tools.macro :refer [export-fn]]
             [com.howard.uchat.backend.database.interface :as database]))
+
+(export-fn get-team-users db/get-team-users)
 
 (defn user-belong-to-team?
   "check if a user belong to a team or not,

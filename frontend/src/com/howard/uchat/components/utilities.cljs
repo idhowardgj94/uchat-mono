@@ -11,7 +11,6 @@
     (into [:<> opt] children)
     [:<> children]))
 
-;; TODO: rename to is-opts 
 (defn get-opts
   "give opt and to see if it's a vector
   if it's not vector, then return nil

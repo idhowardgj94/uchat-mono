@@ -12,11 +12,10 @@
                                    :build-options
                                    {:ns-aliases
                                     {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
-                :tailwind/output  "frontend/resources/public/app.css"
+                :tailwind/output  "./frontend/resources/public/app.css"
                 :tailwind/files   {:base-path "."
-                                   :tailwind.css ".frontend/resources/tw/style.css"}
+                                   :tailwind.css "./frontend/resources/tw/style.css"}
                 :compiler-options {:infer-externs :auto
-                                   :source-map true
                                    }
                 :modules          {
                                    :main {:entries [com.howard.uchat.core]
@@ -25,7 +24,7 @@
                                           
                 :devtools         {
                                    :http-port 8021
-                                   :http-root "frontend/resources/public/"
+                                   :http-root "./frontend/resources/public/"
                                    :after-load com.howard.uchat.core/re-render
                                    :preloads  [devtools.preload shadow.remote.runtime.cljs.browser
                                                day8.re-frame-10x.preload]

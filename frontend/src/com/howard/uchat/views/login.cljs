@@ -4,9 +4,9 @@
    [re-frame.core :as re-frame]
    [com.howard.uchat.util :refer [get-form-map contains-in-vector?]]
    [com.howard.uchat.use-cases.core-cases :as event]
-   [com.howard.uchat.components.basic :refer [form-group label input button]]
+   [com.howard.uchat.components.basic :refer [form-group label input]]
    [com.howard.uchat.components.layout :refer [guest-layout]]
-   [re-frame.core :as re-farme]))
+   ))
 
 (re-frame/reg-sub
  ::login-validate
@@ -28,7 +28,7 @@
        [label {:for "username"} "Username"]
        [input  {:name "username"
                 :id "username"
-                :on-change #(re-farme/dispatch [::event/clear-login-validate])
+                :on-change #(re-frame/dispatch [::event/clear-login-validate])
                 :error? (contains-in-vector? errors :username)
                 :error-msg "This field is required"}]]
       [form-group

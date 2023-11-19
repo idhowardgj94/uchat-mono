@@ -10,4 +10,3 @@ This app is a clone of **Rocket Chat** **Mattermost**
 
 The purpose of this project is just to practice skill and try to implement architecture design.
 
-

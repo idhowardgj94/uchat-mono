@@ -2,28 +2,29 @@
 (ns com.howard.uchat.backend.api-server.core
   (:require
    [buddy.auth :refer [authenticated? throw-unauthorized]]
-   [buddy.auth.middleware :refer [authenticate-request]]
-   [buddy.auth.protocols :as proto]
    [buddy.auth.backends.token :refer [jwe-backend]]
-   [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
+   [buddy.auth.middleware :refer [wrap-authorization]]
    [clj-http.client :as client]
    [clojure.spec.alpha :as s]
    [com.howard.uchat.backend.api-server.auth
     :refer [login-handler register-handler secret]]
+   [com.howard.uchat.backend.api-server.endpoints.channels :as channels-endpoint]
+   [com.howard.uchat.backend.api-server.endpoints.messages :as messages-endpoint]
+   [com.howard.uchat.backend.api-server.endpoints.teams :as teams-endpoint]
    [com.howard.uchat.backend.api-server.middleware
-    :refer [wrap-authentication-guard wrap-cors wrap-database wrap-token-from-params]]
+    :refer [wrap-authentication-guard wrap-cors wrap-database
+            wrap-token-from-params]]
    [com.howard.uchat.backend.api-server.spec :as specs]
    [com.howard.uchat.backend.api-server.util :refer [json-response] :as util]
+   [com.howard.uchat.backend.channels.interface :as channels]
    [com.howard.uchat.backend.database.interface :as database]
+   [com.howard.uchat.backend.socket.interface :as socket]
    [com.howard.uchat.backend.subscriptions.interface :as subscriptions]
    [com.howard.uchat.backend.teams.interface :as teams]
    [com.howard.uchat.backend.users.interface :as users]
-   [com.howard.uchat.backend.api-server.endpoints.teams :as teams-endpoint]
-   [com.howard.uchat.backend.api-server.endpoints.channels :as channels-endpoint]
-   [com.howard.uchat.backend.api-server.endpoints.messages :as messages-endpoint]
-   [com.howard.uchat.backend.socket.interface :as socket]
-   [compojure.core :refer [context defroutes GET POST wrap-routes routes]]
+   [compojure.core :refer [context defroutes GET POST routes wrap-routes]]
    [jsonista.core :as json]
+   [next.jdbc :as jdbc]
    [next.jdbc.connection :as connection]
    [org.httpkit.server :as hk-server]
    [ring.middleware.defaults :as d]
@@ -31,9 +32,7 @@
    [ring.middleware.reload :refer [wrap-reload]]
    [ring.middleware.resource :refer [wrap-resource]]
    [ring.util.response :as response]
-   [taoensso.timbre :as timbre]
-   [next.jdbc :as jdbc]
-   [com.howard.uchat.backend.channels.interface :as channels]))
+   [taoensso.timbre :as timbre]))
 
 (def auth-backend 
   (jwe-backend {:secret secret

@@ -61,13 +61,13 @@
                                      (.diff prev-message-moment "minutes")) 1))
                            (assoc message :t "message")
                            (assoc message :t "head"))]
-            (conj! res message')
-            (if (= (- (count messages) 1) idx)
-              (persistent! res)
-              (recur (nth messages (+ idx 1))
-                     messages
-                     (+ idx 1)
-                     res)))))))
+            (as-> (conj! res message') r
+              (if (= (- (count messages) 1) idx)
+                (persistent! r)
+                (recur (nth messages (+ idx 1))
+                       messages
+                       (+ idx 1)
+                       r))))))))
 
 (defn room
   []
@@ -84,7 +84,8 @@
         [:main.flex.flex-col.flex-1
          [room-header current-channel]
          [message-contents
-          [message-intro current-channel]
+          (when (= (:type current-channel) "direct")
+            [message-intro current-channel])
           (for [message messages]
             ^{:key (:uuid message)} [:<>
                                      (when (some? (:time-string message))

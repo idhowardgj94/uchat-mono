@@ -38,6 +38,9 @@
 #_(remove-watch connected-uids_ :connected-uids)
 
 (defn broadcast!
-  "test a broadcast functionality."
+  "test a broadcast functionality.
+  params:
+  username - string.  we are using username to specsify which client need to be sent.
+  event - map. event sent to client."
   [username event]
   (chsk-send! username event))

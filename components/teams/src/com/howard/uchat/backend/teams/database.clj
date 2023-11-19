@@ -12,6 +12,23 @@
           :count
           (> 0)))
 
+(defn get-team-users
+  "given a teams id, return users
+  params:
+  tx - db
+  team-id - uuid"
+  [tx team-id]
+  {:pre [(uuid? team-id)]}
+  (-> (into []
+            (map #(select-keys % [:team_uuid :id :username :email :name]))
+            (jdbc/plan
+             tx
+             ["SELECT teams_users.team_uuid, u.id, u.username, u.email, u.name FROM teams_users JOIN users u ON u.username = teams_users.username where teams_users.team_uuid = ?" team-id]))))
+
+(comment
+  "an valid example"
+  (get-team-users (db/get-pool) #uuid "d205e510-8dee-4fb5-8d55-4f4bc5174bad"))
+
 (dbfn insert-team-by-name
       "insert team by name"
       [tx name]
