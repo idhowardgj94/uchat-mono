@@ -11,8 +11,9 @@
    [compojure.core :refer [wrap-routes routes defroutes context GET POST]]
    [com.howard.uchat.backend.teams.interface :as teams]
    [com.howard.uchat.backend.tools.interface :as tools :refer [post Post new-client]]
-
-   [next.jdbc :as jdbc]))
+   [com.howard.uchat.backend.subscriptions.interface :as subscriptions]
+   [next.jdbc :as jdbc]
+   ))
 
 
 (defn ns-map->simple-map
@@ -80,13 +81,19 @@
            :team-id string?
            :username-list (s/coll-of string? :kind vector?)}}))
 
+(defn- create-subscriptions
+  "create subscription (will call after create channels)"
+  [conn body channel-id]
+  (jdbc/with-transaction [tx conn]
+              (let [username-list (:username-list body)]
+                (doseq [username username-list]
+                  (subscriptions/create-subscription tx channel-id username)))))
+
 (defn post-create-channels
   [request]
   (let [body (-> request :body)
         conn (-> request :db-conn)
         username (-> request :identity :username)]
-    ;; TODO check auth
-    ;; TODO check body params (throw exception to middleware.)
     (cond
       (not (s/valid? post-create-channels-spec body)) (response/bad-request
                                                        {:message (str "Wrong body palyoad. please check the API docs. msg:"
@@ -96,10 +103,12 @@
        {:message (str "You don't have right permission to do this operation.")})
       :else
       (jdbc/with-transaction [tx conn]
-        (as-> (channels/create-channel-and-insert-users tx body) channel-id
-            (util/json-response
-             {:status "success"
-              :channel-id channel-id}))))))
+        (let [channel-id (channels/create-channel-and-insert-users tx body)]
+          (future 
+            (create-subscriptions conn body channel-id))
+          (util/json-response
+           {:status "success"
+            :channel-id channel-id}))))))
 
 (defroutes channel-routes
   (context "/api/v1/channels" []
