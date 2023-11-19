@@ -14,10 +14,20 @@
     (util/json-response {:status "success"
                          :result (teams/get-teams-user-belong-to  db-conn username)})))
 
+(defn get-team-users-handler
+  [request]
+  (timbre/info "/teams/:team-id/users")
+  (let [params (-> request :params)
+        team-id (:team-id params)
+        db-conn (:db-conn request)]
+    (util/json-response {:status "success"
+                         :data (teams/get-team-users db-conn (parse-uuid team-id))})))
+
 (defroutes teams-routes
   (context "/api/v1" []
            (wrap-routes
             (routes
+             (GET "/teams/:team-id/users" [] get-team-users-handler)
              (GET "/teams" [] get-teams-handler))
             wrap-authentication-guard)))
 
