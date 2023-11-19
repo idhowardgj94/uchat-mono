@@ -1,0 +1,15 @@
+* Todo and BUGs
+
+Note some knwon todo and bug list.
+
+
+** Bugs
+
+- [ ] after create channels, forntend will go to channels but without any channels info
+- [ ] after create channels, frontend wont refresh create channels list.
+  
+**  Features
+- [ ] after create channels, other users should recived new channel.
+- [ ] tune the login session to production (remember login state till timeout.)
+- [ ] write production build in docker (maybe
+

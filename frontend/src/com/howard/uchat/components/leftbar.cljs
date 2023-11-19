@@ -14,7 +14,10 @@
    [com.howard.uchat.db :as db]
    [re-frame.core :as re-frame]
    [reagent.core :as r]
-   [reitit.frontend.easy :as rfe]))
+   [com.howard.uchat.use-cases.channels-cases :as channels-cases]
+   [reitit.frontend.easy :as rfe]
+   [com.howard.uchat.api :as api]))
+
 
 (def mocks  [{:id 1
               :text "idhowardgj94"
@@ -49,7 +52,9 @@
    :open? - atom<bool>, open modal or not.
    :close - fn, close modal fn"
   []
-  (let [form (r/atom (default-create-channel-form))]
+  (let [form (r/atom (default-create-channel-form))
+        current-team (re-frame/subscribe [::db/subscribe [:current-team]])
+        users (r/atom [])]
     (r/create-class
      {:component-did-update (fn [this prev]
                               ;; props format will be a clojure vector like following structure.
@@ -61,6 +66,17 @@
                                     current-open? (-> (get-reagent-props this)
                                                       second
                                                       :open?)]
+                                (when (and (not prev-open?) current-open?)
+                                  (let [team-id (-> @current-team :current-team :team_uuid)]
+                                    (js/console.log team-id)
+                                    (-> (api/get-team-users team-id)
+                                        (.then (fn [res]
+                                                 (reset! users
+                                                         (->> (-> res :data :data)
+                                                              (map (fn [it] {:id (:id it)
+                                                                             :text (:username it)
+                                                                             :avatar [:> Avatar {:name (:username it) :size 30 :className "rounded-full"}]}))
+                                                              (into []))))))))
                                 (when (and
                                        (not current-open?)
                                        (not= prev-open? current-open?))
@@ -88,18 +104,25 @@
                      :on-change (fn [e]
                                   (swap! form assoc-in [:name :value] (-> e .-target .-value)))
                      :id "name"}]]
-            [multi-choose-list {:data mocks
+            [multi-choose-list {:data @users
                                 :on-click (fn [e]
                                             (let [{:keys [value checked]} e]
-                                              (js/console.log checked)
-                                              (swap! form update :usernames (if checked conj disj) value)
-                                              (js/console.log (clj->js e))))}]
+                                              (swap! form update :usernames (if checked conj disj) value)))}]
             [:div.flex.items-center.my-4.justify-center
-             [button {:text "create"}]
+             [button {:text "create"
+                      :on-click (fn []
+                                  (let [team-id (-> @current-team :current-team :team_uuid)
+                                        channel-name (-> @form :name :value)
+                                        username-list (->> (@form :usernames)
+                                                           (into []))]
+                                    (re-frame/dispatch [::channels-cases/create-channel
+                                                        {:team-id team-id
+                                                         :channel-name channel-name
+                                                         :username-list username-list}])
+                                    (close)))}]
              [:div.mx-2]
              [button {:text "Cancel" :color "yellow"
                       :on-click (fn []
-                                  (print @form)
                                   (close))}]]]]))})))
 
 (defn tree-menu
@@ -187,10 +210,10 @@
                                                                  (swap! open-create-channel? not))}]
                    :data (->> (:channel-subscriptions @subscriptions)
                               (map (fn [it]
-                                     {:id (:other_user it)
+                                     {:id (:channel_uuid it)
                                       :avatar [:> Avatar {:name  (:name it) :size 18 :className "rounded-full"}]
                                       :title (:name it)
-                                      :href (rfe/href :routes/channels {:uuid "#"
+                                      :href (rfe/href :routes/channels {:uuid (:channel_uuid it)
                                                                         :channel-type :channel})})))}]
        [:div.my-2
         [tree-menu {:open? open-direct?
