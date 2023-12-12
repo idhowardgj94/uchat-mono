@@ -19,8 +19,10 @@
          (map #(nth % 0))
          (map keyword)
          (into []))))
-
-(re-frame/reg-event-db ::initialize-db (constantly db/default-db))
+(print "he")
+(re-frame/reg-event-db ::initialize-db (fn-traced [db [_ debug-tools]]
+                                                  (assoc db/default-db
+                                                         :debug-tools debug-tools)))
 
 (re-frame/reg-event-db ::register-result
                        (fn-traced [db [_ status response]]
@@ -211,3 +213,9 @@
                     (re-frame/dispatch [::set-direct-uuid other-user channel-uuid])
                     (re-frame/dispatch [:routes/navigate [:routes/channels {:uuid channel-uuid
                                                                             :channel-type :direct}]]))))))))
+
+(re-frame/reg-event-fx
+ :db/assoc
+ (fn-traced
+  [db [_  k v]]
+   (assoc db k v)))

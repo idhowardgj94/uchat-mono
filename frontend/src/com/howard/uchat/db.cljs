@@ -4,6 +4,7 @@
 
 (defonce default-db
   {:name "re-frame"
+   :debug-tools true
    :current-route nil
    :user-context-status nil
    :direct-subscriptions nil
@@ -15,8 +16,10 @@
    :auth? nil
    :token nil
    :message-box {}
+   ;; TODO: should not be in the global context 
    :register-validate []
    :register-request {}
+   ;; TODO: should not be in the global context 
    :login-validate []
    :login-error-message nil
    :login-request {}})

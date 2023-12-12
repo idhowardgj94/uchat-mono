@@ -10,6 +10,7 @@ Note some knwon todo and bug list.
   
 **  Features
 - [ ] after create channels, other users should recived new channel.
+- [ ] set frontend to production ready
 - [ ] tune the login session to production (remember login state till timeout.)
 - [ ] write production build in docker (maybe
 

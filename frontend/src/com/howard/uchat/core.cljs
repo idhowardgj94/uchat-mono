@@ -2,7 +2,7 @@
   (:require [com.howard.uchat.config :as config]
             [com.howard.uchat.routes :as routes]
             [com.howard.uchat.styles :as styl]
-            [com.howard.uchat.use-cases.core-cases :as ccases]
+            [com.howard.uchat.use-cases.core-cases :as cases]
             [com.howard.uchat.views.home :as views]
             [com.howard.uchat.api :as api]
             [goog.dom :as gdom]
@@ -13,6 +13,8 @@
             [cljs.spec.alpha :as s]
             [reagent.core :as rc]
             [reagent.dom.client :as rdc]))
+
+(goog-define debug-tools true)
 
 ;(def functional-compiler (reagent.core/create-compiler {:function-components true}))
 ;(reagent.core/set-default-compiler! functional-compiler)
@@ -38,9 +40,11 @@
 
 (defn ^:export init []
   (println "init again..")
+  (println debug-tools)
   (api/axios-response-to-clj)
-  (re-frame/dispatch-sync [::ccases/initialize-db])
-  (dev-setup)
+  (re-frame/dispatch-sync [::cases/initialize-db debug-tools])
+  (when debug-tools
+    (dev-setup))
   (routes/app-routes)
 
   (mount-root))
