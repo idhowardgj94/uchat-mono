@@ -2,7 +2,8 @@
   (:require
    [buddy.auth :refer [authenticated? throw-unauthorized]]
    [buddy.auth.protocols :as proto]
-   [com.howard.uchat.backend.database.interface :as database]))
+   [com.howard.uchat.backend.database.interface :as database]
+   [camel-snake-kebab.core :as cbk]))
 
 (defn wrap-cors
   [handler]
@@ -54,3 +55,49 @@
         (-> (assoc request :identity auth-data)
             (handler))))))
 
+(declare reduce-vector-to-kebab-case!)
+(declare reduce-map-to-kebab-case!)
+
+(defn- reduce-vector-to-kebab-case!
+  "a small helper function to reduce vector to kebab case
+  new-v must be a ttrasient collection."
+  [new-v v]
+  (reduce
+   (fn [res v]
+     (conj! res (if (map? v) 
+                    (-> (reduce-map-to-kebab-case! (transient {}) v)
+                        persistent!)
+                    v)))
+            new-v
+            v))
+
+(defn- reduce-map-to-kebab-case!
+  "a small warper for reduce map key to kebab case.
+   new body neet to be transient collection"
+  [new-body body]
+  (reduce
+   (fn [res [k v]]
+     (assoc! res
+             (cbk/->kebab-case k)
+             (if (vector? v)
+               (persistent! (reduce-vector-to-kebab-case! (transient []) v))
+               v)))
+   new-body
+   body))
+#_(persistent! (reduce-map-to-kebab-case! (transient {}) {:fooBar "foo"
+                                                          :hello [{:helloWord "hi"}
+                                                                  {:oneMore [{:testAgain "123"}]}]}))
+
+(defn wrap-kebab-case-converter
+  "convert response body's key from other case to kebab case."
+  [handler]
+  (fn [request]
+    (let [response (handler request)
+          body (response :body)
+          new-body (transient {})]
+      (assoc response :body (-> new-body
+                                (reduce-map-to-kebab-case! body)
+                                persistent!)))))
+
+#_(macroexpand '(->> (:result body)
+                     (map #(reduce-key-to-kebab-case! res %))))

@@ -23,3 +23,9 @@
 ;; TODO: should use interface instead 
 (core/start-server!)
 
+#_(
+   (add-libs '{camel-snake-kebab {:mvn/version "0.4.3"}})
+   (require '[camel-snake-kebab.core :as csk])
+   (csk/->kebab-case "123321")
+   ,)
+

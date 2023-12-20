@@ -12,7 +12,10 @@
    [com.howard.uchat.backend.api-server.endpoints.messages :as messages-endpoint]
    [com.howard.uchat.backend.api-server.endpoints.teams :as teams-endpoint]
    [com.howard.uchat.backend.api-server.middleware
-    :refer [wrap-authentication-guard wrap-cors wrap-database
+    :refer [wrap-authentication-guard
+            wrap-cors
+            wrap-database
+            wrap-kebab-case-converter
             wrap-token-from-params]]
    [com.howard.uchat.backend.api-server.spec :as specs]
    [com.howard.uchat.backend.api-server.util :refer [json-response] :as util]
@@ -137,6 +140,7 @@
   (reset! server
           (hk-server/run-server
            (-> #'app-routes
+               (wrap-kebab-case-converter)
                (wrap-json-body  {:keywords? true :bigdecimals? true})
                (wrap-json-response  {:pretty false})
                (wrap-reload)
@@ -160,6 +164,7 @@
   (start-server!))
 
 (comment
+  (restart-server!)
   (require '[clj-http.client :as client])
   (require '[jsonista.core :as json])
   (def auth {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.12Y59mvi-pdLuo9GO8q8AFIXtX03ywlC.hNkmh-0EeejEmjDH.5IIEcdh-4u5G--tzQ1BWUD7z4_S7p-exs4wXkW-im32YHJOwam0YSjOCFxJg2Lo.PjIMZakgbJGXSlkuC-UvAQ"}})
