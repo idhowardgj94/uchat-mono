@@ -7,7 +7,7 @@
    [ragtime.repl :as repl]))
 
 
-(def system (ig/init (s/read-system "system.edn")))
+; (def system (ig/init (s/read-system "system.edn")))
 
 (comment
   (ig/halt! system)

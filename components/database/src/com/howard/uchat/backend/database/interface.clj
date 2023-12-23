@@ -5,7 +5,6 @@
             [next.jdbc :as jdbc])
   (:import [java.sql Timestamp]))
 
-
 (defmacro dbfn
   {:clj-kondo/lint-as 'clojure.core/defn}
   [name & args]
@@ -29,6 +28,7 @@
 
 (export-fn perform-migrations #'core/perform-migrations)
 (export-fn init-database #'core/init-database)
+(export-fn perform-rollback! #'core/perform-rollback!)
 (export-fn get-pool #'core/get-pool)
 (export-fn close-database! #'core/close-database!)
 (def mk-migraiton-config

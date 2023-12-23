@@ -20,8 +20,6 @@
                                     (connection/jdbc-url jdbc-url)
                                     :username username
                                     :password password})]
-    (when default-team?
-      (api-server/setup-default-teams))
     db))
 
 (defmethod ig/halt-key! :db/jdbc [_ {:keys [db-pool]}]
@@ -30,7 +28,9 @@
 (defmethod ig/resolve-key :db/jdbc [_ {:keys [db-pool]}]
   db-pool)
 
-(defmethod ig/init-key :server/restful [_ {:keys [port db-pool]}]
+(defmethod ig/init-key :server/restful [_ {:keys [port db-pool default-team?]}]
+  (when default-team?
+      (api-server/setup-default-teams))
   (api-server/start-resfult-server! db-pool port))
 
 (defmethod ig/halt-key! :server/restful [_ server]
@@ -45,6 +45,13 @@
   (when (some? server)
     (socket/stop-router!)))
 
-(defmethod ig/init-key :db/migrations [_ {:keys [run? db-path db-pool]}]
+(defmethod ig/init-key :db/migrations [_ {:keys [run? db-path db-pool rollback?]}]
   (when run?
-    (database/perform-migrations db-pool db-path)))
+    (database/perform-migrations db-pool db-path))
+  {:rollback? rollback?
+   :db-pool db-pool
+   :db-path db-path})
+
+(defmethod ig/halt-key! :db/migrations [_ {:keys [rollback? db-pool db-path]}]
+  (when rollback?
+    (database/perform-rollback! db-pool db-path)))

@@ -55,6 +55,19 @@
   [pool db-path]
   (-> (mk-migration-config pool db-path)
       repl/migrate))
+(-> @db-state
+    :migration-config
+    :migrations
+    count)
+(defn perform-rollback!
+  "rollback all migrations, now only for test"
+  [pool db-path]
+  (let [config (mk-migration-config pool db-path)
+        count (-> config
+                     :migrations
+                     count)]
+    (as-> config $
+        (repl/rollback $ count))))
 
 (defn init-database
   "initialise database, create a connection pool, and execute
