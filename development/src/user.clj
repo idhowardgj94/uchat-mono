@@ -1,31 +1,20 @@
 (ns user
   (:require
-   [com.howard.uchat.backend.api-server.core :as core] 
    [clojure.tools.deps.alpha.repl :refer [add-libs]]
-   [ragtime.repl :as repl]
-   [next.jdbc.connection :as connection]
    [com.howard.uchat.backend.database.interface :as database]
-   ))
+   [integrant.core :as ig]
+   [com.howard.uchat.backend.api-server.system :as s]
+   [ragtime.repl :as repl]))
 
-(database/init-database {:jdbcUrl
-                         (connection/jdbc-url {:host "localhost"
-                                               :dbtype "postgres"
-                                               :dbname "uchat"
-                                               :useSSL false})
-                         :username "postgres" :password "postgres"})
+
+(def system (ig/init (s/read-system "system.edn")))
 
 (comment
+  (ig/halt! system)
   (print "hello")
   (add-libs '{com.taoensso/sente {:mvn/version "1.19.2"}})
   (repl/rollback (database/mk-migraiton-config (database/get-pool)))
   (repl/migrate (database/mk-migraiton-config (database/get-pool)))
   ,)
-;; TODO: should use interface instead 
-(core/start-server!)
 
-#_(
-   (add-libs '{camel-snake-kebab {:mvn/version "0.4.3"}})
-   (require '[camel-snake-kebab.core :as csk])
-   (csk/->kebab-case "123321")
-   ,)
-
+ 

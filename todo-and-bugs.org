@@ -14,8 +14,7 @@ Note some knwon todo and bug list.
 - [ ] persistent login status
 - [ ] dockerize service
 - [ ] use manage tool to manage backend config
-- [ ] standardize restful api key style
+- [X] standardize restful api key style
 - [ ] tune the login session to production (remember login state till timeout.)
-- [ ] write production build in docker (maybe
-
-  
+- [ ] write production build in docker (maybe)
+- [ ]  db state reduce to db-pool only

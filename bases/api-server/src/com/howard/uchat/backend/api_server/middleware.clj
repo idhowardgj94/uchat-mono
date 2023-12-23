@@ -18,10 +18,14 @@
       (assoc response :headers headers))))
 
 (defn wrap-database
-  [handler]
-  (fn [request]
-    (let [request' (assoc request :db-conn (database/get-pool))]
-      (handler request'))))
+  ([handler]
+   (fn [request]
+     (let [request' (assoc request :db-conn (database/get-pool))]
+       (handler request'))))
+  ([handler db-pool]
+   (fn [request]
+     (let [request' (assoc request :db-conn db-pool)]
+       (handler request')))))
 
 (defn wrap-authentication-guard
   [handler]

@@ -28,7 +28,6 @@
    [compojure.core :refer [context defroutes GET POST routes wrap-routes]]
    [jsonista.core :as json]
    [next.jdbc :as jdbc]
-   [next.jdbc.connection :as connection]
    [org.httpkit.server :as hk-server]
    [ring.middleware.defaults :as d]
    [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
@@ -124,19 +123,12 @@
       (timbre/info "'public' is not exist in uchat, create it.")
       (teams/create-team-by-name db-conn "public"))))
 
-(defn start-server!
-  "start a restful api server,
-  store it to server"
-  []
-  (database/init-database
-   {:jdbcUrl
-    (connection/jdbc-url {:host "localhost"
-                          :dbtype "postgres"
-                          :dbname "uchat"
-                          :useSSL false})
-    :username "postgres" :password "postgres"})
-  (setup-default-teams)
-  (socket/start-router!)
+(defn start-resfult-server!
+  "start a restful server.
+  params:
+  db-pool - connection pool
+  port - listining port"
+  [db-pool port]
   (reset! server
           (hk-server/run-server
            (-> #'app-routes
@@ -144,27 +136,19 @@
                (wrap-json-body  {:keywords? true :bigdecimals? true})
                (wrap-json-response  {:pretty false})
                (wrap-reload)
-               (wrap-database)
+               (wrap-database db-pool)
                (wrap-cors)
                (wrap-authorization auth-backend)
                #_(wrap-authentication auth-backend)
                (wrap-token-from-params auth-backend)
                (wrap-resource "public")
                (d/wrap-defaults d/api-defaults))
-           {:join? false :port 4000})))
+           {:join? false :port port})))
 
-(defn stop-server!
-  "stop restful api server"
-  []
-  (@server))
 
-(defn restart-server!
-  []
-  (stop-server!)
-  (start-server!))
+
 
 (comment
-  (restart-server!)
   (require '[clj-http.client :as client])
   (require '[jsonista.core :as json])
   (def auth {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.12Y59mvi-pdLuo9GO8q8AFIXtX03ywlC.hNkmh-0EeejEmjDH.5IIEcdh-4u5G--tzQ1BWUD7z4_S7p-exs4wXkW-im32YHJOwam0YSjOCFxJg2Lo.PjIMZakgbJGXSlkuC-UvAQ"}})
@@ -197,5 +181,4 @@
                   :password "123456"
                   :name "idhowardgj94"
                   :email "idhowardgj94@gmail.com"})})
-  (start-server!)
-  (stop-server!))
+  )

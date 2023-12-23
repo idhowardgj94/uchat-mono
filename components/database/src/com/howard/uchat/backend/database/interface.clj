@@ -1,6 +1,7 @@
 (ns com.howard.uchat.backend.database.interface
   (:require [com.howard.uchat.backend.database.core :as core]
             [clj-time.core :as time]
+            [com.howard.uchat.backend.tools.macro :refer [export-fn]]
             [next.jdbc :as jdbc])
   (:import [java.sql Timestamp]))
 
@@ -13,11 +14,11 @@
         second-params (if (<= (count params) 1) [] (into [] (drop 1 params)))
         body (if (nil? doc) (drop 1 args) (drop 2 args))]
     `(defn ~name
-         ~doc
-         (~params
-         ~@body)
-         (~second-params
-          (apply ~name (get-pool) ~second-params)))))
+       ~doc
+       (~params
+        ~@body)
+       (~second-params
+        (apply ~name (get-pool) ~second-params)))))
 
 (defn current-timestamp
   "get current timestamp"
@@ -26,23 +27,15 @@
         timestamp (Timestamp. t)]
     timestamp))
 
-(def init-database
-  "initialise database, create a connection pool, and execute
-  data migration.
-  params:
-  options: db connection option
-  resources-path: db path, default: migrations"
-  #'core/init-database)
-
-(defn get-pool
-  "get connection pool, for db"
-  []
-  (core/get-pool))
-
+(export-fn perform-migrations #'core/perform-migrations)
+(export-fn init-database #'core/init-database)
+(export-fn get-pool #'core/get-pool)
+(export-fn close-database! #'core/close-database!)
 (def mk-migraiton-config
   "gererate a migration config for use for ragtime repl."
   #'core/mk-migration-config)
 
 (comment
+  (close-database! (get-pool))
   (print "hello")
   ,)

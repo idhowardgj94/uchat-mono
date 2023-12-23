@@ -22,6 +22,11 @@
   [^HikariDataSource datasource]
   (.getConnection datasource))
 
+(defn close-database!
+  "close a hikari conncetion."
+  [^HikariDataSource datasource]
+  (.close datasource))
+
 (defn- init-pool
   [options]
   (connection/->pool HikariDataSource options))
@@ -39,22 +44,35 @@
   (atom {:migration-config nil
          :db-pool nil}))
 
+(comment
+  (close-database! (-> @db-state :db-pool))
+  ,)
+(defn perform-migrations
+  "perform db migration
+  params:
+  pool - db connection pool
+  db-path - the db migration file's folder"
+  [pool db-path]
+  (-> (mk-migration-config pool db-path)
+      repl/migrate))
+
 (defn init-database
   "initialise database, create a connection pool, and execute
   data migration.
   params:
   options: db connection option
-  resources-path: db path, default: migrations"
+  resources-path: db path, default: migrations
+  return {:db-pool pool :migration-config string}"
   ([options db-path]
    {:pre [(check-spec spec/database-option-spec options)]}
    (timbre/info "init data base connection pool...")
    (let [pool (init-pool options)
          migration-config (mk-migration-config pool db-path)]
+     ;; TODO: db state reduce to db-pool only
      (swap! db-state assoc
             :migration-config migration-config
             :db-pool pool)
-     (timbre/info "perform data migration...")
-     (repl/migrate migration-config)))
+     @db-state))
   ([options]
    (init-database options "migrations")))
 
