@@ -4,7 +4,11 @@
   (:require
    [clj-http.client :as client]
    [jsonista.core :as json]
-   [com.howard.uchat.backend.api-server.auth :as auth]))
+   [com.howard.uchat.backend.tools.macro :as macro]
+   [potemkin :refer [import-vars]]
+   [com.howard.uchat.backend.auth.interface :as auth]))
+
+(import-vars [macro export-fn])
 
 (defprotocol GenerateToken
   (get-token [this] "get token")
@@ -43,11 +47,17 @@
     (get_ this endpoint nil)))
 
 (defn new-client
-  "new client, just for test."
-  ^Client [^String username ^String  name]
-  (-> (Client. username name)
-      (generate-token)
-      (assoc :host "http://localhost:4000")))
+  "new client, just for test.
+  params
+  opt - port: number host: string "
+  (^Client [^String username ^String name]
+   (new-client username name {}))
+  (^Client [username name {:keys [host port]}]
+   (let [h (if (some? host) host "http://localhost")
+         p (if (some? port) port 4000)]
+     (-> (Client. username name)
+         (generate-token)
+         (assoc :host (str h ":" p))))))
 
 #_(let [c (new-client "idhowardgj94" "howard")]
   (post c "/api/v1/channels" {:channel-name "bar"

@@ -10,7 +10,6 @@
    [clojure.spec.alpha :as s]
    [compojure.core :refer [wrap-routes routes defroutes context GET POST]]
    [com.howard.uchat.backend.teams.interface :as teams]
-   [com.howard.uchat.backend.tools.interface :as tools :refer [post Post new-client]]
    [com.howard.uchat.backend.subscriptions.interface :as subscriptions]
    [next.jdbc :as jdbc]
    ))

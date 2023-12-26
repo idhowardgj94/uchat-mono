@@ -1,5 +1,6 @@
 {:lint-as {day8.re-frame.tracing/fn-traced clojure.core/fn
            com.howard.uchat.backend.tools.macro/export-fn clojure.core/def
+           com.howard.uchat.backend.tools.interface/export-fn clojure.core/def
            com.howard.uchat.backend.database.interface/dbfn clojure.core/defn}
  :hooks {:macroexpand {com.howard.uchat.backend.database.interface/dbfn macros/dbfn}}
  }

@@ -1,9 +1,10 @@
 (ns com.howard.uchat.backend.database.interface
-  (:require [com.howard.uchat.backend.database.core :as core]
-            [clj-time.core :as time]
-            [com.howard.uchat.backend.tools.macro :refer [export-fn]]
-            [next.jdbc :as jdbc])
-  (:import [java.sql Timestamp]))
+  (:require
+   [clj-time.core :as time]
+   [com.howard.uchat.backend.database.core :as core]
+   [com.howard.uchat.backend.tools.interface :refer [export-fn]])
+  (:import
+   [java.sql Timestamp]))
 
 (defmacro dbfn
   {:clj-kondo/lint-as 'clojure.core/defn}
