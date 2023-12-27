@@ -20,11 +20,11 @@
            res (transient [])]
       (if (= idx 0)
         (conj! res (assoc message :time-string
-                          (-> (moment (:created_at message))
+                          (-> (moment (:created-at message))
                               (.format "ll"))))
         (let [prev-message (nth messages (- idx 1))
-              prev-message-moment (moment (:created_at prev-message))
-              curr-message-moment (moment (:created_at message))]
+              prev-message-moment (moment (:created-at prev-message))
+              curr-message-moment (moment (:created-at message))]
           (if (not= (-> prev-message-moment
                         (.format "ll"))
                     (-> curr-message-moment
@@ -52,9 +52,9 @@
         (if (= 0 (count messages))
           messages
           (let [prev-message (if (= idx 0) nil (-> (nth messages (- idx 1))))
-                cur-message-moment  (moment (:updated_at message))
+                cur-message-moment  (moment (:updated-at message))
                 prev-message-moment (moment (if (= idx 0) nil (-> (nth messages (- idx 1))
-                                                                  :updated_at)))
+                                                                  :updated-at)))
                 message' (if (and
                               (= (:name prev-message) (:name message))
                               (< (-> cur-message-moment
@@ -79,7 +79,7 @@
             messages (-> @sub :current-channel :messages
                          transform-messages
                          add-timeline-string-to-messages)]
-        (when-not (= channel-uuid (:channel_uuid current-channel))
+        (when-not (= channel-uuid (:channel-uuid current-channel))
           (re-frame/dispatch [::direct-event/current-channel (keyword channel-type) channel-uuid]))
         [:main.flex.flex-col.flex-1
          [room-header current-channel]
@@ -94,7 +94,7 @@
                                                     :t (:t message)
                                                     :name (:name message)
                                                     :username (:username message)
-                                                    :time (:created_at message)
+                                                    :time (:created-at message)
                                                     :message (:msg message)}]])]
          [message-box]]))))
 

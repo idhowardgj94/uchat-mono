@@ -37,7 +37,7 @@
         conn (-> request :db-conn)]
     (if (nil? (parse-uuid channel-uuid))
       (response/bad-request {:status "failed"
-                             :message "channel_uuid is not a valid uuid."})
+                             :message "channel-uuid is not a valid uuid."})
       (util/json-response {:status "success"
                            :result (messages/get-messages-by-channel conn (parse-uuid channel-uuid))}))))
 

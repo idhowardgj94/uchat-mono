@@ -6,8 +6,9 @@
    [buddy.auth.middleware :refer [wrap-authorization]]
    [clj-http.client :as client]
    [clojure.spec.alpha :as s]
+   [com.howard.uchat.backend.auth.interface :refer [secret]]
    [com.howard.uchat.backend.api-server.auth
-    :refer [login-handler register-handler secret]]
+    :refer [login-handler register-handler]]
    [com.howard.uchat.backend.api-server.endpoints.channels :as channels-endpoint]
    [com.howard.uchat.backend.api-server.endpoints.messages :as messages-endpoint]
    [com.howard.uchat.backend.api-server.endpoints.teams :as teams-endpoint]
@@ -36,6 +37,8 @@
    [ring.util.response :as response]
    [taoensso.timbre :as timbre]))
 
+;; TODO: test
+
 (def auth-backend 
   (jwe-backend {:secret secret
                 :token-name "token"
@@ -63,11 +66,11 @@
         valid? (s/valid? specs/get-subscriptions-spec params)]
     (if-not valid?
       (response/bad-request {:message  (str "Wrong body palyoad. please check the API docs. msg:" (s/explain-str specs/get-subscriptions-spec params))})
-      (let [{:keys [type team_uuid]} params
+      (let [{:keys [type team-uuid]} params
             {:keys [username]} (:identity request)]
         (json-response (subscriptions/get-user-team-subscriptions db-conn {:type (keyword type)
                                                                    :username username
-                                                                   :team-uuid  (parse-uuid team_uuid)}))))))
+                                                                   :team-uuid  (parse-uuid team-uuid)}))))))
 
 (defn post-gen-direct-handler
   [request]
@@ -75,13 +78,13 @@
         body (:body request)
         valid? (s/valid? specs/post-generate-direct-spec body)
         conn (:db-conn request)
-        other-user (:other_user body)]
+        other-user (:other-user body)]
     (if-not valid?
       (response/bad-request {:message (str "Wrong body palyoad. please check the API docs. msg: " (s/explain-str specs/post-generate-direct-spec body))})
       (if (nil? (users/get-user-by-username conn other-user))
         (response/bad-request {:message (str "Can't find the user " other-user)})
         (jdbc/with-transaction [tx (database/get-pool)]
-          (let [channel-uuid (channels/create-direct-and-insert-users tx (-> (:team_uuid body) parse-uuid) username (:other_user body))]
+          (let [channel-uuid (channels/create-direct-and-insert-users tx (-> (:team-uuid body) parse-uuid) username (:other-user body))]
             (subscriptions/create-direct-subscriptions tx channel-uuid username other-user)
             (util/json-response {:status "success"
                                  :result channel-uuid})))))))
@@ -167,8 +170,8 @@
                (merge auth
                       {:content-type :json
                        :body (json/write-value-as-string
-                              {:team_uuid "d205e510-8dee-4fb5-8d55-4f4bc5174bad"
-                               :other_user "eva"})}))
+                              {:team-uuid "d205e510-8dee-4fb5-8d55-4f4bc5174bad"
+                               :other-user "eva"})}))
 
   (client/get (str "http://localhost:4000/api/v1/messages/6e05177f-5e71-49ed-8004-2e70ed0dda40") (merge auth {:content-type :json}))
 

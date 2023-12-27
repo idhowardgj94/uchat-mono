@@ -67,7 +67,7 @@
                                                       second
                                                       :open?)]
                                 (when (and (not prev-open?) current-open?)
-                                  (let [team-id (-> @current-team :current-team :team_uuid)]
+                                  (let [team-id (-> @current-team :current-team :team-uuid)]
                                     (js/console.log team-id)
                                     (-> (api/get-team-users team-id)
                                         (.then (fn [res]
@@ -111,7 +111,7 @@
             [:div.flex.items-center.my-4.justify-center
              [button {:text "create"
                       :on-click (fn []
-                                  (let [team-id (-> @current-team :current-team :team_uuid)
+                                  (let [team-id (-> @current-team :current-team :team-uuid)
                                         channel-name (-> @form :name :value)
                                         username-list (->> (@form :usernames)
                                                            (into []))]
@@ -210,10 +210,10 @@
                                                                  (swap! open-create-channel? not))}]
                    :data (->> (:channel-subscriptions @subscriptions)
                               (map (fn [it]
-                                     {:id (:channel_uuid it)
+                                     {:id (:channel-uuid it)
                                       :avatar [:> Avatar {:name  (:name it) :size 18 :className "rounded-full"}]
                                       :title (:name it)
-                                      :href (rfe/href :routes/channels {:uuid (:channel_uuid it)
+                                      :href (rfe/href :routes/channels {:uuid (:channel-uuid it)
                                                                         :channel-type :channel})})))}]
        [:div.my-2
         [tree-menu {:open? open-direct?
@@ -221,12 +221,12 @@
                     :right-button-component [:> AiOutlinePlus]
                     :data  (->> (:direct-subscriptions @subscriptions)
                                 (map (fn [it]
-                                       (let [{:keys [other_name other_user channel_uuid]} it]
-                                         {:id (or channel_uuid other_name)
-                                          :avatar [:> Avatar {:name (:other_name it) :size 18 :className "rounded-full"}]
-                                          :title other_name
+                                       (let [{:keys [other-name other-user channel-uuid]} it]
+                                         {:id (or channel-uuid other-name)
+                                          :avatar [:> Avatar {:name (:other-name it) :size 18 :className "rounded-full"}]
+                                          :title other-name
                                           :href
-                                          (if (nil? channel_uuid)
-                                            (rfe/href :routes/create-direct {:other-username other_user})
-                                            (rfe/href :routes/channels {:uuid channel_uuid
+                                          (if (nil? channel-uuid)
+                                            (rfe/href :routes/create-direct {:other-username other-user})
+                                            (rfe/href :routes/channels {:uuid channel-uuid
                                                                         :channel-type :direct}))}))))}]]])))

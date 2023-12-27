@@ -4,6 +4,7 @@
    [clojure.core.async :as async  :refer [<! <!! >! >!! put! chan go go-loop]]
    [taoensso.timbre    :as timbre]
    [taoensso.sente     :as sente]
+   [com.howard.uchat.backend.tools.interface :refer [reduce-map-to-kebab-case!]]
    [com.howard.uchat.backend.socket.events :as events]
    [com.howard.uchat.backend.socket.core :as core]))
 
@@ -26,7 +27,9 @@
   :channel-id channel id
   :event any format of map"
   [channel-id event]
-  [(keyword (str "channel." channel-id) "message") event])
+  [(keyword (str "channel." channel-id) "message") (-> (transient {})
+                                                       (reduce-map-to-kebab-case! event)
+                                                       persistent!)])
 
 (defn broadcast!
   "given a username and a event,

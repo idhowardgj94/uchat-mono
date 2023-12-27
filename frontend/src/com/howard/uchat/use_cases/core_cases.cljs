@@ -151,12 +151,12 @@
  (fn-traced
   [{:keys [db]} [_ type]]
   ;; TODO: team
-  (let [team_uuid (-> db
+  (let [team-uuid (-> db
                       :current-team
-                      :team_uuid)]
+                      :team-uuid)]
     (api/get-subscription
      {:type type
-      :team_uuid team_uuid}
+      :team-uuid team-uuid}
      #(case type
         "direct" (do 
                      (re-frame/dispatch [::assoc-db :direct-subscriptions (:result %)])
@@ -198,15 +198,15 @@
   (let [directs (-> db :direct-subscriptions)]
     (assoc db :direct-subscriptions
            (->> directs
-                (map #(if (= (:other_user %) other-user)
-                        (assoc % :channel_uuid channel-uuid)
+                (map #(if (= (:other-user %) other-user)
+                        (assoc % :channel-uuid channel-uuid)
                         %)))))))
 
 (re-frame/reg-event-fx
  ::generate-direct-channel
  (fn-traced
   [{:keys [db]} [_ other-user]]
-  (let [team-uuid (-> db :current-team :team_uuid)]
+  (let [team-uuid (-> db :current-team :team-uuid)]
     (-> (api/post-generate-direct team-uuid other-user)
         (.then #(do
                   (let [channel-uuid (-> % :data :result)]

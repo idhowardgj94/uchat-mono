@@ -77,6 +77,7 @@
 (defmethod -event-msg-handler
   :channel/message
   [{:as ev-msg :keys [event channel-id]}]
+  (js/console.log (clj->js ev-msg))
   (let [[_ message] event]
     (re-frame/dispatch [:new-message channel-id message])))
 

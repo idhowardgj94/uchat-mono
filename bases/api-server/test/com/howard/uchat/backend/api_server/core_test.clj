@@ -4,8 +4,8 @@
    [com.howard.uchat.backend.api-server.system]
    [integrant.core :as ig]
    [jsonista.core :as json]
-   [com.howard.uchat.backend.tools.interface :as tools])
-  (:import [com.howard.uchat.backend.tools.interface Client]))
+   [com.howard.uchat.backend.tools.interface :as tools]))
+
 
 (defn read-json
   [str]
@@ -28,8 +28,6 @@
   []
   (tools/new-client "test" "test" {:port 4003}))
 
-#_(-> (new-client)
-  (.get_ "/"))
 (defn system-fixtures [f]
   (let [s (ig/init system)]
     (f)
@@ -76,14 +74,4 @@
                             :password "test"}))]
         (is (= (:status res) 200))))))
 
-(comment "test server"
-         (require '[clojure.tools.namespace.repl :refer [refresh refresh-all]])
-         (refresh-all)
-         
-         (remove-ns (symbol (namespace ::t)))
-         (def s (ig/init system))
-         (ig/halt! s)
-         (run-all-tests #"test-.*")
-         (run-all-tests)
-         ,)
 
