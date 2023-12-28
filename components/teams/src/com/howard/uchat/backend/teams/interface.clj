@@ -14,7 +14,8 @@
 
 (defn create-team-by-name
   "create a team, given a name
-  TODO: name should be unique, or at least public is a keyword."
+  TODO: name should be unique, or at least public is a key.
+  .... do I have public or private in teams?"
   [db-conn name]
   (db/insert-team-by-name db-conn name))
 
