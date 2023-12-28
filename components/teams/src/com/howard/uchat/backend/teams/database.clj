@@ -53,8 +53,7 @@
 username = ?" username])))
 
 (defn insert-users-into-team
-  "insert some user by username and team-uuid
-  TODO: cannot use dbfn because & in pramas"
+  "insert some user by username and team-uuid"
   [tx team-uuid & usernames]
   (let [stmts (->> usernames
                    (map #(vector % team-uuid))

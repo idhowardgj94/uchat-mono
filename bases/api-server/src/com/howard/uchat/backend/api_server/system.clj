@@ -15,18 +15,15 @@
       slurp
       ig/read-string))
 
-(defmethod ig/init-key :db/jdbc [_  {:keys [jdbc-url username password default-team?]}]
+(defmethod ig/init-key :db/jdbc [_  {:keys [jdbc-url username password]}]
   (let [db (database/init-database {:jdbcUrl
                                     (connection/jdbc-url jdbc-url)
                                     :username username
                                     :password password})]
     db))
 
-(defmethod ig/halt-key! :db/jdbc [_ {:keys [db-pool]}]
+(defmethod ig/halt-key! :db/jdbc [_ db-pool]
   (database/close-database! db-pool))
-
-(defmethod ig/resolve-key :db/jdbc [_ {:keys [db-pool]}]
-  db-pool)
 
 (defmethod ig/init-key :server/restful [_ {:keys [port db-pool default-team?]}]
   (when default-team?

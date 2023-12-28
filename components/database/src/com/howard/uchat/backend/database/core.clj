@@ -15,7 +15,7 @@
   if failed, use explain-str to explain failed reason"
   [spec params]
   `(nil? (assert (s/valid? ~spec ~params)
-          (s/explain-str ~spec ~params))))
+                 (s/explain-str ~spec ~params))))
 
 (defn- get-connection-in-pool
   "get java.sql.connection from db-pool"
@@ -41,12 +41,10 @@
    (mk-migration-config db-pool "migrations")))
 
 (defonce ^:private db-state
-  (atom {:migration-config nil
-         :db-pool nil}))
+  (atom nil))
 
 (comment
-  (close-database! (-> @db-state :db-pool))
-  ,)
+  (close-database! @db-state))
 (defn perform-migrations
   "perform db migration
   params:
@@ -55,55 +53,43 @@
   [pool db-path]
   (-> (mk-migration-config pool db-path)
       repl/migrate))
-(-> @db-state
-    :migration-config
-    :migrations
-    count)
+
 (defn perform-rollback!
   "rollback all migrations, now only for test"
   [pool db-path]
   (let [config (mk-migration-config pool db-path)
         count (-> config
-                     :migrations
-                     count)]
+                  :migrations
+                  count)]
     (as-> config $
-        (repl/rollback $ count))))
+      (repl/rollback $ count))))
 
 (defn init-database
   "initialise database, create a connection pool, and execute
   data migration.
   params:
-  options: db connection option
-  resources-path: db path, default: migrations
-  return {:db-pool pool :migration-config string}"
-  ([options db-path]
-   {:pre [(check-spec spec/database-option-spec options)]}
-   (timbre/info "init data base connection pool...")
-   (let [pool (init-pool options)
-         migration-config (mk-migration-config pool db-path)]
-     ;; TODO: db state reduce to db-pool only
-     (swap! db-state assoc
-            :migration-config migration-config
-            :db-pool pool)
-     @db-state))
-  ([options]
-   (init-database options "migrations")))
+  options - db connection option
+  return - pool"
+  [options]
+  {:pre [(check-spec spec/database-option-spec options)]}
+  (timbre/info "init data base connection pool...")
+  (let [pool (init-pool options)]
+    (reset! db-state pool)
+    @db-state))
 
 (defn get-pool
   "get connection pool, for db"
   []
-  (let [db-pool (:db-pool @db-state)]
+  (let [db-pool @db-state]
     (if (nil? db-pool)
       (timbre/error "can't get connection pool, try to setup database first")
-        db-pool)))
+      db-pool)))
 
 (comment
-  @db-state
-  (repl/rollback (:migration-config @db-state))
+  (repl/rollback (mk-migration-config @db-state "migrations"))
   (init-database {:jdbcUrl
                   (connection/jdbc-url {:host "localhost"
                                         :dbtype "postgres"
                                         :dbname "uchat"
                                         :useSSL false})
-                  :username "postgres" :password "postgres"})
-  )
+                  :username "postgres" :password "postgres"}))
