@@ -18,7 +18,7 @@ teams_users ON subscriptions.other_user = teams_users.username AND subscriptions
 JOIN users ON users.username = subscriptions.other_user WHERE team_uuid = ?" username team-uuid])))
 
 (dbfn get-user-team-channel-subscriptions
-  "this is a dbfn TODO: docstring need to be optional"
+  "get user team channel subscriptions"
   [tx username team-uuid]
   (into
    []

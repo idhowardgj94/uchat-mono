@@ -12,13 +12,16 @@
   (let [doc (if (string? (first args)) (first args) nil)
         params (if (nil? doc) (first args) (second args))
         second-params (if (<= (count params) 1) [] (into [] (drop 1 params)))
-        body (if (nil? doc) (drop 1 args) (drop 2 args))]
+        body (if (nil? doc) (drop 1 args) (drop 2 args))
+        body-form `((~params
+                     ~@body)
+                    (~second-params
+                     (apply ~name (get-pool) ~second-params)))]
     `(defn ~name
-       ~doc
-       (~params
-        ~@body)
-       (~second-params
-        (apply ~name (get-pool) ~second-params)))))
+       ~@(if (some? doc)
+           `(~doc
+             ~@body-form)
+           `(~@body-form)))))
 
 (defn current-timestamp
   "get current timestamp"
@@ -38,5 +41,4 @@
 
 (comment
   (close-database! (get-pool))
-  (print "hello")
-  ,)
+  (print "hello"))
