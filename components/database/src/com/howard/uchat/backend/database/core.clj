@@ -6,10 +6,9 @@
    [ragtime.next-jdbc :as ragtime]
    [ragtime.repl :as repl]
    [taoensso.timbre :as timbre]
-   [next.jdbc :as jdbc])
+   )
   (:import (com.zaxxer.hikari HikariDataSource)))
 
-;; TODO util-tools 
 (defmacro check-spec
   "check spec before enter function,
   if failed, use explain-str to explain failed reason"
@@ -87,7 +86,8 @@
 
 (comment
   (repl/rollback (mk-migration-config @db-state "migrations"))
-  (init-database {:jdbcUrl
+  (repl/migrate (mk-migration-config @db-state "migrations"))
+   (init-database {:jdbcUrl
                   (connection/jdbc-url {:host "localhost"
                                         :dbtype "postgres"
                                         :dbname "uchat"

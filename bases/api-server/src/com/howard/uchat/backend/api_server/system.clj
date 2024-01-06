@@ -28,7 +28,7 @@
 (defmethod ig/init-key :server/restful [_ {:keys [port db-pool default-team?]}]
   (when default-team?
       (api-server/setup-default-teams))
-  (api-server/start-resfult-server! db-pool port))
+  (api-server/start-resful-server! db-pool port))
 
 (defmethod ig/halt-key! :server/restful [_ server]
   (server))

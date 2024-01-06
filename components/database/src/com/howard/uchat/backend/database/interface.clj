@@ -2,7 +2,7 @@
   (:require
    [clj-time.core :as time]
    [com.howard.uchat.backend.database.core :as core]
-   [com.howard.uchat.backend.tools.interface :refer [export-fn]])
+   [potemkin :refer [import-fn]])
   (:import
    [java.sql Timestamp]))
 
@@ -30,11 +30,11 @@
         timestamp (Timestamp. t)]
     timestamp))
 
-(export-fn perform-migrations #'core/perform-migrations)
-(export-fn init-database #'core/init-database)
-(export-fn perform-rollback! #'core/perform-rollback!)
-(export-fn get-pool #'core/get-pool)
-(export-fn close-database! #'core/close-database!)
+(import-fn core/perform-migrations)
+(import-fn core/init-database)
+(import-fn core/perform-rollback!)
+(import-fn core/get-pool)
+(import-fn core/close-database!)
 (def mk-migraiton-config
   "gererate a migration config for use for ragtime repl."
   #'core/mk-migration-config)

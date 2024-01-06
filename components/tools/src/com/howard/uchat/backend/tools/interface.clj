@@ -11,6 +11,7 @@
 
 (import-vars [macro export-fn])
 
+;; TODO: client should be put in auth 
 (defprotocol GenerateToken
   (get-token [this] "get token")
   (generate-token [this] "generate auth token."))

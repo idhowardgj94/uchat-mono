@@ -7,10 +7,19 @@
    [ragtime.repl :as repl]))
 
 
-;; (def system (ig/init (s/read-system "system.edn")))
+(defonce system (atom nil))
 
+(defn restart-server
+  []
+  (when (some? @system)
+    (ig/halt! @system))
+  (reset! system (ig/init (s/read-system "system.edn"))))
+
+(restart-server)
 (comment
-  (ig/halt! system)
+  (use '[clojure.tools.namespace.repl :only (refresh)])
+  (refresh)
+  (ig/halt! @system)
   (add-libs '{com.taoensso/sente {:mvn/version "1.19.2"}})
   (repl/rollback (database/mk-migraiton-config (database/get-pool)))
   (repl/migrate (database/mk-migraiton-config (database/get-pool)))

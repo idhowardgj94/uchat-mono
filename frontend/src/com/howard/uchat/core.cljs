@@ -21,6 +21,7 @@
 
 (doto time-ago
   (.addLocale en))
+
 (defn dev-setup []
   (when config/debug?
     (enable-console-print!)
@@ -43,6 +44,8 @@
   (println debug-tools)
   (api/axios-response-to-clj)
   (re-frame/dispatch-sync [::cases/initialize-db debug-tools])
+  (re-frame/dispatch-sync [::cases/setup-auth-token])
+  
   (when debug-tools
     (dev-setup))
   (routes/app-routes)

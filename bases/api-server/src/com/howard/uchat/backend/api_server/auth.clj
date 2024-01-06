@@ -8,7 +8,7 @@
    [com.howard.uchat.backend.api-server.util :refer [json-response]]
    [com.howard.uchat.backend.teams.interface :as teams]
    [com.howard.uchat.backend.users.interface :as users]
-   [com.howard.uchat.backend.auth.interface :refer [generate-auth-token secret]]
+   [com.howard.uchat.backend.auth.interface :refer [generate-auth-token get-secret]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response]
    [taoensso.timbre :as timbre]))
@@ -21,7 +21,7 @@
   [username]
   (let [claims {:username (keyword username)
                 :exp (.getMillis (time/plus (time/now) (time/seconds 3600)))}]
-    (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})))
+    (jwt/encrypt claims (get-secret) {:alg :a256kw :enc :a128gcm})))
 
 (defn register-handler
   "handler register request

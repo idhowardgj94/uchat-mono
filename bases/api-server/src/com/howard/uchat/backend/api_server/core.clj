@@ -6,7 +6,6 @@
    [buddy.auth.middleware :refer [wrap-authorization]]
    [clj-http.client :as client]
    [clojure.spec.alpha :as s]
-   [com.howard.uchat.backend.auth.interface :refer [secret]]
    [com.howard.uchat.backend.api-server.auth
     :refer [login-handler register-handler]]
    [com.howard.uchat.backend.api-server.endpoints.channels :as channels-endpoint]
@@ -19,6 +18,7 @@
             wrap-kebab-case-converter
             wrap-token-from-params]]
    [com.howard.uchat.backend.api-server.spec :as specs]
+   [com.howard.uchat.backend.auth.interface :refer [setup-secret! get-secret]]
    [com.howard.uchat.backend.api-server.util :refer [json-response] :as util]
    [com.howard.uchat.backend.channels.interface :as channels]
    [com.howard.uchat.backend.database.interface :as database]
@@ -35,14 +35,10 @@
    [ring.middleware.reload :refer [wrap-reload]]
    [ring.middleware.resource :refer [wrap-resource]]
    [ring.util.response :as response]
-   [taoensso.timbre :as timbre]))
+   [taoensso.timbre :as timbre]
+   ))
 
 ;; TODO: test
-
-(def auth-backend 
-  (jwe-backend {:secret secret
-                :token-name "token"
-                :options {:alg :a256kw :enc :a128gcm}}))
 #_[ns-unalias *ns* 'socket]
 
 (defn home
@@ -126,27 +122,40 @@
       (timbre/info "'public' is not exist in uchat, create it.")
       (teams/create-team-by-name db-conn "public"))))
 
-(defn start-resfult-server!
+(defn setup-meta-data
+  "setup meta data for this server"
+  []
+  (when (nil? (next.jdbc/execute-one! (database/get-pool)
+                                      ["SELECT * FROM meta"]))
+    (next.jdbc/execute-one! (database/get-pool)
+                            ["INSERT INTO meta (version) VALUES (?)"
+                             "0.0.1-alpha"])))
+(defn start-resful-server!
   "start a restful server.
   params:
   db-pool - connection pool
   port - listining port"
   [db-pool port]
-  (reset! server
-          (hk-server/run-server
-           (-> #'app-routes
-               (wrap-kebab-case-converter)
-               (wrap-json-body  {:keywords? true :bigdecimals? true})
-               (wrap-json-response  {:pretty false})
-               (wrap-reload)
-               (wrap-database db-pool)
-               (wrap-cors)
-               (wrap-authorization auth-backend)
-               #_(wrap-authentication auth-backend)
-               (wrap-token-from-params auth-backend)
-               (wrap-resource "public")
-               (d/wrap-defaults d/api-defaults))
-           {:join? false :port port})))
+  (setup-meta-data)
+  (setup-secret!)
+  (let [auth-backend (jwe-backend {:secret (get-secret)
+                                   :token-name "token"
+                                   :options {:alg :a256kw :enc :a128gcm}})]
+    (reset! server
+            (hk-server/run-server
+             (-> #'app-routes
+                 (wrap-kebab-case-converter)
+                 (wrap-json-body  {:keywords? true :bigdecimals? true})
+                 (wrap-json-response  {:pretty false})
+                 (wrap-reload)
+                 (wrap-database db-pool)
+                 (wrap-cors)
+                 (wrap-authorization auth-backend)
+                 #_(wrap-authentication auth-backend)
+                 (wrap-token-from-params auth-backend)
+                 (wrap-resource "public")
+                 (d/wrap-defaults d/api-defaults))
+             {:join? false :port port}))))
 
 
 
@@ -154,6 +163,10 @@
 (comment
   (require '[clj-http.client :as client])
   (require '[jsonista.core :as json])
+  (require '[com.howard.uchat.backend.tools.interface :as t])
+  (def cl (t/new-client "idhowardgj94" "idhowardgj94"))
+
+  (t/get_  cl "/api/v1/me")
   (def auth {:headers {"authorization" "token eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMTI4R0NNIn0.12Y59mvi-pdLuo9GO8q8AFIXtX03ywlC.hNkmh-0EeejEmjDH.5IIEcdh-4u5G--tzQ1BWUD7z4_S7p-exs4wXkW-im32YHJOwam0YSjOCFxJg2Lo.PjIMZakgbJGXSlkuC-UvAQ"}})
 
   (teams/get-teams (database/get-pool))
@@ -183,5 +196,4 @@
                  {:username "idhowardgj94"
                   :password "123456"
                   :name "idhowardgj94"
-                  :email "idhowardgj94@gmail.com"})})
-  )
+                  :email "idhowardgj94@gmail.com"})}))

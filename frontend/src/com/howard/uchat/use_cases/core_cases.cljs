@@ -19,7 +19,7 @@
          (map #(nth % 0))
          (map keyword)
          (into []))))
-(print "he")
+
 (re-frame/reg-event-db ::initialize-db (fn-traced [db [_ debug-tools]]
                                                   (assoc db/default-db
                                                          :debug-tools debug-tools)))
@@ -31,15 +31,35 @@
                                           :response response})))
 
 (re-frame/reg-fx
- ::get-me
+ ::get-me-and-start-socket
  (fn-traced
   [_]
   (-> (api/get-me)
       (.then (fn [response]
-               (let [data (:data response)]
+               (let [data (:data response)
+                     ;; TODO: use re-frame
+                     token (.getItem js/localStorage "token")]
                  (re-frame/dispatch [::assoc-db :user data])
-                 ))))))
+                 (re-frame/dispatch [::assoc-db :auth? true])
+                 (socket/init-sente token)
+                 (socket/start-router!)
+                 )))
+      (.catch (fn []
+                (re-frame/dispatch [::assoc-db :auth? false]))))))
 
+(re-frame/reg-event-fx
+ ::setup-auth-token
+ (fn-traced
+  [{:keys [db]} _]
+  (let [token (.getItem js/localStorage "token")]
+    (if (some? token)
+      (do
+      (reset! api/token token)
+      (api/add-axios-auth token)
+      {:db (assoc db
+                  :token token)
+       :fx [[::get-me-and-start-socket]]})
+      {}))))
 (re-frame/reg-event-fx
  ::store-token-and-login
  (fn-traced
@@ -48,12 +68,10 @@
     (.setItem js/localStorage "token" token)
     (reset! api/token token)
     (api/add-axios-auth token)
-    (socket/init-sente token)
-    (socket/start-router!)
-    {:db (assoc db
-                :token token
-                :auth? true)
-     :fx [[::get-me]]})))
+    {:fx [[:db (assoc db
+                      :token token
+                      :auth? true)]
+          [::get-me-and-start-socket]]})))
 
 ;; TODO: migrate to axios, and remove useless request result event
 (re-frame/reg-fx ::register-request

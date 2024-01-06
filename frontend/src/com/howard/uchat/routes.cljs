@@ -30,7 +30,7 @@
       :view #'room}]
     ["/channels/home" {:name :routes/channels-home
                        :view #'channel/home}]
-    ["/channels/channel/:channel-type/:uuid"
+    ["/channels/room/:channel-type/:uuid"
      {:name :routes/channels
       :view #'channel/channel
       :parameters {:path {:uuid string?
