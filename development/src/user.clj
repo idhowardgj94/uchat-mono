@@ -15,7 +15,7 @@
     (ig/halt! @system))
   (reset! system (ig/init (s/read-system "system.edn"))))
 
-(restart-server)
+#_(restart-server)
 (comment
   (use '[clojure.tools.namespace.repl :only (refresh)])
   (refresh)

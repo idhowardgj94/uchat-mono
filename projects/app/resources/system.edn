@@ -1,4 +1,4 @@
-{:db/jdbc {:jdbc-url {:host "localhost"
+{:db/jdbc {:jdbc-url {:host "postgresql"
                       :dbtype "postgres"
                       :dbname "uchat"
                       :useSSL false}

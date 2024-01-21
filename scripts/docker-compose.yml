@@ -1,0 +1,26 @@
+version: '2'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  postgresql:
+    image: 'bitnami/postgresql:latest'
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_DATABASE=uchat
+    networks:
+      - app-tier
+  backend:
+    image: 'uchat/backend:0.0.1'
+    networks:
+      - app-tier
+  nginx:
+    image: 'uchat/frontend:0.0.1'
+    ports:
+      - 81:80
+    networks:
+      - app-tier
+      
