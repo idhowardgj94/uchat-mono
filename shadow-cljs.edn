@@ -11,8 +11,9 @@
                                     day8.re-frame.tracing.trace-enabled? true}}
                 :release          {:build-hooks [(teknql.tailwind/compile-release!)]
                                    :closure-defines
-                                   {com.howard.uchat.core/debug-tools false}
-                                   
+                                   {com.howard.uchat.core/debug-tools false
+                                    com.howard.uchat.api/endpoint ""
+                                    }
                                    :build-options
                                    {:ns-aliases
                                     {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}

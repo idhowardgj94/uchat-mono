@@ -1,0 +1,23 @@
+* Build image and setup docker-compose
+
+TODO: abstract docker tag in dockerfile & docker-compose
+
+
+
+
+1. inside project root, run following command:
+
+   #+begin_src bash
+     sudo docker build -t uchat/frontend:0.0.1 -f scripts/frontend/Dockerfile .
+     sudo docker build -t uchat/backend:0.0.1 -f scripts/backend/Dockerfile .     
+   #+end_src
+it will build frontend and backend image, and give it a tag.
+
+2. modify docker-compose, to let frontend & backend match tag
+
+   
+* Note
+
+in frontend dockerfile, directly set ~production~ env to ture will cause ~npm run prod~ failed.
+
+so instead, I set production env locally when publish css file.

@@ -105,7 +105,7 @@
     (POST "/register" [] register-handler)
     (POST "/login" [] login-handler))
   (GET "/home" [] home)
-  (GET "/" [] index-handler)
+  (GET "/api/v1/test" [] index-handler)
   #'teams-endpoint/teams-routes
   #'messages-endpoint/messages-routes
   #'channels-endpoint/channel-routes)

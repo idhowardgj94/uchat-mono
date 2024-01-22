@@ -8,8 +8,7 @@
    [ajax.core :refer [GET POST] :as ajax]))
 
 ;; TODO: migrate ajax to axios
-
-(defonce endpoint "http://localhost:4000")
+(goog-define endpoint "http://localhost:4000")
 (defonce token (atom (-> js/localStorage
                          (.getItem "token"))))
 

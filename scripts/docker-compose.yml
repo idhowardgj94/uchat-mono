@@ -15,12 +15,14 @@ services:
       - app-tier
   backend:
     image: 'uchat/backend:0.0.1'
+    ports:
+      - 4000:4000
     networks:
       - app-tier
   nginx:
     image: 'uchat/frontend:0.0.1'
     ports:
-      - 81:80
+      - 80:8080
     networks:
       - app-tier
       
