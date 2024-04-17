@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "DAP clojurescript",
+            "url": "http://localhost:8021",
+            "sourceMaps": true,
+            "webRoot": "${workspaceFolder}",
+            "sourceMapPathOverrides": {
+                "*": "${workspaceFolder}/frontend/resources/public/js/*"
+            }
+        }
+    ]
+}

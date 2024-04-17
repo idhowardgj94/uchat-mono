@@ -20,7 +20,7 @@
 ;; TODO: should use name instead of username 
 (defn room-header [current-channel]
   (let [name (case (:type current-channel)
-               "direct" (:other_name current-channel)
+               "direct" (:other-name current-channel)
                "channel" (:name current-channel)
                "loading...")]
     [:section.basis-16.flex.w-full.items-center.border-b.border-gray-200
@@ -50,14 +50,14 @@
 (defn message-intro [current-channel]
   [:div.mt-3.flex.justify-center.flex-col.items-center
    [:div
-    [:> Avatar {:name (:other_name current-channel) :className "rounded" :size 49}]]
+    [:> Avatar {:name (:other-name current-channel) :className "rounded" :size 49}]]
    [:div.my-4
     [:p.text-lg.font-bold "You have joined a new direct message with"]]
    [:div.flex-1
     [:button.bg-gray-300 {:className "rounded p-0.5 hover:bg-gray-100"}
      [:span.inline-block.mr-1
       [:> CiUser]]
-     [:span.font-semibold.text-sm (:other_name current-channel)]]]])
+     [:span.font-semibold.text-sm (:other-name current-channel)]]]])
 
 (defn message-date-line
   "given a date string, show a date string seprate line."

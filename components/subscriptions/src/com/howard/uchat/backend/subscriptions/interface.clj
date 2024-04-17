@@ -1,6 +1,6 @@
 (ns com.howard.uchat.backend.subscriptions.interface
   (:require
-   [com.howard.uchat.backend.tools.macro :refer [export-fn]]
+   [com.howard.uchat.backend.tools.interface :refer [export-fn]]
    [com.howard.uchat.backend.subscriptions.database :as database]
    [com.howard.uchat.backend.subscriptions.core :as core]))
 

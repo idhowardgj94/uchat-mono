@@ -14,7 +14,6 @@
   {:pre [(string? username)
          (string? msg)
          (uuid? channel-uuid)]}
-  (println "inside create message.")
   (database/create-message tx username msg channel-uuid))
 
 (defn get-messages-by-channel

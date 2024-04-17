@@ -2,22 +2,18 @@
   (:require
    [buddy.hashers :as hashers]
    [buddy.sign.jwt :as jwt]
-   [buddy.core.nonce :as nonce]
    [clj-time.core :as time]
    [clojure.spec.alpha :as s]
    [com.howard.uchat.backend.api-server.spec :as specs]
+   [com.howard.uchat.backend.api-server.util :refer [json-response]]
    [com.howard.uchat.backend.teams.interface :as teams]
    [com.howard.uchat.backend.users.interface :as users]
-   [ring.util.response :as response]
-   [com.howard.uchat.backend.api-server.util :refer [json-response]]
-   [taoensso.timbre :as timbre]
+   [com.howard.uchat.backend.auth.interface :refer [generate-auth-token get-secret]]
    [next.jdbc :as jdbc]
-   [ring.util.response :as res-util]
-   [com.howard.uchat.backend.database.interface :as database]
-   [jsonista.core :as json]))
+   [ring.util.response :as response]
+   [taoensso.timbre :as timbre]))
 
 
-(defonce secret (nonce/random-bytes 32))
 (defn get-login-token
   "Get login token for frontend.
   TODO: should I user keyword for username?
@@ -25,7 +21,7 @@
   [username]
   (let [claims {:username (keyword username)
                 :exp (.getMillis (time/plus (time/now) (time/seconds 3600)))}]
-    (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})))
+    (jwt/encrypt claims (get-secret) {:alg :a256kw :enc :a128gcm})))
 
 (defn register-handler
   "handler register request
@@ -59,27 +55,6 @@
                       (teams/add-user-to-team tx username uuid))
                     (json-response {:status "success"
                                     :token (get-login-token username)})))))))))
-
-(defrecord Claims [username name exp])
-
-(defn- new-exp
-  "generate new expire time, given:
-  seconds
-  params:
-  seconds - int"
-  ^org.joda.time.PeriodType [seconds]
-  (.getMillis (time/plus (time/now) (time/seconds seconds))))
-
-(defn generate-auth-token
-  "generate auth token for login.
-  params:
-  username - string
-  name - string
-  exp default 3600 timestamp in millis"
-  [username name]
-  (let [claims (Claims. username name (new-exp 3600))]
-    (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})))
-
 
 (defn login-handler
   [request]

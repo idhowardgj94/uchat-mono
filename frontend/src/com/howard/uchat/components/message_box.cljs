@@ -28,7 +28,7 @@
   []
   (let [sub (-> (re-frame/subscribe [::db/subscribe [:current-channel]]))]
     (fn []
-      (let [channel-uuid (-> @sub :current-channel :channel_uuid)
+      (let [channel-uuid (-> @sub :current-channel :channel-uuid)
             message (re-frame/subscribe [::get-messagebox-by-channel-id channel-uuid])]
         [:div.flex.basis-5.shrink-0
          [:div.w-ull.my-4.px-3.flex-1.items-center.justify-center.flex.flex-1.flex-col

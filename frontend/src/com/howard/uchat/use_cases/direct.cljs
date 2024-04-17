@@ -22,7 +22,7 @@
   [db [_ channel-id message]]
   (comment "given channel-id and message,
   append to current-channel message if need")
-  (let [current-channel-id (get-in db [:current-channel :channel_uuid])]
+  (let [current-channel-id (get-in db [:current-channel :channel-uuid])]
     (if (= current-channel-id channel-id)
       (update-in db [:current-channel :messages] conj message)
       db))))
@@ -36,7 +36,7 @@
                    :channel (:channel-subscriptions db))]
 
     {:db (assoc db :current-channel (->> channels
-                                         (some #(when (= (:channel_uuid %) channel-uuid)
+                                         (some #(when (= (:channel-uuid %) channel-uuid)
                                                   %))))
      :fx [[::get-messages channel-uuid]]
      })))
@@ -54,7 +54,7 @@
   (let [{user :user
          channel :current-channel} db
         username (:username user)
-        channel-uuid (:channel_uuid channel)]
+        channel-uuid (:channel-uuid channel)]
     (-> (api/post-message-to-channels username msg channel-uuid)
         (.then (fn []
                  (re-frame/dispatch [::clear-message-box channel-uuid])

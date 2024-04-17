@@ -18,7 +18,7 @@ teams_users ON subscriptions.other_user = teams_users.username AND subscriptions
 JOIN users ON users.username = subscriptions.other_user WHERE team_uuid = ?" username team-uuid])))
 
 (dbfn get-user-team-channel-subscriptions
-  "this is a dbfn TODO: docstring need to be optional"
+  "get user team channel subscriptions"
   [tx username team-uuid]
   (into
    []
@@ -61,8 +61,7 @@ WHERE team_uuid = ? AND channels.type = 'channel'" username team-uuid])))
        ["INSERT INTO channels (name, team-uuid) VALUES (?, ?)" name team-uuid]))
 
 (defn create-subscription
-  "create a subscription for user
-  TODO: use dbfn"
+  "create a subscription for user"
   ([tx channel-uuid username unread last-message-uuid]
    (jdbc/execute!
     tx

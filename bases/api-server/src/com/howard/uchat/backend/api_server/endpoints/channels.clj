@@ -10,7 +10,6 @@
    [clojure.spec.alpha :as s]
    [compojure.core :refer [wrap-routes routes defroutes context GET POST]]
    [com.howard.uchat.backend.teams.interface :as teams]
-   [com.howard.uchat.backend.tools.interface :as tools :refer [post Post new-client]]
    [com.howard.uchat.backend.subscriptions.interface :as subscriptions]
    [next.jdbc :as jdbc]
    ))
@@ -38,7 +37,7 @@
         conn (-> request :db-conn)]
     (if (nil? (parse-uuid channel-uuid))
       (response/bad-request {:status "failed"
-                             :message "channel_uuid is not a valid uuid."})
+                             :message "channel-uuid is not a valid uuid."})
       (util/json-response {:status "success"
                            :result (messages/get-messages-by-channel conn (parse-uuid channel-uuid))}))))
 

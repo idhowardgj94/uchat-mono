@@ -1,9 +1,10 @@
 (ns com.howard.uchat.backend.database.interface
-  (:require [com.howard.uchat.backend.database.core :as core]
-            [clj-time.core :as time]
-            [next.jdbc :as jdbc])
-  (:import [java.sql Timestamp]))
-
+  (:require
+   [clj-time.core :as time]
+   [com.howard.uchat.backend.database.core :as core]
+   [potemkin :refer [import-fn]])
+  (:import
+   [java.sql Timestamp]))
 
 (defmacro dbfn
   {:clj-kondo/lint-as 'clojure.core/defn}
@@ -11,13 +12,16 @@
   (let [doc (if (string? (first args)) (first args) nil)
         params (if (nil? doc) (first args) (second args))
         second-params (if (<= (count params) 1) [] (into [] (drop 1 params)))
-        body (if (nil? doc) (drop 1 args) (drop 2 args))]
+        body (if (nil? doc) (drop 1 args) (drop 2 args))
+        body-form `((~params
+                     ~@body)
+                    (~second-params
+                     (apply ~name (get-pool) ~second-params)))]
     `(defn ~name
-         ~doc
-         (~params
-         ~@body)
-         (~second-params
-          (apply ~name (get-pool) ~second-params)))))
+       ~@(if (some? doc)
+           `(~doc
+             ~@body-form)
+           `(~@body-form)))))
 
 (defn current-timestamp
   "get current timestamp"
@@ -26,23 +30,15 @@
         timestamp (Timestamp. t)]
     timestamp))
 
-(def init-database
-  "initialise database, create a connection pool, and execute
-  data migration.
-  params:
-  options: db connection option
-  resources-path: db path, default: migrations"
-  #'core/init-database)
-
-(defn get-pool
-  "get connection pool, for db"
-  []
-  (core/get-pool))
-
+(import-fn core/perform-migrations)
+(import-fn core/init-database)
+(import-fn core/perform-rollback!)
+(import-fn core/get-pool)
+(import-fn core/close-database!)
 (def mk-migraiton-config
   "gererate a migration config for use for ragtime repl."
   #'core/mk-migration-config)
 
 (comment
-  (print "hello")
-  ,)
+  (close-database! (get-pool))
+  (print "hello"))

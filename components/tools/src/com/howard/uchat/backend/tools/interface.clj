@@ -4,8 +4,14 @@
   (:require
    [clj-http.client :as client]
    [jsonista.core :as json]
-   [com.howard.uchat.backend.api-server.auth :as auth]))
+   [com.howard.uchat.backend.tools.macro :as macro]
+   [camel-snake-kebab.core :as cbk]
+   [potemkin :refer [import-vars]]
+   [com.howard.uchat.backend.auth.interface :as auth]))
 
+(import-vars [macro export-fn])
+
+;; TODO: client should be put in auth 
 (defprotocol GenerateToken
   (get-token [this] "get token")
   (generate-token [this] "generate auth token."))
@@ -43,12 +49,49 @@
     (get_ this endpoint nil)))
 
 (defn new-client
-  "new client, just for test."
-  ^Client [^String username ^String  name]
-  (-> (Client. username name)
-      (generate-token)
-      (assoc :host "http://localhost:4000")))
+  "new client, just for test.
+  params
+  opt - port: number host: string "
+  (^Client [^String username ^String name]
+   (new-client username name {}))
+  (^Client [username name {:keys [host port]}]
+   (let [h (if (some? host) host "http://localhost")
+         p (if (some? port) port 4000)]
+     (-> (Client. username name)
+         (generate-token)
+         (assoc :host (str h ":" p))))))
 
+;; TODO map
+(declare reduce-map-to-kebab-case!)
+(defn reduce-vector-to-kebab-case!
+  "a small helper function to reduce vector to kebab case
+  new-v must be a ttrasient collection."
+  [new-v v]
+  (reduce
+   (fn [res v]
+     (conj! res (if (map? v)
+                  (-> (reduce-map-to-kebab-case! (transient {}) v)
+                      persistent!)
+                  v)))
+   new-v
+   v))
+
+(defn reduce-map-to-kebab-case!
+  "a small warper for reduce map key to kebab case.
+   new body neet to be transient collection"
+  [new-body body]
+  (reduce
+   (fn [res [k v]]
+     (assoc! res
+             (cbk/->kebab-case k)
+             (if (vector? v)
+               (persistent! (reduce-vector-to-kebab-case! (transient []) v))
+               v)))
+   new-body
+   body))
+#_(persistent! (reduce-map-to-kebab-case! (transient {}) {:fooBar "foo"
+                                                          :hello [{:helloWord "hi"}
+                                                                  {:oneMore [{:testAgain "123"}]}]}))
 #_(let [c (new-client "idhowardgj94" "howard")]
   (post c "/api/v1/channels" {:channel-name "bar"
                               :team-id "123"}))

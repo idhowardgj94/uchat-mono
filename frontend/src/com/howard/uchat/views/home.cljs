@@ -8,10 +8,13 @@
 
 
 (defn main []
-  [:div
-   {:class ["h-[220px]" "w-[300px]" :bg-blue-50 :m-4 :p-2 "rounded-[5px]"]}
-   [:h2.text-4xl "home"]
-   [:p "nothing to see here"]])
+  (let [data (re-frame/subscribe [:debug-tools])]
+    (if (:debug-tools data)
+      [:div
+       {:class ["h-[220px]" "w-[300px]" :bg-blue-50 :m-4 :p-2 "rounded-[5px]"]}
+       [:h2.text-4xl "home"]
+       [:p "nothing to see here"]]
+      (re-frame/dispatch [:routes/navigate [:routes/login]]))))
 
 (def toolbar-items
   "this is a debug purpose components"
@@ -25,11 +28,12 @@
 
 (defn main-panel []
   (let [active-route (re-frame/subscribe [:routes/current-route])
-        auth (re-frame/subscribe [::db/subscribe [:auth?]])
+        subs (re-frame/subscribe [::db/subscribe [:auth? :debug-tools]])
         view (:view (:data @active-route))]
     [:<>
-     [vt/navigation toolbar-items]
-     (if (= (:auth? @auth) true)
+     (when (:debug-tools @subs)
+       [vt/navigation toolbar-items])
+     (if (= (:auth? @subs) true)
        [main-layout]
        [:div
         (when (some? view)

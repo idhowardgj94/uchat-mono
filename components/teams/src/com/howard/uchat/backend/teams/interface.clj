@@ -1,6 +1,6 @@
 (ns com.howard.uchat.backend.teams.interface
   (:require [com.howard.uchat.backend.teams.database :as db]
-            [com.howard.uchat.backend.tools.macro :refer [export-fn]]
+            [com.howard.uchat.backend.tools.interface :refer [export-fn]]
             [com.howard.uchat.backend.database.interface :as database]))
 
 (export-fn get-team-users db/get-team-users)
@@ -14,7 +14,8 @@
 
 (defn create-team-by-name
   "create a team, given a name
-  TODO: name should be unique, or at least public is a keyword."
+  TODO: name should be unique, or at least public is a key.
+  .... do I have public or private in teams?"
   [db-conn name]
   (db/insert-team-by-name db-conn name))
 

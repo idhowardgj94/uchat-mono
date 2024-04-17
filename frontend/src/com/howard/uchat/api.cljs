@@ -8,8 +8,7 @@
    [ajax.core :refer [GET POST] :as ajax]))
 
 ;; TODO: migrate ajax to axios
-
-(defonce endpoint "http://localhost:4000")
+(goog-define endpoint "http://localhost:4000")
 (defonce token (atom (-> js/localStorage
                          (.getItem "token"))))
 
@@ -72,8 +71,8 @@
   [team-uuid other-user]
   (-> axios
       (.post (str endpoint "/api/v1/direct/generate")
-             #js {:team_uuid team-uuid
-                  :other_user other-user})))
+             #js {:team-uuid team-uuid
+                  :other-user other-user})))
 
 (defn get-team-users
   "get team users by teams-id"
@@ -159,7 +158,7 @@
 
 (comment
   (get-subscription {:type "direct"
-                     :team_uuid "bd9a04af-899d-4d61-a169-8dba5dca99d8"} #(print %))
+                     :team-uuid "bd9a04af-899d-4d61-a169-8dba5dca99d8"} #(print %))
   )
 
 (comment

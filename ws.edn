@@ -1,0 +1,1533 @@
+{:bases
+ [{:name "api-server",
+   :type "base",
+   :paths {:src ["src" "resources"], :test ["test"]},
+   :namespaces
+   {:src
+    [{:name "system",
+      :namespace "com.howard.uchat.backend.api-server.system",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/bases/api-server/src/com/howard/uchat/backend/api_server/system.clj",
+      :imports
+      ["clojure.java.io"
+       "com.howard.uchat.backend.api-server.core"
+       "com.howard.uchat.backend.database.interface"
+       "com.howard.uchat.backend.socket.interface"
+       "integrant.core"
+       "next.jdbc.connection"]}
+     {:name "spec",
+      :namespace "com.howard.uchat.backend.api-server.spec",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/bases/api-server/src/com/howard/uchat/backend/api_server/spec.clj",
+      :imports ["clojure.spec.alpha" "spec-tools.data-spec"]}
+     {:name "main",
+      :namespace "com.howard.uchat.backend.api-server.main",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/bases/api-server/src/com/howard/uchat/backend/api_server/main.clj",
+      :imports
+      ["com.howard.uchat.backend.api-server.system" "integrant.core"]}
+     {:name "auth",
+      :namespace "com.howard.uchat.backend.api-server.auth",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/bases/api-server/src/com/howard/uchat/backend/api_server/auth.clj",
+      :imports
+      ["buddy.hashers"
+       "buddy.sign.jwt"
+       "clj-time.core"
+       "clojure.spec.alpha"
+       "com.howard.uchat.backend.api-server.spec"
+       "com.howard.uchat.backend.api-server.util"
+       "com.howard.uchat.backend.auth.interface"
+       "com.howard.uchat.backend.teams.interface"
+       "com.howard.uchat.backend.users.interface"
+       "next.jdbc"
+       "ring.util.response"
+       "taoensso.timbre"]}
+     {:name "core",
+      :namespace "com.howard.uchat.backend.api-server.core",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/bases/api-server/src/com/howard/uchat/backend/api_server/core.clj",
+      :imports
+      ["buddy.auth"
+       "buddy.auth.backends.token"
+       "buddy.auth.middleware"
+       "clj-http.client"
+       "clojure.spec.alpha"
+       "com.howard.uchat.backend.api-server.auth"
+       "com.howard.uchat.backend.api-server.endpoints.channels"
+       "com.howard.uchat.backend.api-server.endpoints.messages"
+       "com.howard.uchat.backend.api-server.endpoints.teams"
+       "com.howard.uchat.backend.api-server.middleware"
+       "com.howard.uchat.backend.api-server.spec"
+       "com.howard.uchat.backend.api-server.util"
+       "com.howard.uchat.backend.channels.interface"
+       "com.howard.uchat.backend.database.interface"
+       "com.howard.uchat.backend.socket.interface"
+       "com.howard.uchat.backend.subscriptions.interface"
+       "com.howard.uchat.backend.teams.interface"
+       "com.howard.uchat.backend.users.interface"
+       "compojure.core"
+       "jsonista.core"
+       "next.jdbc"
+       "org.httpkit.server"
+       "ring.middleware.defaults"
+       "ring.middleware.json"
+       "ring.middleware.reload"
+       "ring.middleware.resource"
+       "ring.util.response"
+       "taoensso.timbre"]}
+     {:name "middleware",
+      :namespace "com.howard.uchat.backend.api-server.middleware",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/bases/api-server/src/com/howard/uchat/backend/api_server/middleware.clj",
+      :imports
+      ["buddy.auth"
+       "buddy.auth.protocols"
+       "camel-snake-kebab.core"
+       "com.howard.uchat.backend.database.interface"]}
+     {:name "util",
+      :namespace "com.howard.uchat.backend.api-server.util",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/bases/api-server/src/com/howard/uchat/backend/api_server/util.clj",
+      :imports ["ring.util.response"]}
+     {:name "endpoints.channels",
+      :namespace
+      "com.howard.uchat.backend.api-server.endpoints.channels",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/bases/api-server/src/com/howard/uchat/backend/api_server/endpoints/channels.clj",
+      :imports
+      ["clojure.spec.alpha"
+       "com.howard.uchat.backend.api-server.middleware"
+       "com.howard.uchat.backend.api-server.util"
+       "com.howard.uchat.backend.channels.interface"
+       "com.howard.uchat.backend.messages.interface"
+       "com.howard.uchat.backend.socket.interface"
+       "com.howard.uchat.backend.subscriptions.interface"
+       "com.howard.uchat.backend.teams.interface"
+       "compojure.core"
+       "next.jdbc"
+       "ring.util.response"
+       "spec-tools.data-spec"]}
+     {:name "endpoints.teams",
+      :namespace "com.howard.uchat.backend.api-server.endpoints.teams",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/bases/api-server/src/com/howard/uchat/backend/api_server/endpoints/teams.clj",
+      :imports
+      ["com.howard.uchat.backend.api-server.middleware"
+       "com.howard.uchat.backend.api-server.util"
+       "com.howard.uchat.backend.teams.interface"
+       "compojure.core"
+       "taoensso.timbre"]}
+     {:name "endpoints.messages",
+      :namespace
+      "com.howard.uchat.backend.api-server.endpoints.messages",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/bases/api-server/src/com/howard/uchat/backend/api_server/endpoints/messages.clj",
+      :imports
+      ["com.howard.uchat.backend.api-server.middleware"
+       "com.howard.uchat.backend.api-server.util"
+       "com.howard.uchat.backend.messages.interface"
+       "compojure.core"
+       "taoensso.timbre"]}],
+    :test
+    [{:name "core-test",
+      :namespace "com.howard.uchat.backend.api-server.core-test",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/bases/api-server/test/com/howard/uchat/backend/api_server/core_test.clj",
+      :imports
+      ["clojure.test"
+       "com.howard.uchat.backend.api-server.system"
+       "com.howard.uchat.backend.tools.interface"
+       "com.howard.uchat.backend.tools.interface"
+       "integrant.core"
+       "jsonista.core"]}]},
+   :lib-deps
+   {:src
+    {"buddy/buddy-auth"
+     {:version "3.0.323", :type "maven", :size 14710},
+     "compojure/compojure"
+     {:version "1.7.0", :type "maven", :size 15165},
+     "http-kit/http-kit"
+     {:version "2.7.0", :type "maven", :size 200886},
+     "ring/ring-core" {:version "1.8.2", :type "maven", :size 32319},
+     "ring/ring-defaults"
+     {:version "0.3.4", :type "maven", :size 7515},
+     "ring/ring-devel" {:version "1.10.0", :type "maven", :size 9403},
+     "ring/ring-jetty-adapter"
+     {:version "1.8.2", :type "maven", :size 5463},
+     "ring/ring-json" {:version "0.5.1", :type "maven", :size 5633}}},
+   :lines-of-code {:src 661, :test 89},
+   :lib-imports
+   {:src
+    ["buddy.auth"
+     "buddy.auth.backends.token"
+     "buddy.auth.middleware"
+     "buddy.auth.protocols"
+     "buddy.hashers"
+     "buddy.sign.jwt"
+     "camel-snake-kebab.core"
+     "clj-http.client"
+     "clj-time.core"
+     "clojure.java.io"
+     "clojure.spec.alpha"
+     "com.howard.uchat.backend.api-server.auth"
+     "com.howard.uchat.backend.api-server.core"
+     "com.howard.uchat.backend.api-server.endpoints.channels"
+     "com.howard.uchat.backend.api-server.endpoints.messages"
+     "com.howard.uchat.backend.api-server.endpoints.teams"
+     "com.howard.uchat.backend.api-server.middleware"
+     "com.howard.uchat.backend.api-server.spec"
+     "com.howard.uchat.backend.api-server.system"
+     "com.howard.uchat.backend.api-server.util"
+     "compojure.core"
+     "integrant.core"
+     "jsonista.core"
+     "next.jdbc"
+     "next.jdbc.connection"
+     "org.httpkit.server"
+     "ring.middleware.defaults"
+     "ring.middleware.json"
+     "ring.middleware.reload"
+     "ring.middleware.resource"
+     "ring.util.response"
+     "spec-tools.data-spec"
+     "taoensso.timbre"],
+    :test
+    ["clojure.test"
+     "com.howard.uchat.backend.api-server.system"
+     "integrant.core"
+     "jsonista.core"]},
+   :interface-deps
+   {:src
+    ["auth"
+     "channels"
+     "database"
+     "messages"
+     "socket"
+     "subscriptions"
+     "teams"
+     "users"],
+    :test ["tools"]}}],
+ :changes
+ {:since "stable",
+  :since-sha "e2e136ba0d11d2883b0fe608c31cbda73f21361c",
+  :changed-files
+  [".clj-kondo/.lock"
+   ".clj-kondo/babashka/fs/config.edn"
+   ".clj-kondo/babashka/sci/config.edn"
+   ".clj-kondo/babashka/sci/sci/core.clj"
+   ".clj-kondo/com.github.seancorfield/next.jdbc/config.edn"
+   ".clj-kondo/com.github.seancorfield/next.jdbc/hooks/com/github/seancorfield/next_jdbc.clj_kondo"
+   ".clj-kondo/config.edn"
+   ".clj-kondo/http-kit/http-kit/config.edn"
+   ".clj-kondo/http-kit/http-kit/httpkit/with_channel.clj"
+   ".clj-kondo/inline-configs/com.howard.uchat.backend.database.interface.clj/config.edn"
+   ".clj-kondo/inline-configs/com.howard.uchat.backend.tools.macroy.clj/config.edn"
+   ".clj-kondo/macros.clj"
+   ".clj-kondo/metosin/malli/config.edn"
+   ".clj-kondo/rewrite-clj/rewrite-clj/config.edn"
+   ".clj-kondo/taoensso/encore/config.edn"
+   ".clj-kondo/taoensso/encore/taoensso/encore.clj"
+   ".gitignore"
+   "bases/api-server/deps.edn"
+   "bases/api-server/src/com/howard/uchat/backend/api_server/auth.clj"
+   "bases/api-server/src/com/howard/uchat/backend/api_server/core.clj"
+   "bases/api-server/src/com/howard/uchat/backend/api_server/endpoints/channels.clj"
+   "bases/api-server/src/com/howard/uchat/backend/api_server/endpoints/messages.clj"
+   "bases/api-server/src/com/howard/uchat/backend/api_server/endpoints/teams.clj"
+   "bases/api-server/src/com/howard/uchat/backend/api_server/middleware.clj"
+   "bases/api-server/src/com/howard/uchat/backend/api_server/spec.clj"
+   "bases/api-server/src/com/howard/uchat/backend/api_server/system.clj"
+   "bases/api-server/src/com/howard/uchat/backend/api_server/util.clj"
+   "bases/api-server/test/com/howard/uchat/backend/api_server/core_test.clj"
+   "bb.edn"
+   "components/channels/deps.edn"
+   "components/channels/resources/channels/.keep"
+   "components/channels/src/com/howard/uchat/backend/channels/database.clj"
+   "components/channels/src/com/howard/uchat/backend/channels/interface.clj"
+   "components/channels/test/com/howard/uchat/backend/channels/interface_test.clj"
+   "components/database/deps.edn"
+   "components/database/resources/database/.keep"
+   "components/database/src/com/howard/uchat/backend/database/core.clj"
+   "components/database/src/com/howard/uchat/backend/database/interface.clj"
+   "components/database/src/com/howard/uchat/backend/database/spec.clj"
+   "components/database/test/com/howard/uchat/backend/database/interface_test.clj"
+   "components/messages/deps.edn"
+   "components/messages/resources/messages/.keep"
+   "components/messages/src/com/howard/uchat/backend/messages/database.clj"
+   "components/messages/src/com/howard/uchat/backend/messages/interface.clj"
+   "components/messages/test/com/howard/uchat/backend/messages/interface_test.clj"
+   "components/socket/deps.edn"
+   "components/socket/resources/socket/.keep"
+   "components/socket/src/com/howard/uchat/backend/socket/core.clj"
+   "components/socket/src/com/howard/uchat/backend/socket/events.clj"
+   "components/socket/src/com/howard/uchat/backend/socket/interface.clj"
+   "components/socket/test/com/howard/uchat/backend/socket/interface_test.clj"
+   "components/subscriptions/deps.edn"
+   "components/subscriptions/resources/subscriptions/.keep"
+   "components/subscriptions/src/com/howard/uchat/backend/subscriptions/core.clj"
+   "components/subscriptions/src/com/howard/uchat/backend/subscriptions/database.clj"
+   "components/subscriptions/src/com/howard/uchat/backend/subscriptions/interface.clj"
+   "components/subscriptions/test/com/howard/uchat/backend/subscriptions/interface_test.clj"
+   "components/teams/deps.edn"
+   "components/teams/resources/teams/.keep"
+   "components/teams/src/com/howard/uchat/backend/teams/database.clj"
+   "components/teams/src/com/howard/uchat/backend/teams/interface.clj"
+   "components/teams/test/com/howard/uchat/backend/teams/interface_test.clj"
+   "components/tools/deps.edn"
+   "components/tools/resources/tools/.keep"
+   "components/tools/src/com/howard/uchat/backend/tools/interface.clj"
+   "components/tools/src/com/howard/uchat/backend/tools/macro.clj"
+   "components/tools/test/com/howard/uchat/backend/tools/interface_test.clj"
+   "components/users/deps.edn"
+   "components/users/resources/users/.keep"
+   "components/users/src/com/howard/uchat/backend/users/interface.clj"
+   "components/users/test/com/howard/uchat/backend/users/interface_test.clj"
+   "deps.edn"
+   "development/resources/migrations/001-foo.edn"
+   "development/resources/migrations/002-users.down.sql"
+   "development/resources/migrations/002-users.up.sql"
+   "development/resources/migrations/003-teams.down.sql"
+   "development/resources/migrations/003-teams.up.sql"
+   "development/resources/migrations/004-teams_users.down.sql"
+   "development/resources/migrations/004-teams_users.up.sql"
+   "development/resources/migrations/005-subscriptions.down.sql"
+   "development/resources/migrations/005-subscriptions.up.sql"
+   "development/resources/migrations/006-channels_users.down.sql"
+   "development/resources/migrations/006-channels_users.up.sql"
+   "development/resources/migrations/007-users_groups.down.sql"
+   "development/resources/migrations/007-users_groups.up.sql"
+   "development/resources/migrations/008-groups_channels.down.sql"
+   "development/resources/migrations/008-groups_channels.up.sql"
+   "development/resources/migrations/009-groups.down.sql"
+   "development/resources/migrations/009-groups.up.sql"
+   "development/resources/migrations/010-channels.down.sql"
+   "development/resources/migrations/010-channels.up.sql"
+   "development/resources/migrations/011-messages.down.sql"
+   "development/resources/migrations/011-messages.up.sql"
+   "development/resources/system.edn"
+   "development/src/user.clj"
+   "frontend/resources/public/index.html"
+   "frontend/resources/tw/style.css"
+   "frontend/src/com/howard/uchat/api.cljs"
+   "frontend/src/com/howard/uchat/components.cljs"
+   "frontend/src/com/howard/uchat/components/basic.cljs"
+   "frontend/src/com/howard/uchat/components/button.cljs"
+   "frontend/src/com/howard/uchat/components/header.cljs"
+   "frontend/src/com/howard/uchat/components/layout.cljs"
+   "frontend/src/com/howard/uchat/components/leftbar.cljs"
+   "frontend/src/com/howard/uchat/components/message_box.cljs"
+   "frontend/src/com/howard/uchat/components/multi_choose_list.cljs"
+   "frontend/src/com/howard/uchat/components/room_components.cljs"
+   "frontend/src/com/howard/uchat/components/utilities.cljs"
+   "frontend/src/com/howard/uchat/config.cljs"
+   "frontend/src/com/howard/uchat/core.cljs"
+   "frontend/src/com/howard/uchat/db.cljs"
+   "frontend/src/com/howard/uchat/db_spec.cljs"
+   "frontend/src/com/howard/uchat/routes.cljs"
+   "frontend/src/com/howard/uchat/styles.cljs"
+   "frontend/src/com/howard/uchat/use_cases/channels_cases.cljs"
+   "frontend/src/com/howard/uchat/use_cases/core_cases.cljs"
+   "frontend/src/com/howard/uchat/use_cases/direct.cljs"
+   "frontend/src/com/howard/uchat/use_cases/socket.cljs"
+   "frontend/src/com/howard/uchat/util.cljs"
+   "frontend/src/com/howard/uchat/views/channel.cljs"
+   "frontend/src/com/howard/uchat/views/compo.cljs"
+   "frontend/src/com/howard/uchat/views/home.cljs"
+   "frontend/src/com/howard/uchat/views/login.cljs"
+   "frontend/src/com/howard/uchat/views/register.cljs"
+   "frontend/src/com/howard/uchat/views/rooms.cljs"
+   "frontend/src/tools/viewtools.cljs"
+   "package-lock.json"
+   "package.json"
+   "pics/demo-1.png"
+   "readme.md"
+   "shadow-cljs.edn"
+   "tailwind.config.js"
+   "todo-and-bugs.org"],
+  :git-diff-command
+  "git diff e2e136ba0d11d2883b0fe608c31cbda73f21361c --name-only",
+  :changed-components
+  ["channels"
+   "database"
+   "messages"
+   "socket"
+   "subscriptions"
+   "teams"
+   "tools"
+   "users"],
+  :changed-bases ["api-server"],
+  :changed-projects ["development"],
+  :changed-or-affected-projects ["development"],
+  :project-to-indirect-changes
+  {"app" {:src [], :test []}, "development" {:src [], :test []}},
+  :project-to-bricks-to-test {"app" [], "development" []},
+  :project-to-projects-to-test {"app" [], "development" []}},
+ :components
+ [{:lines-of-code {:src 29, :test 6},
+   :interface
+   {:name "auth",
+    :definitions
+    [{:name "generate-auth-token",
+      :type "function",
+      :parameters [{:name "username"} {:name "name"}]}]},
+   :namespaces
+   {:src
+    [{:name "interface",
+      :namespace "com.howard.uchat.backend.auth.interface",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/auth/src/com/howard/uchat/backend/auth/interface.clj",
+      :imports ["buddy.core.nonce" "buddy.sign.jwt" "clj-time.core"]}],
+    :test
+    [{:name "interface-test",
+      :namespace "com.howard.uchat.backend.auth.interface-test",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/auth/test/com/howard/uchat/backend/auth/interface_test.clj",
+      :imports
+      ["clojure.test" "com.howard.uchat.backend.auth.interface"]}]},
+   :lib-imports
+   {:src ["buddy.core.nonce" "buddy.sign.jwt" "clj-time.core"],
+    :test ["clojure.test"]},
+   :name "auth",
+   :paths {:src ["src" "resources"], :test ["test"]},
+   :type "component",
+   :interface-deps {:src [], :test []},
+   :lib-deps {}}
+  {:lines-of-code {:src 93, :test 6},
+   :interface
+   {:name "channels",
+    :definitions
+    [{:name "create-channel-and-insert-users",
+      :type "function",
+      :parameters
+      [{:name "conn"}
+       {:name "{:keys [channel-name team-id username-list]}"}]}
+     {:name "create-direct-and-insert-users",
+      :type "function",
+      :parameters
+      [{:name "conn"}
+       {:name "team_uuid"}
+       {:name "user"}
+       {:name "other-user"}]}
+     {:name "get-cahnnel-users-by-channel-uuid",
+      :type "function",
+      :parameters [{:name "conn"} {:name "channel-uuid"}]}]},
+   :namespaces
+   {:src
+    [{:name "interface",
+      :namespace "com.howard.uchat.backend.channels.interface",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/channels/src/com/howard/uchat/backend/channels/interface.clj",
+      :imports
+      ["com.howard.uchat.backend.channels.database"
+       "com.howard.uchat.backend.database.interface"
+       "next.jdbc"]}
+     {:name "database",
+      :namespace "com.howard.uchat.backend.channels.database",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/channels/src/com/howard/uchat/backend/channels/database.clj",
+      :imports
+      ["com.howard.uchat.backend.database.interface" "next.jdbc"]}],
+    :test
+    [{:name "interface-test",
+      :namespace "com.howard.uchat.backend.channels.interface-test",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/channels/test/com/howard/uchat/backend/channels/interface_test.clj",
+      :imports
+      ["clojure.test"
+       "com.howard.uchat.backend.channels.interface"]}]},
+   :lib-imports {:src ["next.jdbc"], :test ["clojure.test"]},
+   :name "channels",
+   :paths {:src ["src" "resources"], :test ["test"]},
+   :type "component",
+   :interface-deps {:src ["database"], :test []},
+   :lib-deps {}}
+  {:lines-of-code {:src 164, :test 6},
+   :interface
+   {:name "database",
+    :definitions
+    [{:name "mk-migraiton-config", :type "data"}
+     {:name "current-timestamp", :type "function", :parameters []}
+     {:name "dbfn",
+      :type "macro",
+      :parameters [{:name "name"} {:name "&"} {:name "args"}]}]},
+   :namespaces
+   {:src
+    [{:name "spec",
+      :namespace "com.howard.uchat.backend.database.spec",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/database/src/com/howard/uchat/backend/database/spec.clj",
+      :imports ["spec-tools.data-spec"]}
+     {:name "interface",
+      :namespace "com.howard.uchat.backend.database.interface",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/database/src/com/howard/uchat/backend/database/interface.clj",
+      :imports
+      ["clj-time.core"
+       "com.howard.uchat.backend.database.core"
+       "com.howard.uchat.backend.tools.interface"
+       "java.sql"]}
+     {:name "core",
+      :namespace "com.howard.uchat.backend.database.core",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/database/src/com/howard/uchat/backend/database/core.clj",
+      :imports
+      ["clojure.spec.alpha"
+       "com.howard.uchat.backend.database.spec"
+       "com.zaxxer.hikari"
+       "next.jdbc"
+       "next.jdbc.connection"
+       "ragtime.next-jdbc"
+       "ragtime.repl"
+       "taoensso.timbre"]}],
+    :test
+    [{:name "interface-test",
+      :namespace "com.howard.uchat.backend.database.interface-test",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/database/test/com/howard/uchat/backend/database/interface_test.clj",
+      :imports
+      ["clojure.test"
+       "com.howard.uchat.backend.database.interface"]}]},
+   :lib-imports
+   {:src
+    ["clj-time.core"
+     "clojure.spec.alpha"
+     "com.zaxxer.hikari"
+     "java.sql"
+     "next.jdbc"
+     "next.jdbc.connection"
+     "ragtime.next-jdbc"
+     "ragtime.repl"
+     "spec-tools.data-spec"
+     "taoensso.timbre"],
+    :test ["clojure.test"]},
+   :name "database",
+   :paths {:src ["src" "resources"], :test ["test"]},
+   :type "component",
+   :interface-deps {:src ["tools"], :test []},
+   :lib-deps
+   {:src
+    {"com.github.seancorfield/next.jdbc"
+     {:version "1.3.883", :type "maven", :size 52293},
+     "com.taoensso/timbre"
+     {:version "6.2.2", :type "maven", :size 54142},
+     "dev.weavejester/ragtime"
+     {:version "0.9.3", :type "maven", :size 8593},
+     "org.postgresql/postgresql"
+     {:version "42.2.10", :type "maven", :size 927447}}}}
+  {:lines-of-code {:src 74, :test 6},
+   :interface
+   {:name "messages",
+    :definitions
+    [{:name "create-message",
+      :type "function",
+      :parameters
+      [{:name "tx", :type "^Connection"}
+       {:name "username"}
+       {:name "msg"}
+       {:name "channel-uuid"}]}
+     {:name "get-message-by-uuid",
+      :type "function",
+      :parameters [{:name "tx"} {:name "message-id"}]}
+     {:name "get-messages-by-channel",
+      :type "function",
+      :parameters [{:name "tx"} {:name "channel-id"}]}]},
+   :namespaces
+   {:src
+    [{:name "interface",
+      :namespace "com.howard.uchat.backend.messages.interface",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/messages/src/com/howard/uchat/backend/messages/interface.clj",
+      :imports
+      ["com.howard.uchat.backend.messages.database"
+       "java.sql"
+       "spec-tools.data-spec"]}
+     {:name "database",
+      :namespace "com.howard.uchat.backend.messages.database",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/messages/src/com/howard/uchat/backend/messages/database.clj",
+      :imports
+      ["com.howard.uchat.backend.database.interface"
+       "java.sql"
+       "next.jdbc"]}],
+    :test
+    [{:name "interface-test",
+      :namespace "com.howard.uchat.backend.messages.interface-test",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/messages/test/com/howard/uchat/backend/messages/interface_test.clj",
+      :imports
+      ["clojure.test"
+       "com.howard.uchat.backend.messages.interface"]}]},
+   :lib-imports
+   {:src ["java.sql" "next.jdbc" "spec-tools.data-spec"],
+    :test ["clojure.test"]},
+   :name "messages",
+   :paths {:src ["src" "resources"], :test ["test"]},
+   :type "component",
+   :interface-deps {:src ["database"], :test []},
+   :lib-deps {}}
+  {:lines-of-code {:src 115, :test 6},
+   :interface
+   {:name "socket",
+    :definitions
+    [{:name "ring-ajax-get-or-ws-handshake", :type "data"}
+     {:name "ring-ajax-post", :type "data"}
+     {:name "broadcast!",
+      :type "function",
+      :parameters [{:name "username"} {:name "event"}]}
+     {:name "create-channel-message-event",
+      :type "function",
+      :parameters [{:name "channel-id"} {:name "event"}]}
+     {:name "start-router!", :type "function", :parameters []}
+     {:name "stop-router!", :type "function", :parameters []}]},
+   :namespaces
+   {:src
+    [{:name "events",
+      :namespace "com.howard.uchat.backend.socket.events",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/socket/src/com/howard/uchat/backend/socket/events.clj",
+      :imports ["taoensso.timbre"]}
+     {:name "interface",
+      :namespace "com.howard.uchat.backend.socket.interface",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/socket/src/com/howard/uchat/backend/socket/interface.clj",
+      :imports
+      ["clojure.core.async"
+       "com.howard.uchat.backend.socket.core"
+       "com.howard.uchat.backend.socket.events"
+       "taoensso.sente"
+       "taoensso.sente.server-adapters.http-kit"
+       "taoensso.timbre"]}
+     {:name "core",
+      :namespace "com.howard.uchat.backend.socket.core",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/socket/src/com/howard/uchat/backend/socket/core.clj",
+      :imports
+      ["clojure.core.async"
+       "taoensso.sente"
+       "taoensso.sente.server-adapters.http-kit"
+       "taoensso.timbre"]}],
+    :test
+    [{:name "interface-test",
+      :namespace "com.howard.uchat.backend.socket.interface-test",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/socket/test/com/howard/uchat/backend/socket/interface_test.clj",
+      :imports
+      ["clojure.test" "com.howard.uchat.backend.socket.interface"]}]},
+   :lib-imports
+   {:src
+    ["clojure.core.async"
+     "taoensso.sente"
+     "taoensso.sente.server-adapters.http-kit"
+     "taoensso.timbre"],
+    :test ["clojure.test"]},
+   :name "socket",
+   :paths {:src ["src" "resources"], :test ["test"]},
+   :type "component",
+   :interface-deps {:src [], :test []},
+   :lib-deps {}}
+  {:lines-of-code {:src 200, :test 6},
+   :interface
+   {:name "subscriptions",
+    :definitions
+    [{:name "create-direct-subscriptions",
+      :type "function",
+      :parameters
+      [{:name "tx"}
+       {:name "channel-uuid"}
+       {:name "username"}
+       {:name "other-username"}]}
+     {:name "get-user-team-subscriptions",
+      :type "function",
+      :parameters [{:name "db-conn"} {:name "opt"}]}]},
+   :namespaces
+   {:src
+    [{:name "interface",
+      :namespace "com.howard.uchat.backend.subscriptions.interface",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/subscriptions/src/com/howard/uchat/backend/subscriptions/interface.clj",
+      :imports
+      ["com.howard.uchat.backend.subscriptions.core"
+       "com.howard.uchat.backend.subscriptions.database"
+       "com.howard.uchat.backend.tools.interface"]}
+     {:name "database",
+      :namespace "com.howard.uchat.backend.subscriptions.database",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/subscriptions/src/com/howard/uchat/backend/subscriptions/database.clj",
+      :imports
+      ["com.howard.uchat.backend.database.interface" "next.jdbc"]}
+     {:name "core",
+      :namespace "com.howard.uchat.backend.subscriptions.core",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/subscriptions/src/com/howard/uchat/backend/subscriptions/core.clj",
+      :imports
+      ["clojure.spec.alpha"
+       "com.howard.uchat.backend.database.interface"
+       "com.howard.uchat.backend.subscriptions.database"
+       "com.howard.uchat.backend.teams.interface"
+       "next.jdbc"
+       "spec-tools.data-spec"]}],
+    :test
+    [{:name "interface-test",
+      :namespace
+      "com.howard.uchat.backend.subscriptions.interface-test",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/subscriptions/test/com/howard/uchat/backend/subscriptions/interface_test.clj",
+      :imports
+      ["clojure.test"
+       "com.howard.uchat.backend.subscriptions.interface"]}]},
+   :lib-imports
+   {:src ["clojure.spec.alpha" "next.jdbc" "spec-tools.data-spec"],
+    :test ["clojure.test"]},
+   :name "subscriptions",
+   :paths {:src ["src" "resources"], :test ["test"]},
+   :type "component",
+   :interface-deps {:src ["database" "teams" "tools"], :test []},
+   :lib-deps {}}
+  {:lines-of-code {:src 134, :test 6},
+   :interface
+   {:name "teams",
+    :definitions
+    [{:name "add-user-to-team",
+      :type "function",
+      :parameters
+      [{:name "db-conn"} {:name "username"} {:name "team-uuid"}]}
+     {:name "create-team-by-name",
+      :type "function",
+      :parameters [{:name "db-conn"} {:name "name"}]}
+     {:name "get-team-by-name",
+      :type "function",
+      :parameters [{:name "db-conn"} {:name "name"}]}
+     {:name "get-teams",
+      :type "function",
+      :parameters [{:name "db-conn"}]}
+     {:name "get-teams-user-belong-to",
+      :type "function",
+      :parameters [{:name "db-conn"} {:name "username"}]}
+     {:name "is-team-exist?",
+      :type "function",
+      :parameters [{:name "db-conn"} {:name "name"}]}
+     {:name "is-user-in-team",
+      :type "function",
+      :parameters [{:name "username"} {:name "team_uuid"}]}
+     {:name "user-belong-to-team?",
+      :type "function",
+      :parameters
+      [{:name "db-conn"} {:name "username"} {:name "team_uuid"}]}]},
+   :namespaces
+   {:src
+    [{:name "interface",
+      :namespace "com.howard.uchat.backend.teams.interface",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/teams/src/com/howard/uchat/backend/teams/interface.clj",
+      :imports
+      ["com.howard.uchat.backend.database.interface"
+       "com.howard.uchat.backend.teams.database"
+       "com.howard.uchat.backend.tools.interface"]}
+     {:name "database",
+      :namespace "com.howard.uchat.backend.teams.database",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/teams/src/com/howard/uchat/backend/teams/database.clj",
+      :imports
+      ["com.howard.uchat.backend.database.interface" "next.jdbc"]}],
+    :test
+    [{:name "interface-test",
+      :namespace "com.howard.uchat.backend.teams.interface-test",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/teams/test/com/howard/uchat/backend/teams/interface_test.clj",
+      :imports
+      ["clojure.test" "com.howard.uchat.backend.teams.interface"]}]},
+   :lib-imports {:src ["next.jdbc"], :test ["clojure.test"]},
+   :name "teams",
+   :paths {:src ["src" "resources"], :test ["test"]},
+   :type "component",
+   :interface-deps {:src ["database" "tools"], :test []},
+   :lib-deps {}}
+  {:lines-of-code {:src 79, :test 6},
+   :interface
+   {:name "tools",
+    :definitions
+    [{:name "new-client",
+      :type "function",
+      :parameters
+      [{:name "username", :type "^String"}
+       {:name "name", :type "^String"}]}
+     {:name "new-client",
+      :type "function",
+      :parameters
+      [{:name "username"}
+       {:name "name"}
+       {:name "{:keys [host port]}"}]}
+     {:name "test--generate-auth-header",
+      :type "function",
+      :parameters [{:name "username"} {:name "name"}]}]},
+   :namespaces
+   {:src
+    [{:name "interface",
+      :namespace "com.howard.uchat.backend.tools.interface",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/tools/src/com/howard/uchat/backend/tools/interface.clj",
+      :imports
+      ["clj-http.client"
+       "com.howard.uchat.backend.auth.interface"
+       "com.howard.uchat.backend.tools.macro"
+       "jsonista.core"
+       "potemkin"]}
+     {:name "macro",
+      :namespace "com.howard.uchat.backend.tools.macro",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/tools/src/com/howard/uchat/backend/tools/macro.clj",
+      :imports []}],
+    :test
+    [{:name "interface-test",
+      :namespace "com.howard.uchat.backend.tools.interface-test",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/tools/test/com/howard/uchat/backend/tools/interface_test.clj",
+      :imports
+      ["clojure.test" "com.howard.uchat.backend.tools.interface"]}]},
+   :lib-imports
+   {:src ["clj-http.client" "jsonista.core" "potemkin"],
+    :test ["clojure.test"]},
+   :name "tools",
+   :paths {:src ["src" "resources"], :test ["test"]},
+   :type "component",
+   :interface-deps {:src ["auth"], :test []},
+   :lib-deps {}}
+  {:lines-of-code {:src 31, :test 6},
+   :interface
+   {:name "users",
+    :definitions
+    [{:name "get-user-by-username",
+      :type "function",
+      :parameters [{:name "db-conn"} {:name "username"}]}
+     {:name "insert-to-db",
+      :type "function",
+      :parameters
+      [{:name "db-conn"}
+       {:name "username"}
+       {:name "password"}
+       {:name "name"}
+       {:name "email"}]}]},
+   :namespaces
+   {:src
+    [{:name "interface",
+      :namespace "com.howard.uchat.backend.users.interface",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/users/src/com/howard/uchat/backend/users/interface.clj",
+      :imports
+      ["buddy.hashers"
+       "com.howard.uchat.backend.database.interface"
+       "java.sql"
+       "next.jdbc"
+       "next.jdbc.date-time"]}],
+    :test
+    [{:name "interface-test",
+      :namespace "com.howard.uchat.backend.users.interface-test",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/components/users/test/com/howard/uchat/backend/users/interface_test.clj",
+      :imports
+      ["clojure.test" "com.howard.uchat.backend.users.interface"]}]},
+   :lib-imports
+   {:src
+    ["buddy.hashers" "java.sql" "next.jdbc" "next.jdbc.date-time"],
+    :test ["clojure.test"]},
+   :name "users",
+   :paths {:src ["src" "resources"], :test ["test"]},
+   :type "component",
+   :interface-deps {:src ["database"], :test []},
+   :lib-deps
+   {:test
+    {"buddy/buddy-hashers"
+     {:version "2.0.167", :type "maven", :size 20436},
+     "com.github.seancorfield/next.jdbc"
+     {:version "1.3.883", :type "maven", :size 52293},
+     "com.taoensso/timbre"
+     {:version "6.2.2", :type "maven", :size 54142}}}}],
+ :interfaces
+ [{:name "tools",
+   :type "interface",
+   :definitions
+   [{:name "new-client",
+     :type "function",
+     :parameters
+     [{:name "username", :type "^String"}
+      {:name "name", :type "^String"}]}
+    {:name "new-client",
+     :type "function",
+     :parameters
+     [{:name "username"} {:name "name"} {:name "{:keys [host port]}"}]}
+    {:name "test--generate-auth-header",
+     :type "function",
+     :parameters [{:name "username"} {:name "name"}]}],
+   :implementing-components ["tools"]}
+  {:name "teams",
+   :type "interface",
+   :definitions
+   [{:name "add-user-to-team",
+     :type "function",
+     :parameters
+     [{:name "db-conn"} {:name "username"} {:name "team-uuid"}]}
+    {:name "create-team-by-name",
+     :type "function",
+     :parameters [{:name "db-conn"} {:name "name"}]}
+    {:name "get-team-by-name",
+     :type "function",
+     :parameters [{:name "db-conn"} {:name "name"}]}
+    {:name "get-teams",
+     :type "function",
+     :parameters [{:name "db-conn"}]}
+    {:name "get-teams-user-belong-to",
+     :type "function",
+     :parameters [{:name "db-conn"} {:name "username"}]}
+    {:name "is-team-exist?",
+     :type "function",
+     :parameters [{:name "db-conn"} {:name "name"}]}
+    {:name "is-user-in-team",
+     :type "function",
+     :parameters [{:name "username"} {:name "team_uuid"}]}
+    {:name "user-belong-to-team?",
+     :type "function",
+     :parameters
+     [{:name "db-conn"} {:name "username"} {:name "team_uuid"}]}],
+   :implementing-components ["teams"]}
+  {:name "auth",
+   :type "interface",
+   :definitions
+   [{:name "generate-auth-token",
+     :type "function",
+     :parameters [{:name "username"} {:name "name"}]}],
+   :implementing-components ["auth"]}
+  {:name "users",
+   :type "interface",
+   :definitions
+   [{:name "get-user-by-username",
+     :type "function",
+     :parameters [{:name "db-conn"} {:name "username"}]}
+    {:name "insert-to-db",
+     :type "function",
+     :parameters
+     [{:name "db-conn"}
+      {:name "username"}
+      {:name "password"}
+      {:name "name"}
+      {:name "email"}]}],
+   :implementing-components ["users"]}
+  {:name "database",
+   :type "interface",
+   :definitions
+   [{:name "mk-migraiton-config", :type "data"}
+    {:name "current-timestamp", :type "function", :parameters []}
+    {:name "dbfn",
+     :type "macro",
+     :parameters [{:name "name"} {:name "&"} {:name "args"}]}],
+   :implementing-components ["database"]}
+  {:name "messages",
+   :type "interface",
+   :definitions
+   [{:name "create-message",
+     :type "function",
+     :parameters
+     [{:name "tx", :type "^Connection"}
+      {:name "username"}
+      {:name "msg"}
+      {:name "channel-uuid"}]}
+    {:name "get-message-by-uuid",
+     :type "function",
+     :parameters [{:name "tx"} {:name "message-id"}]}
+    {:name "get-messages-by-channel",
+     :type "function",
+     :parameters [{:name "tx"} {:name "channel-id"}]}],
+   :implementing-components ["messages"]}
+  {:name "socket",
+   :type "interface",
+   :definitions
+   [{:name "ring-ajax-get-or-ws-handshake", :type "data"}
+    {:name "ring-ajax-post", :type "data"}
+    {:name "broadcast!",
+     :type "function",
+     :parameters [{:name "username"} {:name "event"}]}
+    {:name "create-channel-message-event",
+     :type "function",
+     :parameters [{:name "channel-id"} {:name "event"}]}
+    {:name "start-router!", :type "function", :parameters []}
+    {:name "stop-router!", :type "function", :parameters []}],
+   :implementing-components ["socket"]}
+  {:name "subscriptions",
+   :type "interface",
+   :definitions
+   [{:name "create-direct-subscriptions",
+     :type "function",
+     :parameters
+     [{:name "tx"}
+      {:name "channel-uuid"}
+      {:name "username"}
+      {:name "other-username"}]}
+    {:name "get-user-team-subscriptions",
+     :type "function",
+     :parameters [{:name "db-conn"} {:name "opt"}]}],
+   :implementing-components ["subscriptions"]}
+  {:name "channels",
+   :type "interface",
+   :definitions
+   [{:name "create-channel-and-insert-users",
+     :type "function",
+     :parameters
+     [{:name "conn"}
+      {:name "{:keys [channel-name team-id username-list]}"}]}
+    {:name "create-direct-and-insert-users",
+     :type "function",
+     :parameters
+     [{:name "conn"}
+      {:name "team_uuid"}
+      {:name "user"}
+      {:name "other-user"}]}
+    {:name "get-cahnnel-users-by-channel-uuid",
+     :type "function",
+     :parameters [{:name "conn"} {:name "channel-uuid"}]}],
+   :implementing-components ["channels"]}],
+ :messages [],
+ :name "uchat-backend",
+ :paths
+ {:existing
+  ["bases/api-server/resources"
+   "bases/api-server/src"
+   "bases/api-server/test"
+   "components/auth/resources"
+   "components/auth/src"
+   "components/auth/test"
+   "components/channels/resources"
+   "components/channels/src"
+   "components/channels/test"
+   "components/database/resources"
+   "components/database/src"
+   "components/database/test"
+   "components/messages/resources"
+   "components/messages/src"
+   "components/messages/test"
+   "components/socket/resources"
+   "components/socket/src"
+   "components/socket/test"
+   "components/subscriptions/resources"
+   "components/subscriptions/src"
+   "components/subscriptions/test"
+   "components/teams/resources"
+   "components/teams/src"
+   "components/teams/test"
+   "components/tools/resources"
+   "components/tools/src"
+   "components/tools/test"
+   "components/users/resources"
+   "components/users/src"
+   "components/users/test"
+   "development/resources"
+   "development/src"
+   "frontend/resources"
+   "frontend/src"],
+  :missing [],
+  :on-disk
+  ["bases/api-server/resources"
+   "bases/api-server/src"
+   "bases/api-server/test"
+   "components/auth/resources"
+   "components/auth/src"
+   "components/auth/test"
+   "components/channels/resources"
+   "components/channels/src"
+   "components/channels/test"
+   "components/database/resources"
+   "components/database/src"
+   "components/database/test"
+   "components/messages/resources"
+   "components/messages/src"
+   "components/messages/test"
+   "components/socket/resources"
+   "components/socket/src"
+   "components/socket/test"
+   "components/subscriptions/resources"
+   "components/subscriptions/src"
+   "components/subscriptions/test"
+   "components/teams/resources"
+   "components/teams/src"
+   "components/teams/test"
+   "components/tools/resources"
+   "components/tools/src"
+   "components/tools/test"
+   "components/users/resources"
+   "components/users/src"
+   "components/users/test"]},
+ :projects
+ [{:lines-of-code {:src 0, :test 0, :total {:src 0, :test 0}},
+   :namespaces {},
+   :base-names {},
+   :lib-imports {},
+   :is-dev false,
+   :name "app",
+   :paths {},
+   :type "project",
+   :maven-repos
+   {"central" {:url "https://repo1.maven.org/maven2/"},
+    "clojars" {:url "https://repo.clojars.org/"}},
+   :alias "app",
+   :project-dir "/Users/howard/workspace/uchat-backend/projects/app",
+   :lib-deps
+   {:src
+    {"org.clojure/clojure"
+     {:version "1.10.1", :type "maven", :size 3908431},
+     "org.clojure/tools.deps.alpha"
+     {:version "0.12.985", :type "maven", :size 60822}}},
+   :config-filename
+   "/Users/howard/workspace/uchat-backend/projects/app/deps.edn",
+   :component-names {},
+   :deps {}}
+  {:lines-of-code {:src 22, :test 0, :total {:src 3160, :test 286}},
+   :namespaces
+   {:src
+    [{:name "user",
+      :namespace "user",
+      :file-path
+      "/Users/howard/workspace/uchat-backend/development/src/user.clj",
+      :imports
+      ["clojure.tools.deps.alpha.repl"
+       "com.howard.uchat.backend.api-server.system"
+       "com.howard.uchat.backend.database.interface"
+       "integrant.core"
+       "ragtime.repl"]}]},
+   :base-names {:src ["api-server"], :test ["api-server"]},
+   :lib-imports
+   {:src
+    ["buddy.auth"
+     "buddy.auth.backends.token"
+     "buddy.auth.middleware"
+     "buddy.auth.protocols"
+     "buddy.core.nonce"
+     "buddy.hashers"
+     "buddy.sign.jwt"
+     "camel-snake-kebab.core"
+     "clj-http.client"
+     "clj-time.core"
+     "clojure.core.async"
+     "clojure.java.io"
+     "clojure.spec.alpha"
+     "com.howard.uchat.backend.api-server.auth"
+     "com.howard.uchat.backend.api-server.core"
+     "com.howard.uchat.backend.api-server.endpoints.channels"
+     "com.howard.uchat.backend.api-server.endpoints.messages"
+     "com.howard.uchat.backend.api-server.endpoints.teams"
+     "com.howard.uchat.backend.api-server.middleware"
+     "com.howard.uchat.backend.api-server.spec"
+     "com.howard.uchat.backend.api-server.system"
+     "com.howard.uchat.backend.api-server.util"
+     "com.zaxxer.hikari"
+     "compojure.core"
+     "integrant.core"
+     "java.sql"
+     "jsonista.core"
+     "next.jdbc"
+     "next.jdbc.connection"
+     "next.jdbc.date-time"
+     "org.httpkit.server"
+     "potemkin"
+     "ragtime.next-jdbc"
+     "ragtime.repl"
+     "ring.middleware.defaults"
+     "ring.middleware.json"
+     "ring.middleware.reload"
+     "ring.middleware.resource"
+     "ring.util.response"
+     "spec-tools.data-spec"
+     "taoensso.sente"
+     "taoensso.sente.server-adapters.http-kit"
+     "taoensso.timbre"],
+    :test
+    ["clojure.test"
+     "com.howard.uchat.backend.api-server.system"
+     "integrant.core"
+     "jsonista.core"]},
+   :is-dev true,
+   :name "development",
+   :paths
+   {:src
+    ["bases/api-server/resources"
+     "bases/api-server/src"
+     "components/auth/resources"
+     "components/auth/src"
+     "components/channels/resources"
+     "components/channels/src"
+     "components/database/resources"
+     "components/database/src"
+     "components/messages/resources"
+     "components/messages/src"
+     "components/socket/resources"
+     "components/socket/src"
+     "components/subscriptions/resources"
+     "components/subscriptions/src"
+     "components/teams/resources"
+     "components/teams/src"
+     "components/tools/resources"
+     "components/tools/src"
+     "components/users/resources"
+     "components/users/src"
+     "development/resources"
+     "development/src"],
+    :test
+    ["bases/api-server/test"
+     "components/auth/test"
+     "components/channels/test"
+     "components/database/test"
+     "components/messages/test"
+     "components/socket/test"
+     "components/subscriptions/test"
+     "components/teams/test"
+     "components/tools/test"
+     "components/users/test"]},
+   :type "project",
+   :maven-repos
+   {"central" {:url "https://repo1.maven.org/maven2/"},
+    "clojars" {:url "https://repo.clojars.org/"}},
+   :alias "dev",
+   :project-dir "/Users/howard/workspace/uchat-backend/development",
+   :unmerged
+   {:paths
+    {:src
+     ["bases/api-server/resources"
+      "bases/api-server/src"
+      "components/auth/resources"
+      "components/auth/src"
+      "components/channels/resources"
+      "components/channels/src"
+      "components/database/resources"
+      "components/database/src"
+      "components/messages/resources"
+      "components/messages/src"
+      "components/socket/resources"
+      "components/socket/src"
+      "components/subscriptions/resources"
+      "components/subscriptions/src"
+      "components/teams/resources"
+      "components/teams/src"
+      "components/tools/resources"
+      "components/tools/src"
+      "components/users/resources"
+      "components/users/src"
+      "development/resources"
+      "development/src"
+      "frontend/resources"
+      "frontend/src"],
+     :test
+     ["bases/api-server/test"
+      "components/auth/test"
+      "components/channels/test"
+      "components/database/test"
+      "components/messages/test"
+      "components/socket/test"
+      "components/subscriptions/test"
+      "components/teams/test"
+      "components/tools/test"
+      "components/users/test"]},
+    :lib-deps
+    {:src
+     {"com.taoensso/timbre"
+      {:version "6.2.2", :type "maven", :size 54142},
+      "binaryage/devtools"
+      {:version "1.0.6", :type "maven", :size 54015},
+      "reagent/reagent" {:version "1.2.0", :type "maven", :size 37315},
+      "camel-snake-kebab/camel-snake-kebab"
+      {:version "0.4.3", :type "maven", :size 12050},
+      "http-kit/http-kit"
+      {:version "2.7.0", :type "maven", :size 200886},
+      "ring/ring-json" {:version "0.5.1", :type "maven", :size 5633},
+      "day8.re-frame/re-frame-10x"
+      {:version "1.8.1", :type "maven", :size 219144},
+      "com.taoensso/sente"
+      {:version "1.19.2", :type "maven", :size 46767},
+      "ring/ring-defaults"
+      {:version "0.3.4", :type "maven", :size 7515},
+      "ring/ring-core" {:version "1.8.2", :type "maven", :size 32319},
+      "buddy/buddy-hashers"
+      {:version "2.0.167", :type "maven", :size 20436},
+      "re-pressed/re-pressed"
+      {:version "0.3.2",
+       :exclusions [re-frame/re-frame reagent/reagent],
+       :type "maven",
+       :size 9602},
+      "org.postgresql/postgresql"
+      {:version "42.2.10", :type "maven", :size 927447},
+      "day8.re-frame/tracing"
+      {:version "0.6.2", :type "maven", :size 27151},
+      "integrant/integrant"
+      {:version "0.8.1", :type "maven", :size 14428},
+      "ring/ring-jetty-adapter"
+      {:version "1.8.2", :type "maven", :size 5463},
+      "com.github.seancorfield/next.jdbc"
+      {:version "1.3.883", :type "maven", :size 52293},
+      "potemkin/potemkin"
+      {:version "0.4.6", :type "maven", :size 24241},
+      "metosin/reitit-schema"
+      {:version "0.5.18", :type "maven", :size 5151},
+      "buddy/buddy-auth"
+      {:version "3.0.323", :type "maven", :size 14710},
+      "ns-tracker/ns-tracker"
+      {:version "0.4.0", :type "maven", :size 12448},
+      "clj-http/clj-http"
+      {:version "3.12.3", :type "maven", :size 60054},
+      "compojure/compojure"
+      {:version "1.7.0", :type "maven", :size 15165},
+      "ring/ring-devel" {:version "1.10.0", :type "maven", :size 9403},
+      "thheller/shadow-cljs"
+      {:version "2.20.20", :type "maven", :size 2976145},
+      "metosin/spec-tools"
+      {:version "0.10.5", :type "maven", :size 42648},
+      "dev.weavejester/ragtime"
+      {:version "0.9.3", :type "maven", :size 8593},
+      "org.clojure/tools.deps.alpha"
+      {:git/url "https://github.com/clojure/tools.deps.alpha",
+       :sha "8f8fc2571e721301b6d52e191129248355cb8c5a",
+       :type "git",
+       :version "8f8fc25",
+       :size 279690},
+      "com.teknql/shadow-cljs-tailwind-jit"
+      {:version "1.0.0", :type "maven", :size 5102},
+      "org.clojure/clojure"
+      {:version "1.11.1", :type "maven", :size 4105111},
+      "cljs-ajax/cljs-ajax"
+      {:version "0.8.4", :type "maven", :size 30208},
+      "metosin/reitit-frontend"
+      {:version "0.5.18", :type "maven", :size 9998},
+      "com.zaxxer/HikariCP"
+      {:version "3.3.1", :type "maven", :size 139168},
+      "re-frame/re-frame"
+      {:version "1.3.0", :type "maven", :size 42991},
+      "clj-time/clj-time"
+      {:version "0.15.2", :type "maven", :size 23664},
+      "metosin/reitit" {:version "0.5.18", :type "maven", :size 3161}},
+     :test
+     [["buddy/buddy-hashers"
+       {:version "2.0.167", :type "maven", :size 20436}]
+      ["com.github.seancorfield/next.jdbc"
+       {:version "1.3.883", :type "maven", :size 52293}]
+      ["com.taoensso/timbre"
+       {:version "6.2.2", :type "maven", :size 54142}]]}},
+   :lib-deps
+   {:src
+    {"com.taoensso/timbre"
+     {:version "6.2.2", :type "maven", :size 54142},
+     "binaryage/devtools"
+     {:version "1.0.6", :type "maven", :size 54015},
+     "reagent/reagent" {:version "1.2.0", :type "maven", :size 37315},
+     "camel-snake-kebab/camel-snake-kebab"
+     {:version "0.4.3", :type "maven", :size 12050},
+     "http-kit/http-kit"
+     {:version "2.7.0", :type "maven", :size 200886},
+     "ring/ring-json" {:version "0.5.1", :type "maven", :size 5633},
+     "day8.re-frame/re-frame-10x"
+     {:version "1.8.1", :type "maven", :size 219144},
+     "com.taoensso/sente"
+     {:version "1.19.2", :type "maven", :size 46767},
+     "ring/ring-defaults"
+     {:version "0.3.4", :type "maven", :size 7515},
+     "ring/ring-core" {:version "1.8.2", :type "maven", :size 32319},
+     "buddy/buddy-hashers"
+     {:version "2.0.167", :type "maven", :size 20436},
+     "re-pressed/re-pressed"
+     {:version "0.3.2",
+      :exclusions [re-frame/re-frame reagent/reagent],
+      :type "maven",
+      :size 9602},
+     "org.postgresql/postgresql"
+     {:version "42.2.10", :type "maven", :size 927447},
+     "day8.re-frame/tracing"
+     {:version "0.6.2", :type "maven", :size 27151},
+     "integrant/integrant"
+     {:version "0.8.1", :type "maven", :size 14428},
+     "ring/ring-jetty-adapter"
+     {:version "1.8.2", :type "maven", :size 5463},
+     "com.github.seancorfield/next.jdbc"
+     {:version "1.3.883", :type "maven", :size 52293},
+     "potemkin/potemkin"
+     {:version "0.4.6", :type "maven", :size 24241},
+     "metosin/reitit-schema"
+     {:version "0.5.18", :type "maven", :size 5151},
+     "buddy/buddy-auth"
+     {:version "3.0.323", :type "maven", :size 14710},
+     "ns-tracker/ns-tracker"
+     {:version "0.4.0", :type "maven", :size 12448},
+     "clj-http/clj-http"
+     {:version "3.12.3", :type "maven", :size 60054},
+     "compojure/compojure"
+     {:version "1.7.0", :type "maven", :size 15165},
+     "ring/ring-devel" {:version "1.10.0", :type "maven", :size 9403},
+     "thheller/shadow-cljs"
+     {:version "2.20.20", :type "maven", :size 2976145},
+     "metosin/spec-tools"
+     {:version "0.10.5", :type "maven", :size 42648},
+     "dev.weavejester/ragtime"
+     {:version "0.9.3", :type "maven", :size 8593},
+     "org.clojure/tools.deps.alpha"
+     {:git/url "https://github.com/clojure/tools.deps.alpha",
+      :sha "8f8fc2571e721301b6d52e191129248355cb8c5a",
+      :type "git",
+      :version "8f8fc25",
+      :size 279690},
+     "com.teknql/shadow-cljs-tailwind-jit"
+     {:version "1.0.0", :type "maven", :size 5102},
+     "org.clojure/clojure"
+     {:version "1.11.1", :type "maven", :size 4105111},
+     "cljs-ajax/cljs-ajax"
+     {:version "0.8.4", :type "maven", :size 30208},
+     "metosin/reitit-frontend"
+     {:version "0.5.18", :type "maven", :size 9998},
+     "com.zaxxer/HikariCP"
+     {:version "3.3.1", :type "maven", :size 139168},
+     "re-frame/re-frame"
+     {:version "1.3.0", :type "maven", :size 42991},
+     "clj-time/clj-time"
+     {:version "0.15.2", :type "maven", :size 23664},
+     "metosin/reitit" {:version "0.5.18", :type "maven", :size 3161}},
+    :test
+    {"buddy/buddy-hashers"
+     {:version "2.0.167", :type "maven", :size 20436},
+     "com.github.seancorfield/next.jdbc"
+     {:version "1.3.883", :type "maven", :size 52293},
+     "com.taoensso/timbre"
+     {:version "6.2.2", :type "maven", :size 54142}}},
+   :config-filename "/Users/howard/workspace/uchat-backend/deps.edn",
+   :component-names
+   {:src
+    ["auth"
+     "channels"
+     "database"
+     "messages"
+     "socket"
+     "subscriptions"
+     "teams"
+     "tools"
+     "users"],
+    :test
+    ["auth"
+     "channels"
+     "database"
+     "messages"
+     "socket"
+     "subscriptions"
+     "teams"
+     "tools"
+     "users"]},
+   :deps
+   {"tools" {:src {:direct ["auth"]}, :test {:direct ["auth"]}},
+    "teams"
+    {:src {:direct ["database" "tools"], :indirect ["auth"]},
+     :test {:direct ["database" "tools"], :indirect ["auth"]}},
+    "auth" {:src {}, :test {}},
+    "api-server"
+    {:src
+     {:direct
+      ["auth"
+       "channels"
+       "database"
+       "messages"
+       "socket"
+       "subscriptions"
+       "teams"
+       "users"],
+      :indirect ["tools"]},
+     :test
+     {:direct
+      ["auth"
+       "channels"
+       "database"
+       "messages"
+       "socket"
+       "subscriptions"
+       "teams"
+       "tools"
+       "users"]}},
+    "users"
+    {:src {:direct ["database"], :indirect ["auth" "tools"]},
+     :test {:direct ["database"], :indirect ["auth" "tools"]}},
+    "database"
+    {:src {:direct ["tools"], :indirect ["auth"]},
+     :test {:direct ["tools"], :indirect ["auth"]}},
+    "messages"
+    {:src {:direct ["database"], :indirect ["auth" "tools"]},
+     :test {:direct ["database"], :indirect ["auth" "tools"]}},
+    "socket" {:src {}, :test {}},
+    "subscriptions"
+    {:src {:direct ["database" "teams" "tools"], :indirect ["auth"]},
+     :test {:direct ["database" "teams" "tools"], :indirect ["auth"]}},
+    "channels"
+    {:src {:direct ["database"], :indirect ["auth" "tools"]},
+     :test {:direct ["database"], :indirect ["auth" "tools"]}}}}],
+ :settings
+ {:vcs
+  {:name "git",
+   :is-git-repo true,
+   :branch "chore/prductionize",
+   :git-root "/Users/howard/workspace/uchat-backend",
+   :auto-add false,
+   :stable-since {:sha "e2e136ba0d11d2883b0fe608c31cbda73f21361c"},
+   :polylith
+   {:repo "https://github.com/polyfy/polylith.git", :branch "master"}},
+  :top-namespace "com.howard.uchat.backend",
+  :interface-ns "interface",
+  :default-profile-name "default",
+  :active-profiles #{},
+  :tag-patterns {:stable "stable-*", :release "v[0-9]*"},
+  :color-mode "dark",
+  :compact-views #{},
+  :user-config-filename "/Users/howard/.config/polylith/config.edn",
+  :empty-character ".",
+  :thousand-separator ",",
+  :profile-to-settings {},
+  :projects
+  {"development"
+   {:alias "dev",
+    :test
+    {:create-test-runner
+     [polylith.clj.core.clojure-test-test-runner.interface/create]}},
+   "app"
+   {:alias "app",
+    :test
+    {:create-test-runner
+     [polylith.clj.core.clojure-test-test-runner.interface/create]}}},
+  :user-home "/Users/howard",
+  :m2-dir "/Users/howard/.m2"},
+ :user-input
+ {:args ["ws" "out:ws.edn"],
+  :cmd "ws",
+  :is-commit false,
+  :is-tap false,
+  :is-search-for-ws-dir false,
+  :is-all false,
+  :is-compact false,
+  :is-dev false,
+  :is-latest-sha false,
+  :is-no-changes false,
+  :is-no-exit false,
+  :is-show-brick false,
+  :is-show-workspace false,
+  :is-show-project false,
+  :is-show-loc false,
+  :is-run-all-brick-tests false,
+  :is-run-project-tests false,
+  :is-show-resources false,
+  :is-verbose false,
+  :out "ws.edn",
+  :selected-profiles #{},
+  :selected-projects #{},
+  :unnamed-args []},
+ :version
+ {:release
+  {:name "0.2.17-alpha",
+   :major 0,
+   :minor 2,
+   :patch 17,
+   :revision "alpha",
+   :date "2022-12-09"},
+  :ws {:type :toolsdeps2, :breaking 1, :non-breaking 2}},
+ :ws-dir "/Users/howard/workspace/uchat-backend",
+ :ws-reader
+ {:name "polylith-clj",
+  :project-url "https://github.com/polyfy/polylith",
+  :language "Clojure",
+  :type-position "postfix",
+  :file-extensions ["clj" "cljc"]}}

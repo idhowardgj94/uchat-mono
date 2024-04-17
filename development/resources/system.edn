@@ -1,0 +1,14 @@
+{:db/jdbc {:jdbc-url {:host "localhost"
+                      :dbtype "postgres"
+                      :dbname "uchat"
+                      :useSSL false}
+           :username "postgres"
+           :password "postgres"}  
+ :db/migrations {:run? true
+                 :rollback? false
+                 :db-path "migrations"
+                 :db-pool #ig/ref :db/jdbc}
+ :server/restful {:port 4000 :db-pool
+                  #ig/ref :db/jdbc
+                  :default-team? true}
+ :server/websocket true}
